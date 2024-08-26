@@ -1,36 +1,38 @@
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
 import "./globals.css";
-
-const inter = Inter({ subsets: ["latin"] });
+import { fontBody, fontHeading } from "./ui/fonts";
+import Header from "./ui/header/header";
+import Footer from "./ui/footer/footer";
+import Maintenance from "./ui/maintenance/maintenance";
+import HomeLayout from "./ui/home/layout";
+import Home from "./ui/home/page";
 
 export const metadata: Metadata = {
   title: "PHD",
   description: "Conexiones que contruyen.",
 };
-const fontHeading = Inter({
-  subsets: ["latin"],
-  display: "swap",
-  variable: "--font-heading",
-});
-
-const fontBody = Inter({
-  subsets: ["latin"],
-  display: "swap",
-  variable: "--font-body",
-});
 
 export default function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const showMaintenance =
+    process.env.NODE_ENV !== "development" &&
+    process.env.MAINTENANCE_MODE === "true";
   return (
     <html lang="en">
       <body
         className={`${(fontHeading.variable, fontBody.variable)} antialiased`}
+        style={{ backgroundColor: "#fff" }}
       >
-        {children}
+        {showMaintenance ? (
+          <Maintenance />
+        ) : (
+          <HomeLayout>
+            <Home />
+          </HomeLayout>
+        )}
       </body>
     </html>
   );

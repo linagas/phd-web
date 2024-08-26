@@ -37,12 +37,15 @@ export default function Maintenance() {
     };
   }, []);
 
-  console.log(isDarkMode);
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center bg-[#E9CEE]">
+    <div className="flex min-h-screen flex-col items-center justify-center">
       <div className="animate-pulse">
         <Image
-          src={isDarkMode ? "/phd-white@300x.png" : "/phd-black@300x.png"}
+          src={
+            isDarkMode
+              ? "/assets/phd-white@300x.png"
+              : "/assets/phd-black@300x.png"
+          }
           alt="PHD logo"
           width={300}
           height={300}

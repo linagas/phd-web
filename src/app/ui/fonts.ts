@@ -1,5 +1,7 @@
 import { Orbitron, Montserrat } from "next/font/google";
 import { Inter } from "next/font/google";
+import { Open_Sans } from "next/font/google";
+import { Poppins } from "next/font/google";
 
 export const monserrat = Montserrat({
   subsets: ["latin"],

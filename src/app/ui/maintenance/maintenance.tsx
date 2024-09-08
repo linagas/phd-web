@@ -1,41 +1,9 @@
 "use client";
-import { useEffect, useState } from "react";
 import Image from "next/image";
+import { useDarkMode } from "@/hooks/useDarkMode";
 
 export default function Maintenance() {
-  const [isDarkMode, setIsDarkMode] = useState(false);
-  useEffect(() => {
-    // Función para manejar el cambio de modo nocturno
-    const handleDarkModeChange = (e: MediaQueryListEvent) => {
-      setIsDarkMode(e.matches);
-      if (e.matches) {
-        document.documentElement.classList.add("dark");
-      } else {
-        document.documentElement.classList.remove("dark");
-      }
-    };
-
-    // Crear un MediaQueryList para detectar el modo nocturno
-    const darkModeMediaQuery = window.matchMedia(
-      "(prefers-color-scheme: dark)"
-    );
-
-    // Establecer el estado inicial basado en la preferencia del usuario
-    setIsDarkMode(darkModeMediaQuery.matches);
-    if (darkModeMediaQuery.matches) {
-      document.documentElement.classList.add("dark");
-    } else {
-      document.documentElement.classList.remove("dark");
-    }
-
-    // Agregar el listener para cambios en el modo nocturno
-    darkModeMediaQuery.addEventListener("change", handleDarkModeChange);
-
-    // Limpiar el listener cuando el componente se desmonte
-    return () => {
-      darkModeMediaQuery.removeEventListener("change", handleDarkModeChange);
-    };
-  }, []);
+  const { isDarkMode } = useDarkMode();
 
   return (
     <div className="flex min-h-screen flex-col items-center justify-center">

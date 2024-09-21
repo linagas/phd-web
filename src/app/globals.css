@@ -25,4 +25,8 @@ body {
   .text-balance {
     text-wrap: balance;
   }
+
+  .pt-30-percent {
+    padding-top: 30%;
+  }
 }

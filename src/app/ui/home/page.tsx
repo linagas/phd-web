@@ -27,25 +27,7 @@ export default function Home() {
               Ver m&aacute;s
             </Link>
           </div>
-          <div className="flex-1"></div>
-          <div className="flex-none w-20">
-            {/* punto fucsia */}
-            <div className="justify-self-end pt-4 pr-8">
-              <div className={`w-[64px] h-[64px] rounded-full bg-pink-400`} />
-            </div>
-          </div>
-        </div>
-        <div
-          className="flex"
-          style={{
-            backgroundImage: `url('/assets/background-blue.svg')`,
-            backgroundSize: "cover",
-            zIndex: -1,
-          }}
-        >
-          <div className="flex-none w-14"></div>
-          <div className="flex-1 w-64 "></div>
-          <div className="flex-1 w-32 ...">
+          <div className="flex-1">
             <Image
               src={robotSvg}
               width={600}
@@ -59,11 +41,27 @@ export default function Home() {
               }}
             />
           </div>
-          <div className="flex flex-col">
-            <Services />
+          <div className="flex-none w-20 pt-4 pr-8">
+            {/* punto fucsia */}
+            <div className="justify-self-end ">
+              <div className={`w-[64px] h-[64px] rounded-full bg-pink-400`} />
+            </div>
           </div>
         </div>
+        <div
+          className="flex"
+          style={{
+            backgroundImage: `url('/assets/background-blue.svg')`,
+            backgroundSize: "cover",
+            backgroundPosition: "center",
+            height: "140vh",
+            zIndex: -1,
+          }}
+        >
+          <Services />
+        </div>
       </div>
+
       <HowWeDoIt />
       <ConsultingInfo />
       <Contact />
@@ -85,7 +83,7 @@ function ConsultingInfo() {
         <Image
           src={"/assets/consulting-info.svg"}
           width={530}
-          height={520}
+          height={530}
           alt="Software Quality Services"
           className="rounded-lg"
           style={{
@@ -123,15 +121,43 @@ function ConsultingInfo() {
 
 function HowWeDoIt() {
   return (
-    <section className="py-16 text-center">
-      <h2 className="text-3xl font-bold text-blue-600">Cómo lo Hacemos</h2>
-      <p className="mt-4 text-gray-700 max-w-2xl mx-auto">
-        Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod
-        tempor incididunt ut labore et dolore magna aliqua.
-      </p>
-      <button className="mt-6 bg-pink-500 text-white py-2 px-6 rounded-full">
-        Ver más
-      </button>
+    <section className="flex justify-between py-14">
+      <article className="flex-1 pl-36">
+        <div className="w-auto">
+          <h1 className="text-5xl text-left font-bold text-purple-12 pt-20">
+            Cómo lo Hacemos
+          </h1>
+          <p className=" py-3 text-left text-balance">
+            Lorem ipsum dolor sit amet, consectetuer adipiscing elit, sed diam
+            nonummy nibh euismod tincidunt ut laoreet dolore magna aliquam erat
+            volutpat. Ut wisi enim ad minim veniam, quis nostrud exerci tation
+            ullamcorper suscipit lobortis nisl ut aliquip ex ea commodo
+            consequat. Duis autem vel eum iriure dolor in hendrerit in vulputate
+            velit esse molestie consequat, vel illum dolore eu feugiat nulla
+            facilisis at vero eros et accumsan et iusto odio dignissim qui
+          </p>
+          <Link
+            href={""}
+            className="inline-flex h-7 w-32 text-white items-center justify-center rounded-[4px] bg-purple-12 px-4 py-2 text-sm font-medium text-primary-foreground shadow transition-colors  focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50"
+          >
+            Ver m&aacute;s
+          </Link>
+        </div>
+      </article>
+      <article className="flex-1  flex justify-center pl-16 ">
+        <Image
+          src={"/assets/svg-como-lo-hacemos.svg"}
+          width={530}
+          height={520}
+          alt="Software Quality Services"
+          className="rounded-lg"
+          style={{
+            backgroundRepeat: "no-repeat",
+            backgroundSize: "cover",
+            backgroundPosition: "bottom",
+          }}
+        />
+      </article>
     </section>
   );
 }
@@ -153,11 +179,11 @@ const services = [
 
 function Services() {
   return (
-    <section className="py-16 ">
-      <h2 className="text-5xl text-center font-bold text-white pt-20">
+    <section className="py-16 pt-30-percent w-full">
+      <h2 className="pl-28 text-5xl text-center font-bold text-white pt-20">
         What We Do
       </h2>
-      <div className="mt-10 flex justify-around">
+      <div className="pl-28 mt-10 flex justify-around">
         {services.map((service, index) => (
           <div
             key={index}

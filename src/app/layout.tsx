@@ -3,9 +3,6 @@ import "./globals.css";
 import { fontBody, fontHeading } from "./ui/fonts";
 import Header from "./ui/header/header";
 import Footer from "./ui/footer/footer";
-import Maintenance from "./ui/maintenance/maintenance";
-import HomeLayout from "./ui/home/layout";
-import Home from "./ui/home/page";
 
 export const metadata: Metadata = {
   title: "PHD",
@@ -17,9 +14,6 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const showMaintenance =
-    process.env.NODE_ENV !== "development" &&
-    process.env.MAINTENANCE_MODE === "true";
   return (
     <html lang="en">
       <head>
@@ -29,16 +23,17 @@ export default function RootLayout({
         <title>PHD</title>
       </head>
       <body
-        className={`${(fontHeading.variable, fontBody.variable)} antialiased`}
-        style={{ backgroundColor: "#fff" }}
+        className={`${fontHeading.variable} ${fontBody.variable} antialiased`}
+        style={{
+          backgroundColor: "#fff",
+          minHeight: "100vh",
+          display: "flex",
+          flexDirection: "column",
+        }}
       >
-        {showMaintenance ? (
-          <Maintenance />
-        ) : (
-          <HomeLayout>
-            <Home />
-          </HomeLayout>
-        )}
+        <Header />
+        <main style={{ flex: 1 }}>{children}</main>
+        <Footer />
       </body>
     </html>
   );

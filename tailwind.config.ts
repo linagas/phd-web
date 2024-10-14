@@ -9,11 +9,21 @@ const config: Config = {
   ],
   theme: {
     extend: {
+      screens: {
+        "2xl": "1440px",
+      },
+      maxWidth: {
+        "screen-2xl": "1440px",
+      },
       fontFamily: {
         heading: ["var(--font-heading)", ...fontFamily.sans],
         body: ["var(--font-body)", ...fontFamily.sans],
       },
       colors: {
+        black: {
+          1: "#000000",
+          2: "#223340",
+        },
         blue: {
           1: "#0CAAFD",
           2: "21323f",

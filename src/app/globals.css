@@ -27,6 +27,18 @@ body {
   }
 
   .pt-30-percent {
-    padding-top: 30%;
+    padding-top: 25%;
   }
+  .pt-70-percent {
+    padding-top: 70%;
+  }
+}
+
+.background-blue {
+  background-image: url("/assets/background-blue.svg");
+  background-repeat: no-repeat;
+  background-size: cover;
+  background-position: center;
+  z-index: -1;
+  height: 140vh;
 }

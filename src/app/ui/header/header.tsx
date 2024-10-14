@@ -2,14 +2,20 @@
 import React, { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
+import useScrollToSection from "@/hooks/useScrollToSection";
 
 export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   // reference to the logo image in the public folder
   const logoUrl = "/assets/phd-300x.png";
+  const { scrollToSection: scrollToContact } = useScrollToSection(
+    "section-contact",
+    100
+  );
+
   return (
     <header className="fixed top-0 left-0 right-0 z-10 bg-blue-500 text-white px-4 sm:px-16 lg:px-16 h-16 sm:h-20 flex items-center justify-between shadow-sm">
-      <Link href="#" className="flex items-center justify-center">
+      <Link href="/" className="flex items-center justify-center">
         <Image
           src={logoUrl}
           width={220}
@@ -18,7 +24,7 @@ export default function Header() {
           className="h-6 sm:h-8 w-auto"
         />
       </Link>
-      <div className="flex flex-col sm:flex-row items-center">
+      <div className="flex items-center">
         <button
           className="sm:hidden"
           onClick={() => setIsMenuOpen(!isMenuOpen)}
@@ -43,25 +49,25 @@ export default function Header() {
 
         <nav
           className={`${
-            isMenuOpen ? "flex" : "hidden"
-          } sm:flex opacity-100 flex-col sm:flex-row gap-4 sm:gap-6 items-center justify-center transition-opacity duration-500 ease-in-out bg-black bg-opacity-50 sm:bg-opacity-0 p-4 md:pl-20 lg:pl-20 sm:p-0 rounded-lg sm:rounded-none`}
+            isMenuOpen ? "flex bg-blue-500" : "hidden"
+          } sm:flex flex-col sm:flex-row gap-4 sm:gap-6 items-center justify-center transition-opacity duration-500 ease-in-out p-4 sm:p-0 rounded-lg sm:rounded-none absolute sm:relative top-16 sm:top-auto left-0 sm:left-auto right-0 sm:right-auto w-full sm:w-auto`}
         >
           <Link
-            href="#"
+            href="/companies"
             className="text-xs sm:text-sm font-medium hover:underline underline-offset-4"
             prefetch={false}
           >
             EMPRESAS
           </Link>
           <Link
-            href="#"
+            href="/people"
             className="text-xs sm:text-sm font-medium hover:underline underline-offset-4"
             prefetch={false}
           >
             PERSONAS
           </Link>
           <Link
-            href="#"
+            href="/about"
             className="text-xs sm:text-sm font-medium hover:underline underline-offset-4"
             prefetch={false}
           >
@@ -69,8 +75,9 @@ export default function Header() {
           </Link>
           <Link
             href="#"
-            className="inline-flex h-9 items-center justify-center rounded-[4px] bg-pink-400 px-4 py-2 text-sm font-medium text-primary-foreground shadow transition-colors  focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50"
+            onClick={scrollToContact}
             prefetch={false}
+            className="inline-flex h-9 items-center justify-center rounded-[4px] bg-pink-400 px-4 py-2 text-sm font-medium text-primary-foreground shadow transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50"
           >
             CONTACTO
           </Link>

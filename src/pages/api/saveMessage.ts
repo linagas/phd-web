@@ -9,11 +9,7 @@ export default async function handler(
   res: NextApiResponse
 ) {
   if (req.method === "POST") {
-  }
-  if (req.method === "POST") {
     try {
-      const { message } = req.body;
-
       const response = await messageController.saveMessage(req, res);
 
       return res.status(200).json({ success: true, data: response });

@@ -148,7 +148,7 @@ function ConsultingInfo() {
           <h1 className="text-2xl md:text-4xl text-center md:text-left font-bold text-white pt-20">
             Capacitaciones en Calidad de Software
           </h1>
-          <p className="text-white py-3 text-center md:text-left text-balance">
+          <p className="text-white p-3 text-center md:text-left text-balance">
             Invierte en tu formación y conviértete en un referente en calidad de
             software. Nuestras capacitaciones te brindan las herramientas que
             necesitas para avanzar, en un entorno donde tu crecimiento es

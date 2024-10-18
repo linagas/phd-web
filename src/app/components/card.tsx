@@ -20,11 +20,14 @@ const Card: React.FC<CardProps> = ({
       className={`bg-white rounded-[55px] p-6 shadow-lg ${
         iconPosition === "top" || iconPosition === "bottom"
           ? "flex flex-col items-center"
-          : "flex"
+          : "flex flex-col sm:flex-row items-center"
       } ${className}`}
     >
       {iconPosition === "left" && (
-        <div className="flex items-center justify-center w-1/3">{icon}</div>
+        //hidde card icon if is mobile
+        <div className="hidden sm:flex items-center justify-center w-full sm:w-1/3 mb-4 sm:mb-0">
+          {icon}
+        </div>
       )}
       {iconPosition === "top" && (
         <div className="flex items-center justify-center mb-4">{icon}</div>
@@ -33,14 +36,18 @@ const Card: React.FC<CardProps> = ({
         className={`${
           iconPosition === "top" || iconPosition === "bottom"
             ? "text-center"
-            : "w-2/3 pl-4"
+            : "w-full sm:w-2/3"
         } ${iconPosition === "right" ? "order-first" : ""}`}
       >
-        <h3 className="text-xl font-semibold text-pink-500">{title}</h3>
-        <p className="mt-4 text-gray-700 text-left">{description}</p>
+        <h3 className="text-lg  sm:text-xl lg:text-xl font-semibold text-pink-500">
+          {title}
+        </h3>
+        <p className="mt-4 sm:text-m text-gray-700 text-left">{description}</p>
       </div>
       {iconPosition === "right" && (
-        <div className="flex items-center justify-center w-1/3">{icon}</div>
+        <div className="flex items-center justify-center w-full sm:w-1/3 mt-4 sm:mt-0">
+          {icon}
+        </div>
       )}
       {iconPosition === "bottom" && (
         <div className="flex items-center justify-center mt-4">{icon}</div>

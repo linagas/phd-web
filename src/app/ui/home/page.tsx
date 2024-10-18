@@ -6,7 +6,6 @@ import "aos/dist/aos.css";
 import AOS from "aos";
 import "aos/dist/aos.css";
 import { useEffect, useRef } from "react";
-import { Button } from "@aws-amplify/ui-react";
 import useScrollToSection from "@/hooks/useScrollToSection";
 import Card from "@/app/components/card";
 
@@ -22,19 +21,17 @@ export default function Home() {
   const robotSvg = "/assets/robot.svg";
 
   return (
-    <main className="min-h-screen  grid">
-      <section id="section-1">
-        <div className="relative pt-28 justify-items-stretch">
-          <div className="flex h-16 sm:h-20">
-            <div className="flex-none w-14 "></div>
-            <div
-              className="flex-1 flex-col pt-14 min-h-screen"
-              style={{ zIndex: 9 }}
-            >
-              <h2 className="text-blue-1 font-bold text-2xl md:text-4xl ">
+    <section className="min-h-screen mt-14 flex justify-center ">
+      <div className="max-w-screen-2xl w-full pt-8">
+        <div className="relative">
+          <div className="absolute inset-0 background-blue z-0"></div>
+
+          <div className="relative p-4 flex flex-col md:flex-row z-10">
+            <div className="flex flex-col justify-center md:justify-start align-center md:w-1/2 md:pl-16">
+              <h2 className="text-center md:text-left text-blue-1 font-bold text-2xl md:text-4xl ">
                 Calidad de software que impulsa tu crecimiento
               </h2>
-              <p className="text-left py-4  mt-4 max-w-md">
+              <p className="text-center md:text-left py-4 mt-4 max-w-md">
                 Seamos tus partners estratégicos en la evolución de tus
                 procesos.
               </p>
@@ -43,51 +40,87 @@ export default function Home() {
                 onClick={scrollToContact}
                 className="inline-flex w-full md:w-48 text-white items-center justify-center rounded-[4px] bg-pink-400 px-4 py-2 md:px-6 md:py-3 text-lg md:text-xl font-medium text-primary-foreground shadow transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50"
               >
-                Cont&aacute;ctanos
+                Contáctanos
               </Link>
             </div>
-            <div className="flex-1 hidden md:block" data-aos="fade-left">
-              <Image
-                src={robotSvg}
-                width={600}
-                height={500}
-                alt="Software Quality Services"
-                className="rounded-lg"
-                style={{
-                  backgroundRepeat: "no-repeat",
-                  backgroundSize: "cover",
-                  backgroundPosition: "bottom",
-                }}
-              />
-            </div>
-            <div className="flex-none w-20 pt-4 pr-8 min-h-screen">
-              {/* punto fucsia */}
-              <div className="justify-self-end ">
-                <div
-                  className={`w-[34px] h-[34px]  md:w-[64px] md:h-[64px] rounded-full bg-pink-400`}
-                />
+            <div className="flex justify-end md:w-1/2">
+              <div
+                className="mt-4 md:mt-0  hidden md:block"
+                data-aos="fade-left"
+              >
+                <div className="flex flex-row-reverse">
+                  <article className="flex justify-end">
+                    <div className="flex justify-end pt-8 pr-8">
+                      {/* punto fucsia */}
+                      <div className="justify-self-end">
+                        <div className="w-[34px] h-[34px] lg:w-[56px] lg:h-[56px] rounded-full bg-pink-400" />
+                      </div>
+                    </div>
+                  </article>
+                  <Image
+                    src={robotSvg}
+                    width={600}
+                    height={500}
+                    alt="Software Quality Services"
+                    className="rounded-lg"
+                    style={{
+                      backgroundRepeat: "no-repeat",
+                      backgroundSize: "cover",
+                      backgroundPosition: "bottom",
+                    }}
+                  />
+                </div>
               </div>
             </div>
           </div>
-          <div
-            className="flex"
-            style={{
-              backgroundImage: `url('/assets/background-blue.svg')`,
-              backgroundSize: "cover",
-              backgroundPosition: "center",
-              height: "140vh",
-              zIndex: -1,
-            }}
-          >
-            <Services />
-          </div>
         </div>
-      </section>
 
-      <HowWeDoIt />
-      <ConsultingInfo />
-      <Contact />
-    </main>
+        <div className="background-blue">
+          <article
+            id="section-2"
+            className="p-5 rounded-lg flex flex-col items-center "
+          >
+            <div className="w-full text-center">
+              <h2 className="text-white font-bold text-2xl md:text-4xl">
+                Nuestro Enfoque
+              </h2>
+            </div>
+            <div className="w-full flex flex-wrap justify-center mt-4 gap-6 md:gap-14">
+              {services.map((service, index) => (
+                <Card
+                  key={index}
+                  icon={service.icon}
+                  title={service.title}
+                  description={service.description}
+                  data-aos="fade-up"
+                  className="flex-grow-0 flex-shrink-0 w-full md:w-1/3 lg:w-1/4 max-w-xs"
+                />
+              ))}
+            </div>
+            <div className="w-full flex py-20 pl-8 flex  justify-start md:flex-row gap-x-4 pr-8 ">
+              <div className="justify-self-end pt-4 pr-8">
+                <div className={`w-[52px] h-[52px] rounded-full bg-white`} />
+              </div>
+            </div>
+          </article>
+        </div>
+        <article
+          id="section-3"
+          className="flex flex-col items-center pt-72 md:p-8"
+        >
+          <HowWeDoIt />
+        </article>
+        <article id="section-4" className="flex flex-col items-center ">
+          <ConsultingInfo />
+        </article>
+        <article
+          id="section-5"
+          className="flex flex-col items-center p-4 md:p-8"
+        >
+          <Contact />
+        </article>
+      </div>
+    </section>
   );
 }
 
@@ -111,7 +144,7 @@ function ConsultingInfo() {
         zIndex: 9,
       }}
     >
-      <article className="flex-1  flex justify-center pl-16 ">
+      <article className="flex-1  flex justify-center hidden md:block">
         <Image
           src={"/assets/consulting-info.svg"}
           width={600}
@@ -126,19 +159,19 @@ function ConsultingInfo() {
           data-aos="fade-up"
         />
       </article>
-      <article className="flex-1 pl-16">
-        <div className="w-auto">
-          <h1 className="text-5xl text-left font-bold text-white pt-20">
+      <article className="flex-1 ">
+        <div className=" flex flex-col justify-center align-center w-auto">
+          <h1 className="text-2xl md:text-4xl text-center md:text-left font-bold text-white pt-20">
             Capacitaciones en Calidad de Software
           </h1>
-          <p className="text-white py-3 text-left text-balance">
+          <p className="text-white py-3 text-center md:text-left text-balance">
             Invierte en tu formación y conviértete en un referente en calidad de
             software. Nuestras capacitaciones te brindan las herramientas que
             necesitas para avanzar, en un entorno donde tu crecimiento es
             nuestra prioridad. ¡Hablemos y planifiquemos tu desarrollo!
           </p>
           <Link
-            className="inline-flex  w-48 text-white items-center justify-center rounded-[4px] bg-blue-1 px-4 py-2 text-xl font-medium text-primary-foreground shadow transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50"
+            className="inline-flex self-center md:self-left  w-48 text-white items-center justify-center rounded-[4px] bg-blue-1 px-4 py-2 text-xl font-medium text-primary-foreground shadow transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50"
             href="#"
             onClick={scrollToContact}
             prefetch={false}
@@ -158,13 +191,13 @@ function HowWeDoIt() {
   );
   return (
     <div>
-      <section id="how-we-doit-section" className="flex justify-between py-14">
-        <article className="flex-1 pl-36">
-          <div className="w-auto">
-            <h1 className="text-5xl text-left font-bold text-purple-12 pt-20">
+      <section className="flex justify-between py-14">
+        <article className="flex-1 ">
+          <div className="flex flex-col justify-center align-center w-auto">
+            <h1 className="text-2xl md:text-4xl text-center md:text-left font-bold text-purple-12 pt-20">
               Cómo lo Hacemos
             </h1>
-            <p className=" py-4 text-left text-balance">
+            <p className=" py-4 text-center md:text-left text-balance">
               En PHD, nos especializamos en adaptar nuestros servicios de
               calidad a las necesidades particulares de cada cliente. Aplicamos
               un enfoque flexible y ágil, combinando las mejores prácticas del
@@ -175,7 +208,7 @@ function HowWeDoIt() {
               valor a tu negocio.
             </p>
             <Link
-              className="bg-purple-12 inline-flex  w-48 text-white items-center justify-center rounded-[4px] px-4 py-2 text-xl font-medium text-primary-foreground shadow transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50"
+              className="bg-purple-12 inline-flex self-center md:self-left w-48 text-white items-center justify-center rounded-[4px] px-4 py-2 text-xl font-medium text-primary-foreground shadow transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50"
               href="#"
               onClick={scrollToContact}
               prefetch={false}
@@ -184,7 +217,7 @@ function HowWeDoIt() {
             </Link>
           </div>
         </article>
-        <article className="flex-1  flex justify-center pl-16 ">
+        <article className="flex-1  flex justify-center hidden md:block ">
           <Image
             src={"/assets/svg-como-lo-hacemos.svg"}
             width={530}
@@ -269,14 +302,9 @@ function Services() {
             title={service.title}
             description={service.description}
             data-aos="fade-up"
-            className="flex-grow-0 flex-shrink-0 w-full md:w-1/3 lg:w-1/4 max-w-xs"
+            className="w-full sm:w-1/2 md:w-1/3 lg:w-1/4 p-4"
           />
         ))}
-      </div>
-      <div className="py-20 pl-8 flex  justify-start md:flex-row gap-x-4 pr-8">
-        <div className="justify-self-end pt-4 pr-8">
-          <div className={`w-[52px] h-[52px] rounded-full bg-white`} />
-        </div>
       </div>
     </section>
   );

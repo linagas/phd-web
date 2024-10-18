@@ -5,7 +5,7 @@ import { InstagramIcon, LinkedinIcon } from "../rrss-icons";
 export default function Footer() {
   const logoUrl = "/assets/phd-white-300x.png";
   return (
-    <footer className="h-[100px] bg-purple-400 text-white py-4 ">
+    <footer className="h-[150px] bg-purple-400 text-white py-4 ">
       <div className="container mx-auto flex justify-between items-center">
         <div className="flex items-center">
           <Image

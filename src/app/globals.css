@@ -42,3 +42,9 @@ body {
   z-index: -1;
   height: 100vh;
 }
+
+.background-blue-parcial {
+  background-image: url("/assets/background-blue.svg");
+  background-position: center;
+  padding-top: 100%;
+}

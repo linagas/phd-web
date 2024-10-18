@@ -23,31 +23,38 @@ export default function Home() {
   return (
     <section className="min-h-screen mt-14 flex justify-center ">
       <div className="max-w-screen-2xl w-full pt-8">
-        <div className="relative">
-          <div className="absolute inset-0 background-blue z-0"></div>
+        <div className="relative h-[125vh]">
+          {/* <!-- Capa de la imagen de fondo --> */}
+          <div
+            className="absolute inset-0 bg-cover bg-center"
+            style={{
+              backgroundImage: `url("/assets/background-blue.svg")`,
+              marginTop: "100px",
+              zIndex: -1,
+            }}
+          ></div>
 
-          <div className="relative p-4 flex flex-col md:flex-row z-10">
-            <div className="flex flex-col justify-center md:justify-start align-center md:w-1/2 md:pl-16">
-              <h2 className="text-center md:text-left text-blue-1 font-bold text-2xl md:text-4xl ">
-                Calidad de software que impulsa tu crecimiento
-              </h2>
-              <p className="text-center md:text-left py-4 mt-4 max-w-md">
-                Seamos tus partners estratégicos en la evolución de tus
-                procesos.
-              </p>
-              <Link
-                href="#"
-                onClick={scrollToContact}
-                className="inline-flex w-full md:w-48 text-white items-center justify-center rounded-[4px] bg-pink-400 px-4 py-2 md:px-6 md:py-3 text-lg md:text-xl font-medium text-primary-foreground shadow transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50"
-              >
-                Contáctanos
-              </Link>
-            </div>
-            <div className="flex justify-end md:w-1/2">
-              <div
-                className="mt-4 md:mt-0  hidden md:block"
-                data-aos="fade-left"
-              >
+          {/* <!-- Capa del contenido --> */}
+          <div className="relative flex flex-col items-center h-full">
+            {/* <!-- Primera fila: dos columnas --> */}
+            <div className="flex w-full  p-4">
+              <div className="flex flex-col justify-center md:justify-start align-centerw-1/2 p-4 md:pl-16">
+                <h2 className="text-center md:text-left text-blue-1 font-bold text-2xl md:text-4xl ">
+                  Calidad de software que impulsa tu crecimiento
+                </h2>
+                <p className="text-center md:text-left py-4 mt-4 max-w-md">
+                  Seamos tus partners estratégicos en la evolución de tus
+                  procesos.
+                </p>
+                <Link
+                  href="#"
+                  onClick={scrollToContact}
+                  className="inline-flex w-full md:w-48 text-white items-center justify-center rounded-[4px] bg-pink-400 px-4 py-2 md:px-6 md:py-3 text-lg md:text-xl font-medium text-primary-foreground shadow transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50"
+                >
+                  Contáctanos
+                </Link>
+              </div>
+              <div className="w-1/2 p-4 hidden md:block">
                 <div className="flex flex-row-reverse">
                   <article className="flex justify-end">
                     <div className="flex justify-end pt-8 pr-8">
@@ -68,42 +75,19 @@ export default function Home() {
                       backgroundSize: "cover",
                       backgroundPosition: "bottom",
                     }}
+                    data-aos="fade-left"
                   />
                 </div>
               </div>
             </div>
+
+            {/* <!-- Segunda fila: una columna --> */}
+            <div className="w-full p-4">
+              <Services />
+            </div>
           </div>
         </div>
 
-        <div className="background-blue">
-          <article
-            id="section-2"
-            className="p-5 rounded-lg flex flex-col items-center "
-          >
-            <div className="w-full text-center">
-              <h2 className="text-white font-bold text-2xl md:text-4xl">
-                Nuestro Enfoque
-              </h2>
-            </div>
-            <div className="w-full flex flex-wrap justify-center mt-4 gap-6 md:gap-14">
-              {services.map((service, index) => (
-                <Card
-                  key={index}
-                  icon={service.icon}
-                  title={service.title}
-                  description={service.description}
-                  data-aos="fade-up"
-                  className="flex-grow-0 flex-shrink-0 w-full md:w-1/3 lg:w-1/4 max-w-xs"
-                />
-              ))}
-            </div>
-            <div className="w-full flex py-20 pl-8 flex  justify-start md:flex-row gap-x-4 pr-8 ">
-              <div className="justify-self-end pt-4 pr-8">
-                <div className={`w-[52px] h-[52px] rounded-full bg-white`} />
-              </div>
-            </div>
-          </article>
-        </div>
         <article
           id="section-3"
           className="flex flex-col items-center pt-72 md:p-8"
@@ -197,7 +181,7 @@ function HowWeDoIt() {
             <h1 className="text-2xl md:text-4xl text-center md:text-left font-bold text-purple-12 pt-20">
               Cómo lo Hacemos
             </h1>
-            <p className=" py-4 text-center md:text-left text-balance">
+            <p className="p-4 text-center md:text-left text-balance">
               En PHD, nos especializamos en adaptar nuestros servicios de
               calidad a las necesidades particulares de cada cliente. Aplicamos
               un enfoque flexible y ágil, combinando las mejores prácticas del
@@ -289,12 +273,16 @@ const services = [
 
 function Services() {
   return (
-    <section
-      id="services-section"
-      data-aos="fade-up"
-      className="py-16 pt-70-percent md:pt-30-percent w-full"
+    <article
+      id="section-2"
+      className="p-5 rounded-lg flex flex-col items-center "
     >
-      <div className="md:pl-28 pt-16 flex flex-wrap justify-around gap-6">
+      <div className="w-full text-center">
+        <h2 className="text-white font-bold text-2xl md:text-4xl">
+          Nuestro Enfoque
+        </h2>
+      </div>
+      <div className="w-full flex flex-wrap justify-center mt-4 gap-6 md:gap-14">
         {services.map((service, index) => (
           <Card
             key={index}
@@ -302,10 +290,15 @@ function Services() {
             title={service.title}
             description={service.description}
             data-aos="fade-up"
-            className="w-full sm:w-1/2 md:w-1/3 lg:w-1/4 p-4"
+            className="flex-grow-0 flex-shrink-0 w-full md:w-1/3 lg:w-1/4 max-w-xs"
           />
         ))}
       </div>
-    </section>
+      <div className="hidden md:block w-full flex py-20 pl-8 flex  justify-start md:flex-row gap-x-4 pr-8 ">
+        <div className="justify-self-end pt-4 pr-8">
+          <div className={`w-[52px] h-[52px] rounded-full bg-white`} />
+        </div>
+      </div>
+    </article>
   );
 }

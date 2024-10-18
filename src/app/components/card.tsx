@@ -30,7 +30,9 @@ const Card: React.FC<CardProps> = ({
         </div>
       )}
       {iconPosition === "top" && (
-        <div className="flex items-center justify-center mb-4">{icon}</div>
+        <div className="flex items-center justify-center mb-4 hidden">
+          {icon}
+        </div>
       )}
       <div
         className={`${
@@ -39,10 +41,12 @@ const Card: React.FC<CardProps> = ({
             : "w-full sm:w-2/3"
         } ${iconPosition === "right" ? "order-first" : ""}`}
       >
-        <h3 className="text-lg  sm:text-xl lg:text-xl font-semibold text-pink-500">
+        <h3 className="text-m md:text-lg  sm:text-xl lg:text-xl font-semibold text-pink-500">
           {title}
         </h3>
-        <p className="mt-4 sm:text-m text-gray-700 text-left">{description}</p>
+        <p className="mt-4 text-s md:text-m text-gray-700 text-left">
+          {description}
+        </p>
       </div>
       {iconPosition === "right" && (
         <div className="flex items-center justify-center w-full sm:w-1/3 mt-4 sm:mt-0">

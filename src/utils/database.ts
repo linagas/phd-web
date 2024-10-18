@@ -1,4 +1,4 @@
-import { Db, MongoClient } from "mongodb";
+import { MongoClient, Db } from "mongodb";
 
 const uri = process.env.MONGODB_URI || "";
 let cachedClient: MongoClient | null = null;
@@ -6,20 +6,16 @@ let cachedDb: Db | null = null;
 
 export async function connectToDatabase() {
   if (cachedClient && cachedDb) {
-    // Usa la conexión y la base de datos en caché si existen
     return { client: cachedClient, db: cachedDb };
   }
 
-  // Si no hay conexión en caché, crea una nueva
   if (!cachedClient) {
-    cachedClient = new MongoClient(uri, {
-      maxPoolSize: 10, // Tamaño máximo del pool de conexiones
-    });
+    cachedClient = new MongoClient(uri);
     await cachedClient.connect();
   }
 
-  // Accede a la base de datos
-  const db = cachedClient.db();
+  // Accedemos a la base de datos especificada en las variables de entorno
+  const db = cachedClient.db(process.env.MONGODB_DB);
   cachedDb = db;
 
   return { client: cachedClient, db: cachedDb };

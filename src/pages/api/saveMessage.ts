@@ -10,7 +10,9 @@ export default async function handler(
 ) {
   if (req.method === "POST") {
     try {
+      console.time("messageController");
       const response = await messageController.saveMessage(req, res);
+      console.timeEnd("messageController");
 
       return res.status(200).json({ success: true, data: response });
     } catch (error) {

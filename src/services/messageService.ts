@@ -9,8 +9,10 @@ export class MessageService {
   }
 
   async saveMessage(name: string, email: string, message: string) {
+    console.time("MessageModel.create");
     const newMessage = MessageModel.create(name, email, message);
     await this.repository.save(newMessage);
+    console.timeEnd("MessageModel.create");
   }
 
   async getMessages() {

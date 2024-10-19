@@ -16,8 +16,9 @@ export class MessageRepository {
   async getAll(): Promise<Message[]> {
     const { db } = await connectToDatabase();
     const collection = db.collection(this.collectionName);
-
+    console.time("before insertMessage");
     const results = await collection.find({}).toArray();
+    console.timeEnd("After insertMessage");
     return results.map(
       (result) =>
         ({

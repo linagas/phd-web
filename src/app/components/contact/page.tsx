@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Image from "next/image";
 import useScrollToSection from "@/hooks/useScrollToSection";
 import { load } from "recaptcha-v3";
@@ -11,8 +11,21 @@ export default function Contact() {
     user_email: "",
     message: "",
   });
+  const [isClient, setIsClient] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const RECAPTCHA_SITE_KEY = process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY;
+
+  useEffect(() => {
+    // Cargamos el script de reCAPTCHA solo en el cliente
+    const script = document.createElement("script");
+    script.src = `https://www.google.com/recaptcha/api.js`;
+    script.async = true;
+    script.defer = true;
+    document.body.appendChild(script);
+
+    // Establecemos que estamos en el cliente
+    setIsClient(true);
+  }, []);
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
@@ -25,10 +38,6 @@ export default function Contact() {
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-
-    const recaptcha = await load(RECAPTCHA_SITE_KEY as string);
-    const token = await recaptcha.execute("submit");
-    console.log("Token reCAPTCHA:", token);
     const res = await fetch("/api/saveMessage", {
       method: "POST",
       headers: {
@@ -36,7 +45,6 @@ export default function Contact() {
       },
       body: JSON.stringify({
         ...formData,
-        recaptchaToken: token,
       }),
     });
 
@@ -105,6 +113,13 @@ export default function Contact() {
                 className="w-full mb-4 p-4 rounded-[12px] border border-black-2 border-4"
                 required
               ></textarea>
+              {isClient && (
+                <div
+                  className="g-recaptcha"
+                  data-sitekey="6LdqNWgqAAAAAKfsZuQUgEsFj9cXzTgcRRc41oZ5"
+                ></div>
+              )}
+
               <button
                 className="justify-self-end h-9 w-32 bg-blue-1 text-white py-2 px-8 rounded-[4px]"
                 type="submit"

@@ -7,8 +7,8 @@ import { load } from "recaptcha-v3";
 export default function Contact() {
   const { sectionRef } = useScrollToSection("section-contact");
   const [formData, setFormData] = useState({
-    name: "",
-    email: "",
+    user_name: "",
+    user_email: "",
     message: "",
   });
   const [submitted, setSubmitted] = useState(false);
@@ -75,9 +75,9 @@ export default function Contact() {
             className="mt-8 w-full flex flex-col items-end"
           >
             <input
-              name="name"
-              id="name"
-              value={formData.name}
+              name="user_name"
+              id="user_name"
+              value={formData.user_name}
               onChange={handleChange}
               type="text"
               placeholder="Ingresa tu nombre"
@@ -86,9 +86,9 @@ export default function Contact() {
             />
 
             <input
-              name="email"
-              id="email"
-              value={formData.email}
+              name="user_email"
+              id="user_email"
+              value={formData.user_email}
               onChange={handleChange}
               type="email"
               placeholder="Ingresa tu correo"

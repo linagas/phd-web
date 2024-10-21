@@ -1,6 +1,6 @@
 import { MessageController } from "@/controllers/messageController";
-
-const messageController = new MessageController();
+import emailjs from "@emailjs/browser";
+import { access } from "fs";
 
 import { NextApiRequest, NextApiResponse } from "next";
 
@@ -8,13 +8,38 @@ export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse
 ) {
+  const serviceId = process.env.EMAILJS_SERVICE_ID as string;
+  const templateId = process.env.EMAILJS_TEMPLATE_ID as string;
+  const publicKey = process.env.EMAILJS_PUBLIC_KEY as string;
+
+  const data = {
+    service_id: serviceId,
+    template_id: templateId,
+    user_id: publicKey,
+    accessToken: process.env.EMAILJS_PRIVATE_KEY,
+    template_params: {
+      from_name: req.body.user_name,
+      to_name: "PHD team",
+      replay_to: req.body.user_email,
+      message: req.body.message,
+    },
+  };
+
   if (req.method === "POST") {
     try {
-      console.time("messageController");
-      const response = await messageController.saveMessage(req, res);
-      console.timeEnd("messageController");
+      const response = await fetch(
+        "https://api.emailjs.com/api/v1.0/email/send",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(data),
+        }
+      );
+      console.log("EmailJS response:", response);
 
-      return res.status(200).json({ success: true, data: response });
+      return res.status(200).json({ success: true, response });
     } catch (error) {
       console.error("Error en la API:", error);
       return res

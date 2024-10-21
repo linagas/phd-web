@@ -278,7 +278,7 @@ function Services() {
       className="p-5 rounded-lg flex flex-col items-center "
     >
       <div className="w-full text-center">
-        <h2 className="text-white font-bold text-2xl md:text-4xl">
+        <h2 className="text-white font-bold text-2xl md:text-4xl pt-20 md: pt-16">
           Nuestro Enfoque
         </h2>
       </div>

@@ -52,7 +52,7 @@ export default function Header() {
             isMenuOpen ? "flex bg-blue-500" : "hidden"
           } sm:flex flex-col sm:flex-row gap-4 sm:gap-6 items-center justify-center transition-opacity duration-500 ease-in-out p-4 sm:p-0 rounded-lg sm:rounded-none absolute sm:relative top-16 sm:top-auto left-0 sm:left-auto right-0 sm:right-auto w-full sm:w-auto`}
         >
-          <Link
+          {/* <Link
             href="/companies"
             className="text-xs sm:text-sm font-medium hover:underline underline-offset-4"
             prefetch={false}
@@ -72,7 +72,7 @@ export default function Header() {
             prefetch={false}
           >
             NOSOTROS
-          </Link>
+          </Link> */}
           <Link
             href="#"
             onClick={scrollToContact}

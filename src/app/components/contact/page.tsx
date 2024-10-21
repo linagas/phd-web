@@ -70,47 +70,55 @@ export default function Contact() {
             contacto contigo.
           </p>
         ) : (
-          <form
-            onSubmit={handleSubmit}
-            className="mt-8 w-full flex flex-col items-end"
-          >
-            <input
-              name="user_name"
-              id="user_name"
-              value={formData.user_name}
-              onChange={handleChange}
-              type="text"
-              placeholder="Ingresa tu nombre"
-              className="w-full mb-4 p-4 rounded-[12px] border border-black-2 border-4"
-              required
-            />
-
-            <input
-              name="user_email"
-              id="user_email"
-              value={formData.user_email}
-              onChange={handleChange}
-              type="email"
-              placeholder="Ingresa tu correo"
-              className="w-full mb-4 p-4 rounded-[12px] border border-black-2 border-4"
-              required
-            />
-            <textarea
-              placeholder="Ingresa tu mensaje"
-              name="message"
-              id="message"
-              value={formData.message}
-              onChange={handleChange}
-              className="w-full mb-4 p-4 rounded-[12px] border border-black-2 border-4"
-              required
-            ></textarea>
-            <button
-              className="justify-self-end h-9 w-32 bg-blue-1 text-white py-2 px-8 rounded-[4px]"
-              type="submit"
+          <>
+            <form
+              onSubmit={handleSubmit}
+              className="mt-8 w-full flex flex-col items-end"
             >
-              Enviar
-            </button>
-          </form>
+              <input
+                name="user_name"
+                id="user_name"
+                value={formData.user_name}
+                onChange={handleChange}
+                type="text"
+                placeholder="Ingresa tu nombre"
+                className="w-full mb-4 p-4 rounded-[12px] border border-black-2 border-4"
+                required
+              />
+
+              <input
+                name="user_email"
+                id="user_email"
+                value={formData.user_email}
+                onChange={handleChange}
+                type="email"
+                placeholder="Ingresa tu correo"
+                className="w-full mb-4 p-4 rounded-[12px] border border-black-2 border-4"
+                required
+              />
+              <textarea
+                placeholder="Ingresa tu mensaje"
+                name="message"
+                id="message"
+                value={formData.message}
+                onChange={handleChange}
+                className="w-full mb-4 p-4 rounded-[12px] border border-black-2 border-4"
+                required
+              ></textarea>
+              <button
+                className="justify-self-end h-9 w-32 bg-blue-1 text-white py-2 px-8 rounded-[4px]"
+                type="submit"
+              >
+                Enviar
+              </button>
+            </form>
+
+            <p className="text-gray-700 mt-4">
+              ¿Hay algo adicional que te gustar&iacute;a saber? Puedes enviarnos
+              un correo a{" "}
+              <a href="mailto:contacto@phdchile.cl">contacto@phdchile.cl</a>
+            </p>
+          </>
         )}
       </article>
       <article className="flex items-center w-full md:w-2/3">

@@ -1,7 +1,3 @@
-import { MessageController } from "@/controllers/messageController";
-import emailjs from "@emailjs/browser";
-import { access } from "fs";
-
 import { NextApiRequest, NextApiResponse } from "next";
 
 export default async function handler(

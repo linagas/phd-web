@@ -16,7 +16,7 @@ export default async function handler(
     template_params: {
       from_name: req.body.user_name,
       to_name: "PHD team",
-      from_email: req.body.user_email,
+      replay_to: req.body.user_email,
       message: req.body.message,
     },
   };

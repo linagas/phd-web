@@ -8,6 +8,7 @@ import "aos/dist/aos.css";
 import { useEffect, useRef } from "react";
 import useScrollToSection from "@/hooks/useScrollToSection";
 import Card from "@/app/components/card";
+import CustomDot from "@/app/components/custom-dot";
 
 export default function Home() {
   const { scrollToSection: scrollToContact } = useScrollToSection(
@@ -59,9 +60,11 @@ export default function Home() {
                   <article className="flex justify-end">
                     <div className="flex justify-end pt-8 pr-8">
                       {/* punto fucsia */}
-                      <div className="justify-self-end">
-                        <div className="w-[34px] h-[34px] lg:w-[56px] lg:h-[56px] rounded-full bg-pink-400" />
-                      </div>
+                      <CustomDot
+                        baseSize="w-[34px] h-[34px]"
+                        lgSize="lg:w-[56px] lg:h-[56px]"
+                        color="bg-pink-400"
+                      />
                     </div>
                   </article>
                   <Image
@@ -107,10 +110,6 @@ export default function Home() {
     </section>
   );
 }
-
-// /**
-//  *Aqui tengo que arreglar esto
-//  *
 
 function ConsultingInfo() {
   const { scrollToSection: scrollToContact } = useScrollToSection(
@@ -286,6 +285,7 @@ function Services() {
         {services.map((service, index) => (
           <Card
             key={index}
+            iconPosition="left"
             icon={service.icon}
             title={service.title}
             description={service.description}

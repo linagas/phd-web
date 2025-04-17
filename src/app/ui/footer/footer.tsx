@@ -23,7 +23,7 @@ export default function Footer() {
           <Link href="https://www.instagram.com/phdchilespa/">
             <InstagramIcon className="h-8 w-8" />
           </Link>
-          <Link href="https://www.linkedin.com/company/phd-chile-spa">
+          <Link href="https://www.linkedin.com/company/phd-chile/about/">
             <LinkedinIcon className="h-8 w-8" />
           </Link>
         </div>

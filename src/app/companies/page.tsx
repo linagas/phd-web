@@ -59,7 +59,11 @@ const Companies: React.FC = () => {
               <Card
                 key="traditional-01"
                 title="Contratación Tradicional"
+<<<<<<< HEAD
                 description="En PHD Chile impulsamos la calidad de tu software con servicios diseñados para acompañarte en cada etapa de tu evolución tecnológica. Nos especializamos en fortalecer tus procesos con contratos tradicionales ideales para proyectos de corto y largo plazo, asegurando continuidad, compromiso y un acompañamiento experto. Nuestro enfoque se adapta a tus necesidades, construyendo relaciones de confianza que crecen contigo. Elige un partner que entiende tus desafíos y evoluciona a tu ritmo. Conversemos sobre cómo podemos llevar la calidad de tus proyectos al siguiente nivel."
+=======
+                description="En PHD Chile impulsamos la calidad de tu software con servicios diseñados para acompañarte en cada etapa de tu evolución tecnológica. Nos especializamos en fortalecer tus procesos con contratos tradicionales ideales para proyectos de largo plazo, asegurando continuidad, compromiso y un acompañamiento experto. Nuestro enfoque se adapta a tus necesidades, construyendo relaciones de confianza que crecen contigo. Elige un partner que entiende tus desafíos y evoluciona a tu ritmo. Conversemos sobre cómo podemos llevar la calidad de tus proyectos al siguiente nivel."
+>>>>>>> 4e77315 (empresas: pagina de empresas)
                 data-aos="fade-up"
                 className="flex-grow-0 flex-shrink-0 w-full w-full md:w-1/2 max-w-[550px] card-blue-style text-blue-1"
                 textAction="CONTRATAR"
@@ -375,17 +379,29 @@ const features: FeatureItem[] = [
   {
     title: "Pruebas IA",
     asset: "/assets/Chip.svg",
+<<<<<<< HEAD
     text: "Utilizamos inteligencia artificial para generar casos de prueba, detectar anomalías y predecir errores potenciales, acelerando la validación y aumentando la efectividad del proceso de testing.",
+=======
+    text: "Integración de calidad en tus pipelines DevOps para asegurar que cada cambio sea validado de manera continua, rápida y confiable en tu ciclo de desarrollo.",
+>>>>>>> 4e77315 (empresas: pagina de empresas)
   },
   {
     title: "DevQAOps",
     asset: "/assets/devQaOps.svg",
+<<<<<<< HEAD
     text: "Integración de calidad en tus pipelines DevOps para asegurar que cada cambio sea validado de manera continua, rápida y confiable en tu ciclo de desarrollo.",
+=======
+    text: "Incorporamos testing y aseguramiento de calidad desde las primeras fases del desarrollo, reduciendo riesgos, costos y tiempos de entrega.",
+>>>>>>> 4e77315 (empresas: pagina de empresas)
   },
   {
     title: "Pruebas Tempranas Shift Left",
     asset: "/assets/shift-left.svg",
+<<<<<<< HEAD
     text: "Incorporamos testing y aseguramiento de calidad desde las primeras fases del desarrollo, reduciendo riesgos, costos y tiempos de entrega.",
+=======
+    text: "Validamos la funcionalidad, el rendimiento y la experiencia de usuario en dispositivos móviles reales para garantizar aplicaciones ágiles, seguras y optimizadas.",
+>>>>>>> 4e77315 (empresas: pagina de empresas)
   },
   {
     title: "Pruebas con Dispositivos Móviles",

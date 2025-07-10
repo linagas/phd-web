@@ -12,6 +12,7 @@ interface CardProps {
   width?: string;
   height?: string;
   rounded?: string;
+  buttonMaxWidth?: string;
 }
 
 const Card: React.FC<CardProps> = ({
@@ -25,10 +26,11 @@ const Card: React.FC<CardProps> = ({
   width = "",
   height = "",
   rounded = "rounded-[55px]",
+  buttonMaxWidth = "max-w-full",
 }) => {
   return (
     <div
-      className={`bg-white p-6 shadow-lg ${rounded} ${width} ${height} ${
+      className={`bg-white p-4 shadow-lg ${rounded} ${width} ${height} ${
         iconPosition === "top" || iconPosition === "bottom"
           ? "flex flex-col items-center"
           : "flex flex-col sm:flex-row items-center"
@@ -40,20 +42,20 @@ const Card: React.FC<CardProps> = ({
           {icon}
         </div>
       )}
-      {iconPosition === "top" &&  (
+      {iconPosition === "top" && (
         <div className="flex items-center justify-center mb-4">{icon}</div>
       )}
       <div
-        className={`${
+        className={`p-6 ${
           iconPosition === "top" || iconPosition === "bottom"
             ? "text-center"
             : "w-full sm:w-2/3"
         } ${iconPosition === "right" ? "order-first" : ""}`}
       >
-        <h3 className="text-m md:text-lg  sm:text-xl lg:text-xl font-semibold ">
+        <h3 className="text-m md:text-lg sm:text-xl lg:text-xl font-semibold mb-6">
           {title}
         </h3>
-        <p className="mb-2 text-s md:text-m text-gray-700 text-left">
+        <p className="mb-2 text-s md:text-m text-gray-700  text-justify">
           {description}
         </p>
       </div>
@@ -66,11 +68,12 @@ const Card: React.FC<CardProps> = ({
         <div className="flex items-center justify-center mt-4">{icon}</div>
       )}
       {textAction && (
-        <div className="flex items-center justify-center ">
+        <div className="flex items-center justify-center mt-auto">
           <Link
             className={`mt-8 inline-flex self-center md:self-left text-white items-center justify-center rounded-[32px] px-4 py-2 text-xl font-medium text-primary-foreground shadow transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 ${actionClass}`}
             href="#"
             prefetch={false}
+            style={{ width: buttonMaxWidth }}
           >
             {textAction}
           </Link>

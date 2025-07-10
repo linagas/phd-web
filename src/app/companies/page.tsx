@@ -10,15 +10,17 @@ import useScrollToSection from "@/hooks/useScrollToSection";
 
 const Companies: React.FC = () => {
   return (
-    <section className="min-h-screen mt-14 flex justify-center ">
+    <section className=" mt-14 flex justify-center ">
       <div className="max-w-screen-2xl w-full pt-8">
-        <div className="relative h-[180vh]">
+        <div className="relative ">
           {/* <!-- Capa de la imagen de fondo --> */}
           <div
             className="absolute inset-0 bg-cover bg-center"
             style={{
               backgroundImage: `url("/assets/grupo-238@2x.png")`,
               zIndex: -1,
+              marginTop: "180px",
+              height: "920px",
             }}
           ></div>
 
@@ -30,7 +32,7 @@ const Companies: React.FC = () => {
                   <div className="flex justify-end pr-8">
                     {/* punto fucsia */}
                     <CustomDot
-                      baseSize="w-[34px] h-[34px]"
+                      baseSize="w-[24px] h-[24px]"
                       lgSize="lg:w-[56px] lg:h-[56px]"
                       color="bg-pink-400"
                     />
@@ -41,12 +43,12 @@ const Companies: React.FC = () => {
             {/* <!-- Primera fila: dos columnas --> */}
             <div className="flex w-full  p-4">
               <div className="flex text-center flex-col justify-center align-center w-full p-4 md:pl-16">
-                <h1 className="text-center flex-col justify-center align-center text-blue-1 align-center font-bold text-2xl md:text-4xl">
+                <h1 className="text-center flex-col justify-center align-center text-blue-1 align-center font-bold text-[60px]">
                   Transformamos la <br />
                   calidad de tu software
                 </h1>
 
-                <p className="text-center py-4 mt-4">
+                <p className="text-center py-4 mt-4 text-[24px]">
                   Nuestros servicios para todo tipo de empresas
                 </p>
               </div>
@@ -56,28 +58,31 @@ const Companies: React.FC = () => {
             <div className="flex justify-center gap-4 w-full p-4">
               <Card
                 key="traditional-01"
-                title="Traditional centrating"
-                description="Lorem ipsum dolor sit amet, consectetuer adipiscing elit, sed diam nonummy nibh euismod tincidunt ut laoreet dolore magna aliquam erat volutpat. Ut wisi enim ad minim veniam, quis nostrud exerci tation ullamcorper suscipit lobortis nisl ut aliquip ex ea commodo consequat. Duis autem vel eum iriure dolor in hendrerit in vulputate velit esse molestie consequat, vel illum dolore eu feugiat nulla facilisis at vero eros et accumsan et iusto odio dignissim qui"
+                title="Contratación Tradicional"
+                description="En PHD Chile impulsamos la calidad de tu software con servicios diseñados para acompañarte en cada etapa de tu evolución tecnológica. Nos especializamos en fortalecer tus procesos con contratos tradicionales ideales para proyectos de largo plazo, asegurando continuidad, compromiso y un acompañamiento experto. Nuestro enfoque se adapta a tus necesidades, construyendo relaciones de confianza que crecen contigo. Elige un partner que entiende tus desafíos y evoluciona a tu ritmo. Conversemos sobre cómo podemos llevar la calidad de tus proyectos al siguiente nivel."
                 data-aos="fade-up"
                 className="flex-grow-0 flex-shrink-0 w-full w-full md:w-1/2 max-w-[550px] card-blue-style text-blue-1"
                 textAction="CONTRATAR"
                 actionClass="bg-blue-1"
+                buttonMaxWidth="311px"
               />
               <Card
                 key="traditional-02"
                 title="Flexible Contracting"
-                description="Lorem ipsum dolor sit amet, consectetuer adipiscing elit, sed diam nonummy nibh euismod tincidunt ut laoreet dolore magna aliquam erat volutpat. Ut wisi enim ad minim veniam, quis nostrud exerci tation ullamcorper suscipit lobortis nisl ut aliquip ex ea commodo consequat. Duis autem vel eum iriure dolor in hendrerit in vulputate velit esse molestie consequat, vel illum dolore eu feugiat nulla facilisis at vero eros et accumsan et iusto odio dignissim qui"
+                description="
+                En PHD Chile, entendemos que la flexibilidad es clave en el mundo actual. Por eso, ofrecemos un servicio de contratación flexible que se adapta a tus necesidades cambiantes. Ya sea que necesites recursos temporales o un equipo completo para un proyecto específico, estamos aquí para ayudarte. Nuestro enfoque ágil y personalizado garantiza que obtengas el soporte adecuado en el momento adecuado. Con PHD Chile, puedes contar con un partner confiable que se ajusta a tu ritmo y objetivos."
                 data-aos="fade-up"
                 className="flex-grow-0 flex-shrink-0 w-full w-full md:w-1/2 max-w-[550px] card-pink-style text-pink-400"
                 textAction="SOLICITA TU PRESUPUESTO"
                 actionClass="bg-pink-400"
+                buttonMaxWidth="311px"
               />
             </div>
           </div>
-          <div className="flex flex-row">
+          <div className="flex flex-col mt-[100px]">
+            {/* punto azul oscuro */}
             <article className="flex justify-start">
               <div className="flex justify-start pl-16 pr-8">
-                {/* punto fucsia */}
                 <CustomDot
                   baseSize="w-[34px] h-[34px]"
                   lgSize="lg:w-[56px] lg:h-[56px]"
@@ -85,29 +90,30 @@ const Companies: React.FC = () => {
                 />
               </div>
             </article>
+            {/* <!-- punto azul oscuro  --> */}
+            <article
+              id="section-3"
+              className="flex flex-col items-center pt-72 md:p-8"
+            >
+              <h1 className="text-pink-400 font-bold uppercase text-6xl">
+                CONSULTORIA SDLC
+              </h1>
+              <ConsultingInfo />
+            </article>
+            <article id="section-4" className="flex flex-col items-center ">
+              <TestingServices />
+            </article>
+            <article id="section-5" className="flex flex-col items-center ">
+              <TestingEvolution />
+            </article>
+            <article
+              id="section-6"
+              className="flex flex-col items-center p-4 md:p-8"
+            >
+              <Contact />
+            </article>
           </div>
         </div>
-
-        <article
-          id="section-3"
-          className="flex flex-col items-center pt-72 md:p-8"
-        >
-          <h1 className="text-pink-400 font-bold uppercase text-6xl">
-            CONSULTORIA SDLC
-          </h1>
-          <ConsultingInfo />
-        </article>
-        <article id="section-4" className="flex flex-col items-center ">
-          <TestingServices />
-        </article>
-        <article id="section-5" className="flex flex-col items-center ">
-          <TestingEvolution />
-        </article>
-        <article
-          id="section-6"
-          className="flex flex-col items-center p-4 md:p-8"
-        ></article>
-        <Contact />
       </div>
     </section>
   );
@@ -127,7 +133,7 @@ function TestingServices() {
       className="flex flex-col w-full py-14 space-y-12"
     >
       {/* Imagen de fondo con texto */}
-      <article className="relative h-[400px] md:h-[600px] lg:h-[800px] w-full flex items-center justify-center text-center overflow-hidden">
+      <article className="relative h-[200px] md:h-[300px] lg:h-[400px] w-full flex items-center justify-center text-center overflow-hidden">
         <Image
           src="/assets/trazado-azul-3.png"
           alt="Fondo curvo azul decorativo"
@@ -149,19 +155,19 @@ function TestingServices() {
             {
               title: "Pruebas Manuales",
               description:
-                "Validamos que tu software funcione correctamente desde el punto de vista del usuario. consectetuLorem ipsum dolor sit amet, consectetuer adipiscing elit, sed diam nonummy nibh euismod tincidunt ut laoreet dolore magna aliquam erat volutpat. Ut wisi enim ad minim veniam, quis nostrud exerci tation ullamcorper",
+                "Validamos que tu software funcione correctamente desde el punto de vista del usuario, detectando errores visuales, de flujo o de comportamiento antes de llegar a producción.",
               asset: "/assets/pruebas-manuales.svg",
             },
             {
               title: "Pruebas Automatizadas",
               description:
-                "Automatizamos pruebas para ahorrar tiempo y detectar errores antes de producción. consectetuLorem ipsum dolor sit amet, consectetuer adipiscing elit, sed diam nonummy nibh euismod tincidunt ut laoreet dolore magna aliquam erat volutpat. Ut wisi enim ad minim veniam, quis nostrud exerci tation ullamcorper",
+                "Diseñamos y ejecutamos pruebas automáticas para ahorrar tiempo, mejorar la cobertura de validaciones y prevenir errores críticos en cada nueva versión de tu software.",
               asset: "/assets/pruebas-automatizadas.svg",
             },
             {
               title: "Pruebas Performance",
               description:
-                "Simulamos múltiples usuarios para verificar la estabilidad bajo presión. consectetuLorem ipsum dolor sit amet, consectetuer adipiscing elit, sed diam nonummy nibh euismod tincidunt ut laoreet dolore magna aliquam erat volutpat. Ut wisi enim ad minim veniam, quis nostrud exerci tation ullamcorper",
+                "Simulamos múltiples usuarios y cargas de trabajo para evaluar la estabilidad, el rendimiento y la escalabilidad de tus aplicaciones bajo condiciones de alta demanda.",
               asset: "/assets/pruebas-performance.svg",
             },
           ].map((card, i) => (
@@ -226,17 +232,17 @@ function ConsultingInfo() {
       id="consulting-info-section"
       className="flex justify-between py-14"
     >
-      <article className="flex-1 flex justify-center hidden md:flex lg:flex">
+      <article className="flex-1 flex justify-center items-center  hidden md:flex lg:flex">
         <div className="relative ">
           {/* Capa trasera (Fondo fucsia) */}
           <div
-            className="absolute inset-0 w-full h-full rounded-2xl  -translate-x-4 translate-y-4"
+            className="absolute inset-0 w-full h-full rounded-2xl  -translate-x-4 translate-y-64"
             style={{
               backgroundImage: "url('/assets/trazado-fucsia.svg')",
               backgroundSize: "contain",
               backgroundPosition: "bottom",
               backgroundRepeat: "no-repeat",
-              top: "-21%",
+              top: "-45%",
             }}
             data-aos="fade-up"
           ></div>
@@ -247,7 +253,7 @@ function ConsultingInfo() {
               width={600}
               height={600}
               alt="Software Quality Services"
-              className="w-full h-full object-cover"
+              className="w-full h-auto object-cover"
               data-aos="fade-up"
             />
           </div>
@@ -258,10 +264,10 @@ function ConsultingInfo() {
         <div className="flex flex-col gap-[25px] justify-center align-center w-auto">
           <Card
             key="traditional-02"
-            title="PLAN DE MEJORA"
-            description=" Lorem ipsum dolor sit amet, consectetuLorem ipsum dolor sit amet, consectetuer adipiscing elit, sed diam nonummy nibh euismod tincidunt ut laoreet dolore"
+            title="EVALUACIÓN DE PROCESOS"
+            description="Detectamos fortalezas y áreas de mejora en tu proceso de desarrollo de software."
             data-aos="fade-up"
-            className="flex-grow-0 flex-shrink-0 w-full  max-md:767 max-h-[132px] card-pink-style "
+            className="flex-grow-0 flex-shrink-0 w-full  max-md:767 max-h-[200px] card-pink-style "
             rounded="rounded-[23px]"
             iconPosition="left"
             icon={
@@ -276,10 +282,10 @@ function ConsultingInfo() {
           />
           <Card
             key="traditional-02"
-            title="ANALISIS GAP"
-            description=" Lorem ipsum dolor sit amet, consectetuLorem ipsum dolor sit amet, consectetuer adipiscing elit, sed diam nonummy nibh euismod tincidunt ut laoreet dolore"
+            title="ANÁLISIS DE BRECHAS"
+            description="Identificamos las diferencias entre tu proceso actual y las mejores prácticas del mercado."
             data-aos="fade-up"
-            className="flex-grow-0 flex-shrink-0 w-full  max-md:767 max-h-[132px] card-pink-style "
+            className="flex-grow-0 flex-shrink-0 w-full  max-md:767 max-h-[200px] card-pink-style "
             rounded="rounded-[23px]"
             iconPosition="left"
             icon={
@@ -295,9 +301,9 @@ function ConsultingInfo() {
           <Card
             key="traditional-02"
             title="PLAN DE MEJORA"
-            description=" Lorem ipsum dolor sit amet, consectetuLorem ipsum dolor sit amet, consectetuer adipiscing elit, sed diam nonummy nibh euismod tincidunt ut laoreet dolore"
+            description="Diseñamos un plan de acción a medida para optimizar tus procesos de calidad."
             data-aos="fade-up"
-            className="flex-grow-0 flex-shrink-0 w-full  max-md:767 max-h-[132px] card-pink-style "
+            className="flex-grow-0 flex-shrink-0 w-full  max-md:767 max-h-[200px] card-pink-style "
             rounded="rounded-[23px]"
             iconPosition="left"
             icon={
@@ -313,9 +319,9 @@ function ConsultingInfo() {
           <Card
             key="traditional-02"
             title="PLAN DE GESTION DE CAMBIOS"
-            description=" Lorem ipsum dolor sit amet, consectetuLorem ipsum dolor sit amet, consectetuer adipiscing elit, sed diam nonummy nibh euismod tincidunt ut laoreet dolore"
+            description="Guiamos a tu equipo en la adopción efectiva de nuevas prácticas y herramientas."
             data-aos="fade-up"
-            className="flex-grow-0 flex-shrink-0 w-full  max-md:767 max-h-[132px] card-pink-style "
+            className="flex-grow-0 flex-shrink-0 w-full  max-md:767 max-h-[200px] card-pink-style "
             rounded="rounded-[23px]"
             iconPosition="left"
             icon={
@@ -369,22 +375,22 @@ const features: FeatureItem[] = [
   {
     title: "Pruebas IA",
     asset: "/assets/Chip.svg",
-    text: "Texto simulado para pruebas de inteligencia artificial. Lorem ipsum dolor sit amet, consectetuer adipiscing elit, sed diam nonummy. Lorem ipsum dolor sit amet, consectetuer adipiscing elit, sed diam nonummy",
+    text: "Integración de calidad en tus pipelines DevOps para asegurar que cada cambio sea validado de manera continua, rápida y confiable en tu ciclo de desarrollo.",
   },
   {
     title: "DevQAOps",
     asset: "/assets/devQaOps.svg",
-    text: "Texto simulado para la integración de QA en procesos DevOps. Lorem ipsum dolor sit amet, consectetuer adipiscing elit, sed diam nonummy. Lorem ipsum dolor sit amet, consectetuer adipiscing elit, sed diam nonummy",
+    text: "Incorporamos testing y aseguramiento de calidad desde las primeras fases del desarrollo, reduciendo riesgos, costos y tiempos de entrega.",
   },
   {
     title: "Pruebas Tempranas Shift Left",
     asset: "/assets/shift-left.svg",
-    text: "Texto simulado para la filosofía shift-left en pruebas. Lorem ipsum dolor sit amet, consectetuer adipiscing elit, sed diam nonummy. Lorem ipsum dolor sit amet, consectetuer adipiscing elit, sed diam nonummy",
+    text: "Validamos la funcionalidad, el rendimiento y la experiencia de usuario en dispositivos móviles reales para garantizar aplicaciones ágiles, seguras y optimizadas.",
   },
   {
     title: "Pruebas con Dispositivos Móviles",
     asset: "/assets/pruebas-mobile.svg",
-    text: "Texto simulado para pruebas en entornos móviles.Lorem ipsum dolor sit amet, consectetuer adipiscing elit, sed diam nonummy. Lorem ipsum dolor sit amet, consectetuer adipiscing elit, sed diam nonummy",
+    text: "Validamos la funcionalidad, el rendimiento y la experiencia de usuario en dispositivos móviles reales para garantizar aplicaciones ágiles, seguras y optimizadas.",
   },
 ];
 

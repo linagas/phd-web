@@ -19,7 +19,8 @@
     "react-google-recaptcha-v3": "^1.10.1",
     "recaptcha-v3": "^1.11.3",
     "tailwindcss-animate": "^1.0.7",
-    "xmlhttprequest": "^1.8.0"
+    "xmlhttprequest": "^1.8.0",
+    "zod": "^3.25.75"
   },
   "devDependencies": {
     "@types/aos": "^3.0.7",

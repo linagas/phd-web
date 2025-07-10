@@ -1,4 +1,4 @@
-import { MessageController } from "@/controllers/messageController";
+import { MessageController } from "@/controllers/message-controller";
 
 const messageController = new MessageController();
 

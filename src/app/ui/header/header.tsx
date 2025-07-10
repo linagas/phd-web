@@ -59,13 +59,13 @@ export default function Header() {
           >
             EMPRESAS
           </Link>
-          <Link
+          {/* <Link
             href="/people"
             className="text-xs sm:text-sm font-medium hover:underline underline-offset-4"
             prefetch={false}
           >
             PERSONAS
-          </Link>
+          </Link> */}
           <Link
             href="/about"
             className="text-xs sm:text-sm font-medium hover:underline underline-offset-4"

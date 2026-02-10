@@ -59,7 +59,7 @@ const Companies: React.FC = () => {
               <Card
                 key="traditional-01"
                 title="Contratación Tradicional"
-                description="En PHD Chile impulsamos la calidad de tu software con servicios diseñados para acompañarte en cada etapa de tu evolución tecnológica. Nos especializamos en fortalecer tus procesos con contratos tradicionales ideales para proyectos de largo plazo, asegurando continuidad, compromiso y un acompañamiento experto. Nuestro enfoque se adapta a tus necesidades, construyendo relaciones de confianza que crecen contigo. Elige un partner que entiende tus desafíos y evoluciona a tu ritmo. Conversemos sobre cómo podemos llevar la calidad de tus proyectos al siguiente nivel."
+                description="En PHD Chile impulsamos la calidad de tu software con servicios diseñados para acompañarte en cada etapa de tu evolución tecnológica. Nos especializamos en fortalecer tus procesos con contratos tradicionales ideales para proyectos de corto y largo plazo, asegurando continuidad, compromiso y un acompañamiento experto. Nuestro enfoque se adapta a tus necesidades, construyendo relaciones de confianza que crecen contigo. Elige un partner que entiende tus desafíos y evoluciona a tu ritmo. Conversemos sobre cómo podemos llevar la calidad de tus proyectos al siguiente nivel."
                 data-aos="fade-up"
                 className="flex-grow-0 flex-shrink-0 w-full w-full md:w-1/2 max-w-[550px] card-blue-style text-blue-1"
                 textAction="CONTRATAR"
@@ -153,9 +153,9 @@ function TestingServices() {
         <div className="flex flex-row gap-6">
           {[
             {
-              title: "Pruebas Manuales",
+              title: "Agrega IA a tu proceso de pruebas",
               description:
-                "Validamos que tu software funcione correctamente desde el punto de vista del usuario, detectando errores visuales, de flujo o de comportamiento antes de llegar a producción.",
+                "Transformamos tus pruebas con IA que detecta errores antes que tú, genera escenarios que no habías pensado y amplía tu cobertura sin ampliar tu equipo. Automatización inteligente que trabaja mientras tú innovas.",
               asset: "/assets/pruebas-manuales.svg",
             },
             {
@@ -375,17 +375,17 @@ const features: FeatureItem[] = [
   {
     title: "Pruebas IA",
     asset: "/assets/Chip.svg",
-    text: "Integración de calidad en tus pipelines DevOps para asegurar que cada cambio sea validado de manera continua, rápida y confiable en tu ciclo de desarrollo.",
+    text: "Utilizamos inteligencia artificial para generar casos de prueba, detectar anomalías y predecir errores potenciales, acelerando la validación y aumentando la efectividad del proceso de testing.",
   },
   {
     title: "DevQAOps",
     asset: "/assets/devQaOps.svg",
-    text: "Incorporamos testing y aseguramiento de calidad desde las primeras fases del desarrollo, reduciendo riesgos, costos y tiempos de entrega.",
+    text: "Integración de calidad en tus pipelines DevOps para asegurar que cada cambio sea validado de manera continua, rápida y confiable en tu ciclo de desarrollo.",
   },
   {
     title: "Pruebas Tempranas Shift Left",
     asset: "/assets/shift-left.svg",
-    text: "Validamos la funcionalidad, el rendimiento y la experiencia de usuario en dispositivos móviles reales para garantizar aplicaciones ágiles, seguras y optimizadas.",
+    text: "Incorporamos testing y aseguramiento de calidad desde las primeras fases del desarrollo, reduciendo riesgos, costos y tiempos de entrega.",
   },
   {
     title: "Pruebas con Dispositivos Móviles",

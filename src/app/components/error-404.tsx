@@ -1,5 +1,6 @@
 import React from "react";
 import Link from "next/link";
+import Image from "next/image";
 
 interface Error404Props {
   showBackButton?: boolean;
@@ -7,9 +8,9 @@ interface Error404Props {
 
 const Error404: React.FC<Error404Props> = ({ showBackButton = true }) => {
   return (
-    <div className="relative min-h-screen bg-gradient-to-br from-[#E8F4F8] to-[#B8D9EE] flex items-center justify-center overflow-hidden">
+    <div className="relative min-h-screen bg-white flex items-center justify-center overflow-hidden">
       {/* Decorative top-left corner blocks */}
-      <div className="absolute top-0 left-0 flex">
+      <div className="absolute top-16 sm:top-20 left-0 flex">
         <div className="w-[110px] h-[56px] bg-pink-400" />
         <div className="w-[110px] h-[56px] bg-blue-400" />
         <div className="w-[110px] h-[56px] bg-[#B8D9EE]" />
@@ -17,7 +18,7 @@ const Error404: React.FC<Error404Props> = ({ showBackButton = true }) => {
 
       {/* Decorative bottom-right corner blocks */}
       <div className="absolute bottom-0 right-0 flex">
-        <div className="w-[110px] h-[56px] bg-[#D4E8F3]" />
+        <div className="w-[110px] h-[56px] bg-[#E8EBED]" />
         <div className="w-[110px] h-[56px] bg-blue-2" />
         <div className="w-[110px] h-[56px] bg-purple-400" />
       </div>
@@ -31,67 +32,13 @@ const Error404: React.FC<Error404Props> = ({ showBackButton = true }) => {
 
         {/* Center PHD flag icon */}
         <div className="relative flex items-center justify-center">
-          <svg
-            width="200"
-            height="180"
-            viewBox="0 0 200 180"
-            fill="none"
-            xmlns="http://www.w3.org/2000/svg"
-            className="w-40 md:w-48 lg:w-56"
-          >
-            {/* Flag pole */}
-            <rect x="96" y="20" width="8" height="140" fill="#21323f" rx="2" />
-
-            {/* Left flag panel */}
-            <rect
-              x="20"
-              y="50"
-              width="80"
-              height="70"
-              fill="white"
-              stroke="#21323f"
-              strokeWidth="5"
-              rx="4"
-            />
-            {/* Blue X in left panel */}
-            <text
-              x="60"
-              y="100"
-              fontFamily="Inter, sans-serif"
-              fontSize="42"
-              fontWeight="700"
-              fill="#2589FE"
-              textAnchor="middle"
-              dominantBaseline="middle"
-            >
-              X
-            </text>
-
-            {/* Right flag panel */}
-            <rect
-              x="108"
-              y="30"
-              width="80"
-              height="70"
-              fill="white"
-              stroke="#21323f"
-              strokeWidth="5"
-              rx="4"
-            />
-            {/* Pink X in right panel */}
-            <text
-              x="148"
-              y="80"
-              fontFamily="Inter, sans-serif"
-              fontSize="42"
-              fontWeight="700"
-              fill="#FF3365"
-              textAnchor="middle"
-              dominantBaseline="middle"
-            >
-              X
-            </text>
-          </svg>
+          <Image
+            src="/assets/phd-not-found.svg"
+            alt="PHD Not Found"
+            width={300}
+            height={300}
+            className="w-64 md:w-80 lg:w-96"
+          />
         </div>
 
         {/* Right text with dot */}

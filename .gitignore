@@ -38,3 +38,7 @@ next-env.d.ts
 .github
 .vscode
 Claude.md
+.mcp.json
+.cursorrules
+.claude/
+docs/

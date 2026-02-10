@@ -5,7 +5,6 @@ import Card from "../components/card";
 import Contact from "../components/contact/page";
 import Image from "next/image";
 import Link from "next/link";
-import { useEffect, useRef } from "react";
 import useScrollToSection from "@/hooks/useScrollToSection";
 
 const Companies: React.FC = () => {
@@ -59,11 +58,7 @@ const Companies: React.FC = () => {
               <Card
                 key="traditional-01"
                 title="Contratación Tradicional"
-<<<<<<< HEAD
                 description="En PHD Chile impulsamos la calidad de tu software con servicios diseñados para acompañarte en cada etapa de tu evolución tecnológica. Nos especializamos en fortalecer tus procesos con contratos tradicionales ideales para proyectos de corto y largo plazo, asegurando continuidad, compromiso y un acompañamiento experto. Nuestro enfoque se adapta a tus necesidades, construyendo relaciones de confianza que crecen contigo. Elige un partner que entiende tus desafíos y evoluciona a tu ritmo. Conversemos sobre cómo podemos llevar la calidad de tus proyectos al siguiente nivel."
-=======
-                description="En PHD Chile impulsamos la calidad de tu software con servicios diseñados para acompañarte en cada etapa de tu evolución tecnológica. Nos especializamos en fortalecer tus procesos con contratos tradicionales ideales para proyectos de largo plazo, asegurando continuidad, compromiso y un acompañamiento experto. Nuestro enfoque se adapta a tus necesidades, construyendo relaciones de confianza que crecen contigo. Elige un partner que entiende tus desafíos y evoluciona a tu ritmo. Conversemos sobre cómo podemos llevar la calidad de tus proyectos al siguiente nivel."
->>>>>>> 4e77315 (empresas: pagina de empresas)
                 data-aos="fade-up"
                 className="flex-grow-0 flex-shrink-0 w-full w-full md:w-1/2 max-w-[550px] card-blue-style text-blue-1"
                 textAction="CONTRATAR"
@@ -379,34 +374,22 @@ const features: FeatureItem[] = [
   {
     title: "Pruebas IA",
     asset: "/assets/Chip.svg",
-<<<<<<< HEAD
-    text: "Utilizamos inteligencia artificial para generar casos de prueba, detectar anomalías y predecir errores potenciales, acelerando la validación y aumentando la efectividad del proceso de testing.",
-=======
-    text: "Integración de calidad en tus pipelines DevOps para asegurar que cada cambio sea validado de manera continua, rápida y confiable en tu ciclo de desarrollo.",
->>>>>>> 4e77315 (empresas: pagina de empresas)
+    text: "La inteligencia artificial potencia tus pruebas: generamos casos automáticamente, detectamos patrones de error y predecimos problemas antes de que ocurran. Más cobertura, menos tiempo.",
   },
   {
     title: "DevQAOps",
     asset: "/assets/devQaOps.svg",
-<<<<<<< HEAD
-    text: "Integración de calidad en tus pipelines DevOps para asegurar que cada cambio sea validado de manera continua, rápida y confiable en tu ciclo de desarrollo.",
-=======
-    text: "Incorporamos testing y aseguramiento de calidad desde las primeras fases del desarrollo, reduciendo riesgos, costos y tiempos de entrega.",
->>>>>>> 4e77315 (empresas: pagina de empresas)
+    text: "Integramos calidad directamente en tu pipeline DevOps. Cada commit, cada deploy, validado automáticamente. Entrega continua con confianza continua.",
   },
   {
     title: "Pruebas Tempranas Shift Left",
     asset: "/assets/shift-left.svg",
-<<<<<<< HEAD
-    text: "Incorporamos testing y aseguramiento de calidad desde las primeras fases del desarrollo, reduciendo riesgos, costos y tiempos de entrega.",
-=======
-    text: "Validamos la funcionalidad, el rendimiento y la experiencia de usuario en dispositivos móviles reales para garantizar aplicaciones ágiles, seguras y optimizadas.",
->>>>>>> 4e77315 (empresas: pagina de empresas)
+    text: "La calidad comienza desde el primer día. Detectamos y corregimos errores en etapas tempranas del desarrollo, ahorrando tiempo y reduciendo costos de corrección.",
   },
   {
     title: "Pruebas con Dispositivos Móviles",
     asset: "/assets/pruebas-mobile.svg",
-    text: "Validamos la funcionalidad, el rendimiento y la experiencia de usuario en dispositivos móviles reales para garantizar aplicaciones ágiles, seguras y optimizadas.",
+    text: "Validación real en dispositivos reales. Probamos funcionalidad, rendimiento y experiencia de usuario en el ecosistema móvil completo para garantizar apps que funcionan perfectamente.",
   },
 ];
 

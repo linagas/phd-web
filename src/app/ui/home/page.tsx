@@ -4,104 +4,86 @@ import Image from "next/image";
 import Link from "next/link";
 import "aos/dist/aos.css";
 import AOS from "aos";
-import "aos/dist/aos.css";
-import { useEffect, useRef } from "react";
+import { useEffect } from "react";
 import useScrollToSection from "@/hooks/useScrollToSection";
 import Card from "@/app/components/card";
 import CustomDot from "@/app/components/custom-dot";
+import ContactButton from "@/app/components/contact-button";
+import { SERVICES_DATA } from "@/constants/services-data";
 
 export default function Home() {
   const { scrollToSection: scrollToContact } = useScrollToSection(
     "section-contact",
     100
   );
+  
   useEffect(() => {
     AOS.init();
   }, []);
 
-  const robotSvg = "/assets/robot.svg";
-
   return (
-    <section className="min-h-screen mt-14 flex justify-center ">
-      <div className="max-w-screen-2xl w-full pt-8">
-        <div className="relative h-[125vh]">
-          {/* <!-- Capa de la imagen de fondo --> */}
+    <section className="min-h-screen mt-14 flex justify-center">
+      <div className="max-w-screen-2xl w-full">
+        {/* Hero Section */}
+        <div className="relative pt-8 pb-16 md:pb-24">
+          {/* Fondo azul */}
           <div
-            className="absolute inset-0 bg-cover bg-center"
+            className="absolute inset-0 bg-cover bg-center mt-[100px] -z-10"
             style={{
               backgroundImage: `url("/assets/background-blue.svg")`,
-              marginTop: "100px",
-              zIndex: -1,
             }}
           ></div>
 
-          {/* <!-- Capa del contenido --> */}
-          <div className="relative flex flex-col items-center h-full">
-            {/* <!-- Primera fila: dos columnas --> */}
-            <div className="flex w-full  p-4">
-              <div className="flex flex-col justify-center md:justify-start align-centerw-1/2 p-4 md:pl-16">
-                <h2 className="text-center md:text-left text-blue-1 font-bold text-2xl md:text-4xl ">
-                  Calidad de software que impulsa tu crecimiento
-                </h2>
-                <p className="text-center md:text-left py-4 mt-4 max-w-md">
-                  Seamos tus partners estratégicos en la evolución de tus
-                  procesos.
-                </p>
-                <Link
-                  href="#"
-                  onClick={scrollToContact}
-                  className="inline-flex w-full md:w-48 text-white items-center justify-center rounded-[4px] bg-pink-400 px-4 py-2 md:px-6 md:py-3 text-lg md:text-xl font-medium text-primary-foreground shadow transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50"
-                >
-                  Contáctanos
-                </Link>
+          {/* Primera fila: dos columnas */}
+          <div className="flex flex-col md:flex-row w-full items-center gap-8 px-4 md:px-8">
+            <div className="flex flex-col justify-center w-full md:w-1/2 md:pl-8">
+              <h2 className="text-center md:text-left text-blue-1 font-bold text-2xl md:text-4xl lg:text-5xl">
+                Calidad de software que impulsa tu crecimiento
+              </h2>
+              <p className="text-center md:text-left py-4 mt-4 text-base md:text-lg text-gray-700">
+                Seamos tus partners estratégicos en la evolución de tus
+                procesos.
+              </p>
+              <div className="mt-4">
+                <ContactButton onClick={scrollToContact} variant="primary" />
               </div>
-              <div className="w-1/2 p-4 hidden md:block">
-                <div className="flex flex-row-reverse">
-                  <article className="flex justify-end">
-                    <div className="flex justify-end pt-8 pr-8">
-                      {/* punto fucsia */}
-                      <CustomDot
-                        baseSize="w-[34px] h-[34px]"
-                        lgSize="lg:w-[56px] lg:h-[56px]"
-                        color="bg-pink-400"
-                      />
-                    </div>
-                  </article>
-                  <Image
-                    src={robotSvg}
-                    width={600}
-                    height={500}
-                    alt="Software Quality Services"
-                    className="rounded-lg"
-                    style={{
-                      backgroundRepeat: "no-repeat",
-                      backgroundSize: "cover",
-                      backgroundPosition: "bottom",
-                    }}
-                    data-aos="fade-left"
+            </div>
+            <div className="w-full md:w-1/2 relative flex justify-center md:justify-end">
+              <div className="relative">
+                <div className="absolute top-0 right-0 -mr-4 -mt-4 z-10">
+                  <CustomDot
+                    baseSize="w-[34px] h-[34px]"
+                    lgSize="lg:w-[56px] lg:h-[56px]"
+                    color="bg-pink-400"
                   />
                 </div>
+                <Image
+                  src="/assets/robot.svg"
+                  width={600}
+                  height={500}
+                  alt="Software Quality Services"
+                  className="rounded-lg"
+                  data-aos="fade-left"
+                />
               </div>
             </div>
-
-            {/* <!-- Segunda fila: una columna --> */}
-            <div className="w-full p-4">
-              <Services />
-            </div>
           </div>
+
+          {/* Services Section dentro del fondo azul */}
+          <Services />
         </div>
 
         <article
-          id="section-3"
-          className="flex flex-col items-center pt-72 md:p-8"
+          id="section-how-we-do"
+          className="flex flex-col items-center pt-16 md:pt-24 px-4 md:px-8"
         >
           <HowWeDoIt />
         </article>
-        <article id="section-4" className="flex flex-col items-center ">
+        <article id="section-training" className="flex flex-col items-center">
           <ConsultingInfo />
         </article>
         <article
-          id="section-5"
+          id="section-contact"
           className="flex flex-col items-center p-4 md:p-8"
         >
           <Contact />
@@ -120,16 +102,14 @@ function ConsultingInfo() {
   return (
     <section
       id="consulting-info-section"
-      className="flex justify-between py-14"
+      className="flex justify-between py-14 bg-cover"
       style={{
         backgroundImage: `url('/assets/background-pink.svg')`,
-        backgroundSize: "cover",
-        zIndex: 9,
       }}
     >
-      <article className="flex-1  flex justify-center hidden md:block">
+      <article className="flex-1 flex justify-center hidden md:block">
         <Image
-          src={"/assets/consulting-info.svg"}
+          src="/assets/consulting-info.svg"
           width={600}
           height={600}
           alt="Software Quality Services"
@@ -142,8 +122,8 @@ function ConsultingInfo() {
           data-aos="fade-up"
         />
       </article>
-      <article className="flex-1 ">
-        <div className=" flex flex-col justify-center align-center w-auto">
+      <article className="flex-1">
+        <div className="flex flex-col justify-center items-center w-auto">
           <h1 className="text-2xl md:text-4xl text-center md:text-left font-bold text-white pt-20">
             Capacitaciones en Calidad de Software
           </h1>
@@ -153,14 +133,11 @@ function ConsultingInfo() {
             necesitas para avanzar, en un entorno donde tu crecimiento es
             nuestra prioridad. ¡Hablemos y planifiquemos tu desarrollo!
           </p>
-          <Link
-            className="inline-flex self-center md:self-left  w-48 text-white items-center justify-center rounded-[4px] bg-blue-1 px-4 py-2 text-xl font-medium text-primary-foreground shadow transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50"
-            href="#"
+          <ContactButton
             onClick={scrollToContact}
-            prefetch={false}
-          >
-            Cont&aacute;ctanos
-          </Link>
+            variant="secondary"
+            className="self-center md:self-start"
+          />
         </div>
       </article>
     </section>
@@ -175,8 +152,8 @@ function HowWeDoIt() {
   return (
     <div>
       <section className="flex justify-between py-14">
-        <article className="flex-1 ">
-          <div className="flex flex-col justify-center align-center w-auto">
+        <article className="flex-1">
+          <div className="flex flex-col justify-center items-center w-auto">
             <h1 className="text-2xl md:text-4xl text-center md:text-left font-bold text-purple-12 pt-20">
               Cómo lo Hacemos
             </h1>
@@ -191,18 +168,18 @@ function HowWeDoIt() {
               valor a tu negocio.
             </p>
             <Link
-              className="bg-purple-12 inline-flex self-center md:self-left w-48 text-white items-center justify-center rounded-[4px] px-4 py-2 text-xl font-medium text-primary-foreground shadow transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50"
+              className="bg-purple-12 inline-flex self-center md:self-start w-48 text-white items-center justify-center rounded-[4px] px-4 py-2 text-xl font-medium shadow transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50"
               href="#"
               onClick={scrollToContact}
               prefetch={false}
             >
-              Cont&aacute;ctanos
+              Contáctanos
             </Link>
           </div>
         </article>
-        <article className="flex-1  flex justify-center hidden md:block ">
+        <article className="flex-1 flex justify-center hidden md:block">
           <Image
-            src={"/assets/svg-como-lo-hacemos.svg"}
+            src="/assets/svg-como-lo-hacemos.svg"
             width={530}
             height={520}
             alt="Software Quality Services"
@@ -218,9 +195,11 @@ function HowWeDoIt() {
       </section>
       <section className="relative pl-8 flex justify-start md:flex-row gap-x-4 pr-16">
         <div className="absolute bottom-0 right-0 flex-none w-20 pt-4 pr-8">
-          {/* punto */}
           <div className="justify-self-end">
-            <div className="w-[32px] h-[32px] rounded-full bg-purple-12" />
+            <CustomDot
+              baseSize="w-[32px] h-[32px]"
+              color="bg-purple-12"
+            />
           </div>
         </div>
       </section>
@@ -228,61 +207,19 @@ function HowWeDoIt() {
   );
 }
 
-const services = [
-  {
-    icon: (
-      <Image
-        src={"/assets/sdlc-consulting.svg"}
-        width={92}
-        height={92}
-        alt={""}
-      />
-    ),
-    title: "Consultoría de SDLC",
-    description:
-      "Transforma tu SDLC con un enfoque ágil y eficiente. Nuestra consultoría te guía para optimizar procesos y asegurar la entrega continua de software de calidad.",
-  },
-  {
-    icon: (
-      <Image
-        src={"/assets/software-testing.svg"}
-        width={92}
-        height={92}
-        alt={""}
-      />
-    ),
-    title: "Servicio de Testing",
-    description:
-      "Diseñamos servicios de testing según tus necesidades, con soluciones innovadoras en pruebas funcionales y no funcionales, garantizando una experiencia óptima para los usuarios.",
-  },
-  {
-    icon: (
-      <Image
-        src={"/assets/third-services.svg"}
-        width={92}
-        height={92}
-        alt={""}
-      />
-    ),
-    title: "Agile Testing",
-    description:
-      "Lleva tu Agile Testing al siguiente nivel. Evolucionamos tus métodos de prueba para adaptarlos a un entorno ágil y cambiante, asegurando una entrega continua de valor.",
-  },
-];
-
 function Services() {
   return (
     <article
-      id="section-2"
-      className="p-5 rounded-lg flex flex-col items-center "
+      id="section-services"
+      className="py-16 md:py-20 px-4 md:px-8 relative"
     >
-      <div className="w-full text-center">
-        <h2 className="text-white font-bold text-2xl md:text-4xl pt-20 md: pt-16">
+      <div className="w-full text-center mb-12 md:mb-16">
+        <h2 className="text-white font-bold text-3xl md:text-4xl lg:text-5xl">
           Nuestro Enfoque
         </h2>
       </div>
-      <div className="w-full flex flex-wrap justify-center mt-4 gap-6 md:gap-14">
-        {services.map((service, index) => (
+      <div className="w-full flex flex-wrap justify-center gap-6 md:gap-8 lg:gap-12 max-w-7xl mx-auto">
+        {SERVICES_DATA.map((service, index) => (
           <Card
             key={index}
             iconPosition="left"
@@ -290,14 +227,15 @@ function Services() {
             title={service.title}
             description={service.description}
             data-aos="fade-up"
-            className="flex-grow-0 flex-shrink-0 w-full md:w-1/3 lg:w-1/4 max-w-xs"
+            className="flex-grow-0 flex-shrink-0 w-full sm:w-[calc(50%-1rem)] lg:w-[calc(33.333%-2rem)] max-w-sm"
           />
         ))}
       </div>
-      <div className="hidden md:block w-full flex py-20 pl-8 flex  justify-start md:flex-row gap-x-4 pr-8 ">
-        <div className="justify-self-end pt-4 pr-8">
-          <div className={`w-[52px] h-[52px] rounded-full bg-white`} />
-        </div>
+      <div className="hidden md:flex w-full justify-end pt-8 pr-8">
+        <CustomDot
+          baseSize="w-[52px] h-[52px]"
+          color="bg-white"
+        />
       </div>
     </article>
   );

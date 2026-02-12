@@ -52,35 +52,22 @@ export default function Header() {
             isMenuOpen ? "flex bg-blue-500" : "hidden"
           } sm:flex flex-col sm:flex-row gap-4 sm:gap-6 items-center justify-center transition-opacity duration-500 ease-in-out p-4 sm:p-0 rounded-lg sm:rounded-none absolute sm:relative top-16 sm:top-auto left-0 sm:left-auto right-0 sm:right-auto w-full sm:w-auto`}
         >
-          {/* <Link
-            href="/companies"
-            className="text-xs sm:text-sm font-medium hover:underline underline-offset-4"
-            prefetch={false}
-          >
-            EMPRESAS
-          </Link>
-          <Link
-            href="/people"
-            className="text-xs sm:text-sm font-medium hover:underline underline-offset-4"
-            prefetch={false}
-          >
-            PERSONAS
-          </Link>
+
           <Link
             href="/about"
             className="text-xs sm:text-sm font-medium hover:underline underline-offset-4"
             prefetch={false}
           >
             NOSOTROS
-          </Link> */}
-          <Link
-            href="#"
+          </Link>
+
+          <button
             onClick={scrollToContact}
-            prefetch={false}
+            type="button"
             className="inline-flex h-9 items-center justify-center rounded-[4px] bg-pink-400 px-4 py-2 text-sm font-medium text-primary-foreground shadow transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50"
           >
             CONTACTO
-          </Link>
+          </button>
         </nav>
       </div>
     </header>

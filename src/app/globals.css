@@ -48,3 +48,11 @@ body {
   background-position: center;
   padding-top: 100%;
 }
+
+.card-blue-style {
+  border: 7px solid #0caafd;
+}
+
+.card-pink-style {
+  border: 5px solid #ff3365;
+}

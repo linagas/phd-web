@@ -151,24 +151,23 @@ function HowWeDoIt() {
   );
   return (
     <div>
-      <section className="flex justify-between py-14">
+      <section className="flex justify-between py-8">
         <article className="flex-1">
-          <div className="flex flex-col justify-center items-center w-auto">
-            <h1 className="text-2xl md:text-4xl text-center md:text-left font-bold text-purple-12 pt-20">
+          <div className="flex flex-col justify-start w-full max-w-2xl px-4 md:px-0">
+            <h1 className="text-2xl md:text-5xl font-bold text-purple-12 mb-6">
               Cómo lo Hacemos
             </h1>
-            <p className="p-4 text-center md:text-left text-balance">
+            <p className="text-base md:text-lg text-gray-700 leading-relaxed mb-8">
               En PHD, nos especializamos en adaptar nuestros servicios de
               calidad a las necesidades particulares de cada cliente. Aplicamos
               un enfoque flexible y ágil, combinando las mejores prácticas del
               mercado con soluciones innovadoras. Desde la planificación hasta
               la ejecución, trabajamos en estrecha colaboración contigo para
-              asegurar que cada prueba funcional o no funcional se realice con
-              precisión y eficiencia, brindando resultados que realmente agregan
+              asegurar que cada prueba se realice de manera eficiente, brindando resultados que agregan
               valor a tu negocio.
             </p>
             <Link
-              className="bg-purple-12 inline-flex self-center md:self-start w-48 text-white items-center justify-center rounded-[4px] px-4 py-2 text-xl font-medium shadow transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50"
+              className="bg-purple-12 inline-flex w-48 text-white items-center justify-center rounded-[4px] px-4 py-2 text-xl font-medium shadow transition-colors hover:bg-purple-400 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50"
               href="#"
               onClick={scrollToContact}
               prefetch={false}
@@ -177,13 +176,13 @@ function HowWeDoIt() {
             </Link>
           </div>
         </article>
-        <article className="flex-1 flex justify-center hidden md:block">
+        <article className="flex-1 hidden md:flex justify-center">
           <Image
             src="/assets/svg-como-lo-hacemos.svg"
             width={530}
             height={520}
             alt="Software Quality Services"
-            className="rounded-lg"
+            className="rounded-lg -mt-16 lg:-mt-20"
             style={{
               backgroundRepeat: "no-repeat",
               backgroundSize: "cover",
@@ -218,7 +217,7 @@ function Services() {
           Nuestro Enfoque
         </h2>
       </div>
-      <div className="w-full flex flex-wrap justify-center gap-6 md:gap-8 lg:gap-12 max-w-7xl mx-auto">
+      <div className="w-full flex flex-wrap text-left gap-6 md:gap-8 lg:gap-12 max-w-7xl mx-auto">
         {SERVICES_DATA.map((service, index) => (
           <Card
             key={index}

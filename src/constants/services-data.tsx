@@ -3,7 +3,7 @@ import Image from "next/image";
 export interface ServiceData {
   icon: JSX.Element;
   title: string;
-  description: string;
+  description: string | JSX.Element;
 }
 
 export const SERVICES_DATA: ServiceData[] = [
@@ -31,7 +31,7 @@ export const SERVICES_DATA: ServiceData[] = [
     ),
     title: "Servicio de Testing",
     description:
-      "Diseñamos servicios de testing según tus necesidades, con soluciones innovadoras en pruebas funcionales y no funcionales, garantizando una experiencia óptima para los usuarios.",
+      "Entregamos servicios de testing según tus necesidades, con soluciones innovadoras en pruebas funcionales y no funcionales, garantizando una experiencia óptima para los usuarios.",
   },
   {
     icon: (
@@ -42,8 +42,18 @@ export const SERVICES_DATA: ServiceData[] = [
         alt="Agile Testing"
       />
     ),
-    title: "Agile Testing",
+    title: "Testing Inteligente con IA",
     description:
-      "Lleva tu Agile Testing al siguiente nivel. Evolucionamos tus métodos de prueba para adaptarlos a un entorno ágil y cambiante, asegurando una entrega continua de valor.",
+      (
+        <>
+          Impulsamos la productividad de los equipos de Testing mediante IA aplicada:
+          <ul className="list-disc list-inside mt-2 space-y-1">
+            <li>Automatización</li>
+            <li>Priorización inteligente de pruebas</li>
+            <li>Mayor cobertura</li>
+            <li>Entrega de valor</li>
+          </ul>
+        </>
+      ),
   },
 ];

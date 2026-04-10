@@ -10,14 +10,14 @@ const Error404: React.FC<Error404Props> = ({ showBackButton = true }) => {
   return (
     <div className="relative min-h-screen bg-white flex items-center justify-center overflow-hidden">
       {/* Decorative top-left corner blocks */}
-      <div className="absolute top-16 sm:top-20 left-0 flex">
+      <div className="absolute top-16 sm:top-20 left-0 flex" aria-hidden="true">
         <div className="w-[110px] h-[56px] bg-pink-400" />
         <div className="w-[110px] h-[56px] bg-blue-400" />
         <div className="w-[110px] h-[56px] bg-[#B8D9EE]" />
       </div>
 
       {/* Decorative bottom-right corner blocks */}
-      <div className="absolute bottom-0 right-0 flex">
+      <div className="absolute bottom-0 right-0 flex" aria-hidden="true">
         <div className="w-[110px] h-[56px] bg-[#E8EBED]" />
         <div className="w-[110px] h-[56px] bg-blue-2" />
         <div className="w-[110px] h-[56px] bg-purple-400" />
@@ -25,10 +25,10 @@ const Error404: React.FC<Error404Props> = ({ showBackButton = true }) => {
 
       {/* Main content */}
       <div className="relative z-10 flex flex-col md:flex-row items-center justify-center gap-8 md:gap-16 px-4">
-        {/* Left text */}
-        <h2 className="text-2xl md:text-3xl lg:text-4xl font-normal text-blue-2 text-center md:text-right">
-          Oops! Pagina no Encontrada
-        </h2>
+        {/* Error 404 heading */}
+        <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-blue-2">
+          Error 404
+        </h1>
 
         {/* Center PHD flag icon */}
         <div className="relative flex items-center justify-center">
@@ -41,12 +41,12 @@ const Error404: React.FC<Error404Props> = ({ showBackButton = true }) => {
           />
         </div>
 
-        {/* Right text with dot */}
+        {/* Subtitle and dot */}
         <div className="flex items-center gap-3">
-          <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-blue-2">
-            Error 404
-          </h1>
-          <div className="w-4 h-4 md:w-5 md:h-5 lg:w-6 lg:h-6 rounded-full bg-purple-400" />
+          <h2 className="text-2xl md:text-3xl lg:text-4xl font-normal text-blue-2 text-center md:text-right">
+            Oops! Pagina no Encontrada
+          </h2>
+          <div className="w-4 h-4 md:w-5 md:h-5 lg:w-6 lg:h-6 rounded-full bg-purple-400" aria-hidden="true" />
         </div>
       </div>
 

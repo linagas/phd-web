@@ -14,7 +14,7 @@ const CustomDot: React.FC<CustomDotProps> = ({
   className = "",
 }) => {
   return (
-    <div className={`justify-self-end ${className}`}>
+    <div className={`justify-self-end ${className}`} aria-hidden="true">
       <div className={`rounded-full ${baseSize} ${lgSize} ${color}`} />
     </div>
   );

@@ -16,7 +16,7 @@ export default function Footer() {
             className="h-8 w-auto px-4"
           />
           <span>
-            2024 PHD - Conexiones que contruyen. Todos los derechos reservados.
+            2024 PHD - Conexiones que construyen. Todos los derechos reservados.
           </span>
         </div>
         <div className="flex gap-x-1.5">

@@ -1,65 +1,69 @@
 "use client";
-import React, { useEffect, useState } from "react";
+import React, { useState, useCallback } from "react";
 import Image from "next/image";
+import { useGoogleReCaptcha } from "react-google-recaptcha-v3";
 import useScrollToSection from "@/hooks/useScrollToSection";
-import { load } from "recaptcha-v3";
 
 export default function Contact() {
   const { sectionRef } = useScrollToSection("section-contact");
+  const { executeRecaptcha } = useGoogleReCaptcha();
   const [formData, setFormData] = useState({
     user_name: "",
     user_email: "",
     message: "",
   });
-  const [isClient, setIsClient] = useState(false);
   const [submitted, setSubmitted] = useState(false);
-  const RECAPTCHA_SITE_KEY = process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY;
-
-  useEffect(() => {
-    // Cargamos el script de reCAPTCHA solo en el cliente
-    const script = document.createElement("script");
-    script.src = `https://www.google.com/recaptcha/api.js`;
-    script.async = true;
-    script.defer = true;
-    document.body.appendChild(script);
-
-    // Establecemos que estamos en el cliente
-    setIsClient(true);
-  }, []);
+  const [errorMsg, setErrorMsg] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value,
-    });
+    setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    const res = await fetch("/api/saveMessage", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        ...formData,
-      }),
-    });
+  const handleSubmit = useCallback(
+    async (e: React.FormEvent<HTMLFormElement>) => {
+      e.preventDefault();
+      setErrorMsg("");
 
-    if (res.ok) {
-      setSubmitted(true);
-    } else {
-      alert("Error al guardar el mensaje. Inténtalo de nuevo.");
-    }
-  };
+      if (!executeRecaptcha) {
+        setErrorMsg("reCAPTCHA no está listo. Inténtalo de nuevo.");
+        return;
+      }
+
+      setIsLoading(true);
+      try {
+        const recaptchaToken = await executeRecaptcha("contact_form");
+
+        const res = await fetch("/api/saveMessage", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ ...formData, recaptchaToken }),
+        });
+
+        if (res.ok) {
+          setSubmitted(true);
+        } else {
+          const body = await res.json().catch(() => ({}));
+          setErrorMsg(
+            body.error ?? "Error al enviar el mensaje. Inténtalo de nuevo."
+          );
+        }
+      } catch {
+        setErrorMsg("Error de red. Inténtalo de nuevo.");
+      } finally {
+        setIsLoading(false);
+      }
+    },
+    [executeRecaptcha, formData]
+  );
 
   return (
     <section
       id="section-contact"
       ref={sectionRef}
-      className="flex flex-col md:flex-row py-12 md:py-24 justify-start items-center md:items-start"
+      className="scroll-mt-20 flex flex-col md:flex-row py-12 md:py-24 justify-start items-center md:items-start"
     >
       <article className="px-4 md:pl-16 w-full md:w-2/3 mb-8 md:mb-0">
         <h2 className="text-2xl md:text-4xl text-left font-bold text-blue-2">
@@ -73,7 +77,7 @@ export default function Contact() {
           el formulario y nos pondremos en contacto contigo.
         </p>
         {submitted ? (
-          <p className="text-green-500">
+          <p className="text-green-500 mt-6">
             ¡Tu mensaje ha sido guardado exitosamente! Pronto nos pondremos en
             contacto contigo.
           </p>
@@ -83,6 +87,9 @@ export default function Contact() {
               onSubmit={handleSubmit}
               className="mt-8 w-full flex flex-col items-end"
             >
+              <label htmlFor="user_name" className="sr-only">
+                Nombre
+              </label>
               <input
                 name="user_name"
                 id="user_name"
@@ -92,8 +99,12 @@ export default function Contact() {
                 placeholder="Ingresa tu nombre"
                 className="w-full mb-4 p-4 rounded-[12px] border border-black-2 border-4"
                 required
+                disabled={isLoading}
               />
 
+              <label htmlFor="user_email" className="sr-only">
+                Correo electrónico
+              </label>
               <input
                 name="user_email"
                 id="user_email"
@@ -103,7 +114,12 @@ export default function Contact() {
                 placeholder="Ingresa tu correo"
                 className="w-full mb-4 p-4 rounded-[12px] border border-black-2 border-4"
                 required
+                disabled={isLoading}
               />
+
+              <label htmlFor="message" className="sr-only">
+                Mensaje
+              </label>
               <textarea
                 placeholder="Ingresa tu mensaje"
                 name="message"
@@ -112,19 +128,21 @@ export default function Contact() {
                 onChange={handleChange}
                 className="w-full mb-4 p-4 rounded-[12px] border border-black-2 border-4"
                 required
+                disabled={isLoading}
               ></textarea>
-              {isClient && (
-                <div
-                  className="g-recaptcha"
-                  data-sitekey="6LdqNWgqAAAAAKfsZuQUgEsFj9cXzTgcRRc41oZ5"
-                ></div>
+
+              {errorMsg && (
+                <p role="alert" className="text-red-500 w-full mb-2">
+                  {errorMsg}
+                </p>
               )}
 
               <button
-                className="justify-self-end h-9 w-32 bg-blue-1 text-white py-2 px-8 rounded-[4px]"
+                className="justify-self-end h-9 w-32 bg-blue-1 text-white py-2 px-8 rounded-[4px] disabled:opacity-50 disabled:cursor-not-allowed"
                 type="submit"
+                disabled={isLoading}
               >
-                Enviar
+                {isLoading ? "Enviando..." : "Enviar"}
               </button>
             </form>
 

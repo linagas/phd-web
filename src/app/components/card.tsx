@@ -4,7 +4,7 @@ import React from "react";
 interface CardProps {
   icon?: React.ReactNode;
   title: string;
-  description: string;
+  description: React.ReactNode;
   iconPosition?: "left" | "right" | "top" | "bottom";
   className?: string;
   textAction?: string;
@@ -30,7 +30,7 @@ const Card: React.FC<CardProps> = ({
 }) => {
   return (
     <div
-      className={`bg-white p-4 shadow-lg ${rounded} ${width} ${height} ${
+      className={`bg-white p-2 md:p-4 shadow-lg ${rounded} ${width} ${height} ${
         iconPosition === "top" || iconPosition === "bottom"
           ? "flex flex-col items-center"
           : "flex flex-col sm:flex-row items-center"
@@ -46,18 +46,18 @@ const Card: React.FC<CardProps> = ({
         <div className="flex items-center justify-center mb-4">{icon}</div>
       )}
       <div
-        className={`p-6 ${
+        className={`p-3 md:p-5 ${
           iconPosition === "top" || iconPosition === "bottom"
-            ? "text-center"
+            ? ""
             : "w-full sm:w-2/3"
         } ${iconPosition === "right" ? "order-first" : ""}`}
       >
-        <h3 className="text-m md:text-lg sm:text-xl lg:text-xl font-semibold mb-6">
+        <h3 className="text-m md:text-lg sm:text-xl lg:text-xl font-semibold mb-6 text-left">
           {title}
         </h3>
-        <p className="mb-2 text-s md:text-m text-gray-700  text-justify">
+        <div className="mb-2 text-s md:text-m text-gray-700 text-left">
           {description}
-        </p>
+        </div>
       </div>
       {iconPosition === "right" && (
         <div className="flex items-center justify-center w-full sm:w-1/3 mt-4 sm:mt-0">

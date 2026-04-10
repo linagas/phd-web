@@ -28,6 +28,8 @@ export default function Header() {
         <button
           className="sm:hidden"
           onClick={() => setIsMenuOpen(!isMenuOpen)}
+          aria-label={isMenuOpen ? "Cerrar menú" : "Abrir menú"}
+          aria-expanded={isMenuOpen}
         >
           {/* Icono del menú de hamburguesa */}
           <svg
@@ -57,8 +59,15 @@ export default function Header() {
               className="text-xs sm:text-sm font-medium hover:underline underline-offset-4"
               prefetch={false}
             >
-              EMPRESAS
+              SERVICIOS
             </Link>
+            {/* <Link
+              href="/people"
+              className="text-xs sm:text-sm font-medium hover:underline underline-offset-4"
+              prefetch={false}
+            >
+              FORMACION
+            </Link> */}
 
           <Link
             href="/about"

@@ -1,7 +1,14 @@
 import { NextApiRequest, NextApiResponse } from "next";
+import { z, ZodError } from "zod";
 import { MessageService } from "@/services/messageService";
 import { verifyRecaptcha } from "@/utils/recaptcha";
-import { z } from "zod";
+
+const contactSchema = z.object({
+  user_name: z.string().min(2, "El nombre debe tener al menos 2 caracteres").max(100),
+  user_email: z.string().email("El correo electrónico no es válido"),
+  message: z.string().min(10, "El mensaje debe tener al menos 10 caracteres").max(2000),
+  recaptchaToken: z.string().min(1, "El token de reCAPTCHA es obligatorio"),
+});
 
 export class MessageController {
   private service: MessageService;
@@ -10,46 +17,49 @@ export class MessageController {
     this.service = new MessageService();
   }
 
-  async saveMessage(req: NextApiRequest, res: NextApiResponse) {
+  async handleContactForm(req: NextApiRequest, res: NextApiResponse): Promise<void> {
     if (req.method !== "POST") {
-      return res.status(405).json({ message: "Método no permitido" });
+      res.setHeader("Allow", ["POST"]);
+      res.status(405).json({ error: `Método ${req.method} no permitido` });
+      return;
     }
 
-    const schema = z.object({
-      name: z.string().min(1, "El nombre es obligatorio"),
-      email: z.string().email("El correo electrónico no es válido"),
-      message: z.string().min(1, "El mensaje es obligatorio"),
-      recaptchaToken: z.string().min(1, "El token de reCAPTCHA es obligatorio"),
-    });
-
     try {
-      const { name, email, message, recaptchaToken } = schema.parse(req.body);
+      const { user_name, user_email, message, recaptchaToken } = contactSchema.parse(req.body);
 
-      // Verificar el token de reCAPTCHA
       const isHuman = await verifyRecaptcha(recaptchaToken);
       if (!isHuman) {
-        return res.status(400).json({ error: "Verificación de reCAPTCHA fallida" });
+        res.status(400).json({ error: "Verificación reCAPTCHA fallida." });
+        return;
       }
 
-      await this.service.saveMessage(name, email, message);
-      res.status(200).json({ message: "Mensaje guardado correctamente" });
+      await Promise.all([
+        this.service.saveMessage(user_name, user_email, message),
+        this.service.sendEmail(user_name, user_email, message),
+      ]);
+
+      res.status(200).json({ success: true });
     } catch (error) {
-      if (error instanceof z.ZodError) {
-        return res.status(400).json({ error: error.errors });
+      if (error instanceof ZodError) {
+        res.status(400).json({ error: error.errors });
+        return;
       }
-      console.error("Error en saveMessage:", error);
-      res.status(500).json({ error: "Error al guardar el mensaje" });
+      res.status(500).json({ error: "Error al procesar la solicitud." });
     }
   }
 
-  async getMessages(req: NextApiRequest, res: NextApiResponse) {
+  async getMessages(req: NextApiRequest, res: NextApiResponse): Promise<void> {
+    if (req.method !== "GET") {
+      res.setHeader("Allow", ["GET"]);
+      res.status(405).json({ error: `Método ${req.method} no permitido` });
+      return;
+    }
+
     try {
       const messages = await this.service.getMessages();
       res.status(200).json(messages);
-    } catch (error) {
-      console.error("Error en getMessages:", error);
-      res.status(500).json({ error: "Error al obtener los mensajes" });
-
+    } catch {
+      res.status(500).json({ error: "Error al obtener los mensajes." });
     }
   }
 }

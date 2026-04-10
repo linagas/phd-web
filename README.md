@@ -1,8 +1,8 @@
-This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
-
-## Getting Started
-
 # phd-web
+
+[![CI Pipeline](https://github.com/linagas/phd-web/actions/workflows/ci.yml/badge.svg)](https://github.com/linagas/phd-web/actions/workflows/ci.yml)
+
+This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
 
 First, run the development server:
 
@@ -22,6 +22,29 @@ You can start editing the page by modifying `app/page.tsx`. The page auto-update
 
 This project uses [`next/font`](https://nextjs.org/docs/basic-features/font-optimization) to automatically optimize and load Inter, a custom Google Font.
 
+## Testing
+
+This project has comprehensive test coverage with Jest and Playwright:
+
+```bash
+# Unit & Integration tests
+npm test                # Run all tests
+npm run test:watch      # Watch mode
+npm run test:coverage   # With coverage report (minimum 80%)
+
+# E2E tests
+npm run test:e2e        # Run Playwright tests
+npm run test:e2e:ui     # Interactive UI mode
+
+# Lint
+npm run lint            # ESLint check
+```
+
+**Test Structure:**
+- `tests/unit/` - Unit tests (models, services, controllers, utils)
+- `tests/integration/` - Integration tests (full flow)
+- `e2e/` - End-to-end tests with Playwright
+
 ## Learn More
 
 To learn more about Next.js, take a look at the following resources:
@@ -37,4 +60,7 @@ The easiest way to deploy your Next.js app is to use the [Vercel Platform](https
 
 Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
 
-> > > > > > > d1b378e (Initial commit from Create Next App)
+## CI/CD
+
+This project uses GitHub Actions for continuous integration. See [.github/workflows/README.md](.github/workflows/README.md) for configuration details.
+

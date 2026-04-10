@@ -1,12 +1,5 @@
-import { Orbitron, Montserrat } from "next/font/google";
 import { Inter } from "next/font/google";
-import { Open_Sans } from "next/font/google";
-import { Poppins } from "next/font/google";
 
-export const monserrat = Montserrat({
-  subsets: ["latin"],
-  weight: ["400", "500", "600", "700"],
-});
 export const fontHeading = Inter({
   subsets: ["latin"],
   display: "swap",

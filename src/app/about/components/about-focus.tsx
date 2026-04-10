@@ -16,26 +16,37 @@ export default function AboutFocus() {
     <section
       id="about-focus-section"
       aria-labelledby="about-focus-heading"
-      className="w-full bg-blue-500 rounded-3xl mt-16 py-16 px-8 md:px-16"
+      className="w-full bg-blue-500 rounded-3xl mt-20 py-20 px-8 md:px-20"
       data-aos="fade-up"
+      data-aos-duration="700"
     >
-      <div className="flex flex-col md:flex-row gap-8 md:gap-0">
+      <div className="flex flex-col md:flex-row gap-12 md:gap-0">
         {/* Columna izquierda: Nuestro foco */}
         <div className="flex-1 md:pr-12">
           <h2
             id="about-focus-heading"
-            className="text-white font-bold text-3xl md:text-4xl mb-8"
+            className="text-white font-bold text-3xl md:text-4xl mb-10 flex items-center gap-3"
           >
+            <span
+              className="inline-block w-10 h-1 bg-pink-400 rounded-full flex-shrink-0"
+              aria-hidden="true"
+            />
             Nuestro foco
           </h2>
-          <ul className="space-y-5">
-            {focusItems.map((item) => (
-              <li key={item} className="flex items-start gap-4">
+          <ul className="space-y-7" role="list">
+            {focusItems.map((item, index) => (
+              <li
+                key={item}
+                className="flex items-start gap-4"
+                data-aos="fade-right"
+                data-aos-delay={index * 80}
+                data-aos-duration="500"
+              >
                 <span
-                  className="mt-1 flex-shrink-0 w-1 h-6 bg-pink-400 rounded-full"
+                  className="mt-2 flex-shrink-0 w-2 h-2 rounded-full bg-pink-400"
                   aria-hidden="true"
                 />
-                <span className="text-white text-lg leading-relaxed">
+                <span className="text-white/90 text-lg md:text-xl leading-relaxed">
                   {item}
                 </span>
               </li>
@@ -45,19 +56,35 @@ export default function AboutFocus() {
 
         {/* Separador vertical */}
         <div
-          className="hidden md:block w-px bg-pink-400 opacity-40 mx-8"
+          className="hidden md:block w-px bg-pink-400 opacity-30 mx-8 self-stretch"
+          aria-hidden="true"
+        />
+
+        {/* Separador horizontal mobile */}
+        <div
+          className="md:hidden w-full h-px bg-pink-400 opacity-30"
           aria-hidden="true"
         />
 
         {/* Columna derecha: Lo que nos mueve */}
         <div className="flex-1 md:pl-12">
-          <h2 className="text-white font-bold text-3xl md:text-4xl mb-8">
+          <h2 className="text-white font-bold text-3xl md:text-4xl mb-10 flex items-center gap-3">
+            <span
+              className="inline-block w-10 h-1 bg-pink-400 rounded-full flex-shrink-0"
+              aria-hidden="true"
+            />
             Lo que nos mueve
           </h2>
           <div className="space-y-8">
-            {motivationPhrases.map((phrase) => (
-              <blockquote key={phrase}>
-                <p className="font-bold text-2xl md:text-3xl text-white leading-snug">
+            {motivationPhrases.map((phrase, index) => (
+              <blockquote
+                key={phrase}
+                className="border-l-2 border-pink-400/50 pl-5"
+                data-aos="fade-left"
+                data-aos-delay={index * 100}
+                data-aos-duration="500"
+              >
+                <p className="font-bold text-xl md:text-2xl text-white leading-snug">
                   &ldquo;{phrase}&rdquo;
                 </p>
               </blockquote>

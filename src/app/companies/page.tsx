@@ -50,7 +50,7 @@ const Companies: React.FC = () => {
               </div>
             </div>
 
-            <div className="flex flex-col items-center w-full p-4 mt-12 md:mt-20 pb-10">
+            <div className="flex flex-col items-center w-full">
               <div className="flex flex-col md:flex-row justify-center items-center gap-6 w-full">
                 <DeliveryModels />
               </div>

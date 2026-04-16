@@ -35,7 +35,7 @@ export default function RootLayout({
   return (
     <html lang="es">
       <body
-        className={`${fontHeading.variable} ${fontBody.variable} antialiased bg-white min-h-screen flex flex-col`}
+        className={`${fontHeading.variable} ${fontBody.variable} antialiased bg-white min-h-screen flex flex-col overflow-x-hidden`}
       >
         <AosInit />
         <Header />

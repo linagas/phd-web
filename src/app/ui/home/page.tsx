@@ -43,7 +43,7 @@ export default function Home() {
             </div>
             <div className="w-full md:w-1/2 relative flex justify-center md:justify-end">
               <div className="relative">
-                <div className="absolute top-0 right-0 -mr-4 -mt-4 z-10">
+                <div className="absolute top-0 right-0 -mt-4 z-10">
                   <CustomDot
                     baseSize="w-[34px] h-[34px]"
                     lgSize="lg:w-[56px] lg:h-[56px]"
@@ -97,7 +97,7 @@ export default function Home() {
 
         <article
           id="section-how-we-do"
-          className="flex flex-col items-center pt-16 md:pt-24 px-4 md:px-8"
+          className="flex flex-col items-center md:pt-16 md:pt-24 px-4 md:px-8"
         >
           <HowWeDoIt />
         </article>

@@ -12,7 +12,7 @@ export default function AboutManifesto() {
     <section
       id="about-manifesto-section"
       aria-labelledby="manifesto-block-01"
-      className="w-full py-16 px-4 md:px-16 space-y-28"
+      className="w-full py-16 px-4 md:px-16 space-y-28 overflow-x-hidden"
     >
       {/* Bloque 01: ¿Por qué existimos? */}
       <div
@@ -113,7 +113,7 @@ export default function AboutManifesto() {
           <div className="relative w-full">
             {/* Fondo decorativo */}
             <div
-              className="absolute -inset-3 rounded-3xl bg-blue-1 opacity-5"
+              className="absolute inset-0 rounded-3xl bg-blue-1 opacity-5"
               aria-hidden="true"
             />
             <Image
@@ -173,7 +173,7 @@ export default function AboutManifesto() {
               <p className="text-purple-400 font-bold text-2xl leading-snug">
                 Flexibilidad sin perder el foco en la calidad.
               </p>
-              <p className="text-gray-500 text-base leading-relaxed">
+              <p className="text-gray-500 text-base font-bold leading-relaxed">
                 Desde sprints cortos hasta partnerships de largo plazo, siempre
                 con metodología y resultados medibles.
               </p>

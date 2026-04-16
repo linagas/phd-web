@@ -52,10 +52,22 @@ const Card: React.FC<CardProps> = ({
             : "w-full sm:w-2/3"
         } ${iconPosition === "right" ? "order-first" : ""}`}
       >
-        <h3 className="text-m md:text-lg sm:text-xl lg:text-xl font-semibold mb-6 text-left">
+        <h3
+          className={`text-m md:text-lg sm:text-xl lg:text-xl font-semibold mb-6 ${
+            iconPosition === "top" || iconPosition === "bottom"
+              ? "text-center"
+              : "text-center sm:text-left"
+          }`}
+        >
           {title}
         </h3>
-        <div className="mb-2 text-s md:text-m text-gray-700 text-left">
+        <div
+          className={`mb-2 text-s md:text-m text-gray-700 ${
+            iconPosition === "top" || iconPosition === "bottom"
+              ? "text-center"
+              : "text-center sm:text-left"
+          }`}
+        >
           {description}
         </div>
       </div>

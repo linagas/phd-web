@@ -103,7 +103,7 @@ export default function ConsultingInfo() {
           ))}
 
           <Link
-            className="inline-flex self-end md:self-start w-56 text-white items-center justify-center rounded-[4px] bg-pink-400 px-4 py-2 text-xl font-medium text-primary-foreground shadow transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50"
+            className="inline-flex self-center md:self-start w-56 text-white items-center justify-center rounded-[4px] bg-pink-400 px-4 py-2 text-xl font-medium text-primary-foreground shadow transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50"
             href="#section-contact"
             onClick={scrollToContact}
             prefetch={false}

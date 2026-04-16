@@ -36,9 +36,9 @@ export default function TestingServices() {
   return (
     <section
       id="testing-services-section"
-      className="flex flex-col w-full py-14 space-y-12"
+      className="flex flex-col w-full md:py-14 space-y-4 md:space-y-12 overflow-x-hidden"
     >
-      <article className="relative h-[200px] md:h-[300px] lg:h-[400px] w-full flex items-center justify-center text-center overflow-hidden">
+      <article className="relative h-[280px] md:h-[300px] lg:h-[400px] w-full flex items-center justify-center text-center overflow-hidden">
         <Image
           src="/assets/trazado-azul-3.png"
           alt="Fondo curvo azul decorativo"
@@ -54,13 +54,13 @@ export default function TestingServices() {
         </div>
       </article>
 
-      <div className="flex flex-row items-center gap-6 px-6 md:px-12">
-        <div className="flex flex-row gap-6">
+      <div className="w-full px-4 md:px-12">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           {testingCards.map((card, i) => (
             <div
               id={`card-${i}`}
               key={i}
-              className="flex flex-col justify-center gap-4 items-center max-w-[432px]"
+              className="flex flex-col justify-center gap-4 items-center w-full"
               data-aos="fade-up"
               data-aos-delay={`${i * 100}`}
               data-aos-duration="1000"
@@ -68,7 +68,7 @@ export default function TestingServices() {
               <Card
                 title={card.title}
                 description={card.description}
-                className="flex-grow-0 flex-shrink-0 w-full max-md:767 overflow-auto card-blue-style"
+                className="w-full card-blue-style"
                 rounded="rounded-[50px]"
                 iconPosition="top"
                 height="h-[418px]"
@@ -94,7 +94,7 @@ export default function TestingServices() {
             </div>
           ))}
         </div>
-        <div className="flex flex-col items-start justify-start">
+        <div className="flex justify-end mt-4">
           <CustomDot
             baseSize="w-[82px] h-[82px]"
             lgSize="lg:w-[56px] lg:h-[56px]"

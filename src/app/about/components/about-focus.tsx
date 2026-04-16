@@ -16,7 +16,7 @@ export default function AboutFocus() {
     <section
       id="about-focus-section"
       aria-labelledby="about-focus-heading"
-      className="w-full bg-blue-500 rounded-3xl mt-20 py-20 px-8 md:px-20"
+      className="w-full bg-blue-500 rounded-3xl mt-20 md:py-20 px-8 md:px-20"
       data-aos="fade-up"
       data-aos-duration="700"
     >
@@ -68,13 +68,13 @@ export default function AboutFocus() {
 
         {/* Columna derecha: Lo que nos mueve */}
         <div className="flex-1 md:pl-12">
-          <h2 className="text-white font-bold text-3xl md:text-4xl mb-10 flex items-center gap-3">
+          <h3 className="text-white font-bold text-3xl md:text-4xl mb-10 flex items-center gap-3">
             <span
               className="inline-block w-10 h-1 bg-pink-400 rounded-full flex-shrink-0"
               aria-hidden="true"
             />
             Lo que nos mueve
-          </h2>
+          </h3>
           <div className="space-y-8">
             {motivationPhrases.map((phrase, index) => (
               <blockquote

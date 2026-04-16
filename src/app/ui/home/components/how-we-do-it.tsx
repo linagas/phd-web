@@ -12,8 +12,8 @@ export default function HowWeDoIt() {
   );
 
   return (
-    <div className="relative">
-      <section className="flex flex-col md:flex-row justify-between py-12 md:py-16 gap-8 md:gap-12">
+    <div>
+      <section className="flex flex-col md:flex-row justify-between pt-12 md:py-16 gap-8 md:gap-12">
         <article className="flex-1">
           <div className="flex flex-col justify-start w-full max-w-2xl px-4 md:px-0">
             <h2 className="text-2xl md:text-5xl font-bold text-purple-12 mb-6">
@@ -44,12 +44,12 @@ export default function HowWeDoIt() {
             width={530}
             height={520}
             alt="Equipo colaborando en metodología ágil de calidad de software"
-            className="rounded-lg -mt-16 lg:-mt-20"
+            className="rounded-lg"
             data-aos="fade-up"
           />
         </article>
       </section>
-      <div className="absolute bottom-0 right-0 pr-4 md:pr-8 pb-4">
+      <div className="flex justify-end pt-4 pr-4 md:pr-8">
         <CustomDot baseSize="w-[32px] h-[32px]" color="bg-purple-12" />
       </div>
     </div>

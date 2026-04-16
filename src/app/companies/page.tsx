@@ -9,7 +9,7 @@ import DeliveryModels from "./components/delivery-models";
 
 const Companies: React.FC = () => {
   return (
-    <section className="mt-14 flex justify-center">
+    <section className="mt-14 flex justify-center overflow-x-hidden">
       <div className="max-w-screen-2xl w-full pt-8">
         <div className="relative">
           <div
@@ -57,23 +57,23 @@ const Companies: React.FC = () => {
             </div>
           </div>
 
-          <div className="flex flex-col mt-[100px]">
-            <article className="flex justify-start">
+            <div className="flex flex-col mt-8 md:mt-[100px]">
+            <article className="hidden md:flex justify-start">
               <div className="flex justify-start pl-16 pr-8">
-                <CustomDot
-                  baseSize="w-[34px] h-[34px]"
-                  lgSize="lg:w-[56px] lg:h-[56px]"
-                  color="bg-blue-2"
-                />
+              <CustomDot
+                baseSize="w-[34px] h-[34px]"
+                lgSize="lg:w-[56px] lg:h-[56px]"
+                color="bg-blue-2"
+              />
               </div>
             </article>
 
             <article
               id="section-3"
-              className="flex flex-col items-center pt-72 md:p-8"
+              className="flex flex-col items-center pt-16 md:pt-72 md:p-8 p-4"
             >
-              <h2 className="text-pink-400 font-bold uppercase text-4xl md:text-6xl text-center">
-                CONSULTORÍA SDLC
+              <h2 className="text-pink-400 font-bold uppercase text-2xl md:text-6xl text-center">
+              CONSULTORÍA SDLC
               </h2>
               <ConsultingInfo />
             </article>
@@ -86,7 +86,7 @@ const Companies: React.FC = () => {
             <article className="flex flex-col items-center p-4 md:p-8">
               <Contact />
             </article>
-          </div>
+            </div>
         </div>
       </div>
     </section>

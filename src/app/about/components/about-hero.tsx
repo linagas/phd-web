@@ -48,7 +48,7 @@ export default function AboutHero() {
 
       {/* Columna imagen */}
       <article
-        className="flex-1 justify-center items-center relative hidden md:flex"
+        className="flex-1 justify-center items-center relative flex mt-6 md:mt-0"
         data-aos="fade-left"
         data-aos-duration="700"
         data-aos-delay="100"

@@ -13,7 +13,7 @@ export default function ConsultingInfo() {
   return (
     <section
       id="consulting-info-section"
-      className="flex flex-col md:flex-row justify-between pt-16 md:pt-24 pb-12 md:pb-16 px-4 md:px-8 gap-8 md:gap-12 bg-cover"
+      className="flex flex-col md:flex-row justify-between pt-48 md:pt-24 pb-12 md:pb-16 px-4 md:px-8 gap-8 md:gap-12 bg-cover"
       style={{
         backgroundImage: `url('/assets/background-pink.svg')`,
       }}
@@ -30,7 +30,7 @@ export default function ConsultingInfo() {
       </article>
       <article className="flex-1 order-1 md:order-2">
         <div className="flex flex-col justify-start w-full">
-          <h2 className="text-2xl md:text-4xl font-bold text-white mb-6 mt-8 md:mt-12">
+          <h2 className="text-2xl md:text-4xl font-bold text-white mb-6 mt-12 md:mt-12">
             Capacitaciones en Calidad de Software
           </h2>
           <p className="text-white text-base md:text-lg leading-relaxed mb-8">

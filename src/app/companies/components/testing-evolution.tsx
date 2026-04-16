@@ -37,10 +37,10 @@ export default function TestingEvolution() {
   return (
     <section
       id="testing-evolution-section"
-      className="flex flex-col w-full py-14"
+      className="flex flex-col w-full md:py-14 overflow-x-hidden"
     >
-      <section className="relative flex flex-col items-center w-full py-14 px-4">
-        <div className="flex w-full p-9">
+      <section className="relative flex flex-col items-center w-full md:py-14 px-4">
+        <div className="flex w-full p-4 md:p-9">
           <div className="flex items-center justify-between">
             <CustomDot
               baseSize="w-[82px] h-[82px]"
@@ -55,7 +55,7 @@ export default function TestingEvolution() {
           </div>
         </div>
 
-        <div className="relative flex flex-col md:flex-row items-center justify-between w-full max-w-6xl border-[7px] border-pink-400 rounded-[50px] p-10">
+        <div className="flex flex-col md:flex-row items-center justify-between w-full max-w-6xl border-[7px] border-pink-400 rounded-[50px] p-6 md:p-10">
           {features.map((feature, index) => (
             <React.Fragment key={index}>
               <div className="flex flex-col items-center text-center px-4">
@@ -81,15 +81,15 @@ export default function TestingEvolution() {
               )}
             </React.Fragment>
           ))}
-          <div className="absolute -bottom-6 right-6">
-            <button
-              onClick={scrollToContact}
-              className="bg-pink-400 text-white text-sm md:text-base font-medium py-3 px-6 rounded-full shadow-md hover:bg-pink-500 transition"
-              aria-label="Agendar una llamada en la sección de contacto"
-            >
-              AGENDA UNA LLAMADA
-            </button>
-          </div>
+        </div>
+        <div className="flex justify-center -mt-6">
+          <button
+            onClick={scrollToContact}
+            className="bg-pink-400 text-white text-sm md:text-base font-medium py-3 px-6 rounded-full shadow-md hover:bg-pink-500 transition"
+            aria-label="Agendar una llamada en la sección de contacto"
+          >
+            AGENDA UNA LLAMADA
+          </button>
         </div>
       </section>
     </section>

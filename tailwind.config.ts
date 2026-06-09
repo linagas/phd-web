@@ -40,6 +40,13 @@ const config: Config = {
           400: "#532DC4",
           12: "#542fc2",
         },
+        phd: {
+          dark: "#0B0F19",
+          card: "#111827",
+          cyan: "#38BDF8",
+          pink: "#F43F5E",
+          purple: "#818CF8",
+        },
       },
       borderRadius: {
         xl: `calc(var(--radius) + 4px)`,

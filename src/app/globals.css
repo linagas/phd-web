@@ -46,3 +46,20 @@ body {
 .card-pink-style {
   border: 5px solid #ff3365;
 }
+
+/* ── PHD Dark Design System ───────────────────── */
+
+.phd-gradient-blur {
+  background:
+    radial-gradient(ellipse 80% 60% at 20% 10%, rgba(56, 189, 248, 0.08) 0%, transparent 60%),
+    radial-gradient(ellipse 60% 50% at 80% 90%, rgba(244, 63, 94, 0.06) 0%, transparent 60%),
+    radial-gradient(ellipse 70% 70% at 50% 50%, rgba(129, 140, 248, 0.05) 0%, transparent 70%);
+}
+
+.phd-glass {
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  background: rgba(17, 24, 39, 0.7);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 1rem;
+}

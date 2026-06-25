@@ -55,7 +55,9 @@ export class MessageService {
     });
 
     if (!response.ok) {
-      throw new Error(`EmailJS error: ${response.status}`);
+      const body = await response.text();
+      console.error(`[MessageService] EmailJS ${response.status}:`, body);
+      throw new Error(`EmailJS error: ${response.status} — ${body}`);
     }
   }
 

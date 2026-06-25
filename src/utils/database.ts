@@ -10,11 +10,17 @@ export async function connectToDatabase() {
   }
 
   if (!cachedClient) {
-    cachedClient = new MongoClient(uri);
-    await cachedClient.connect();
+    const client = new MongoClient(uri);
+    try {
+      await client.connect();
+      cachedClient = client;
+    } catch (err) {
+      cachedClient = null;
+      cachedDb = null;
+      throw err;
+    }
   }
 
-  // Accedemos a la base de datos especificada en las variables de entorno
   const db = cachedClient.db(process.env.MONGODB_DB);
   cachedDb = db;
 

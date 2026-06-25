@@ -1,91 +1,104 @@
 "use client";
 import React, { useState } from "react";
 import Link from "next/link";
-import Image from "next/image";
-import useScrollToSection from "@/hooks/useScrollToSection";
+
+const NAV_LINKS = [
+  { label: "El Costo Silencioso", href: "/#dolor" },
+  { label: "Diferencia PHD", href: "/#diferencia" },
+  { label: "Portafolio", href: "/#servicios" },
+  { label: "Autoevaluar AQI", href: "/#aqi-tool" },
+  { label: "Roadmap", href: "/#viaje" },
+];
+
+function PhdLogo() {
+  return (
+    <div className="flex items-center gap-3">
+      <div className="flex items-center gap-1">
+        <span className="w-3.5 h-3.5 rounded-full bg-phd-cyan" />
+        <span className="w-3.5 h-3.5 rounded-full bg-phd-pink" />
+        <span className="w-3.5 h-3.5 rounded-full bg-phd-purple" />
+      </div>
+      <div className="flex flex-col leading-none">
+        <span className="font-heading font-bold text-white text-lg tracking-tight">PHD</span>
+        <span className="font-body text-slate-400 text-[10px] tracking-widest uppercase mt-0.5">
+          Quality Engineering
+        </span>
+      </div>
+    </div>
+  );
+}
 
 export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  // reference to the logo image in the public folder
-  const logoUrl = "/assets/phd-300x.png";
-  const { scrollToSection: scrollToContact } = useScrollToSection(
-    "section-contact",
-    100
-  );
 
   return (
-    <header className="fixed top-0 left-0 right-0 z-10 bg-blue-500 text-white px-4 sm:px-16 lg:px-16 h-16 sm:h-20 flex items-center justify-between shadow-sm">
-      <Link href="/" className="flex items-center justify-center">
-        <Image
-          src={logoUrl}
-          width={220}
-          height={60}
-          alt="PHD - Conexiones que construyen"
-          className="h-6 sm:h-8 w-auto"
-        />
+    <header className="fixed top-0 left-0 right-0 z-50 h-20 flex items-center justify-between px-4 sm:px-8 lg:px-16 bg-phd-dark/80 backdrop-blur-md border-b border-white/5">
+      <Link href="/" className="flex items-center gap-3">
+        <PhdLogo />
       </Link>
-      <div className="flex items-center">
-        <button
-          className="sm:hidden"
-          onClick={() => setIsMenuOpen(!isMenuOpen)}
-          aria-label={isMenuOpen ? "Cerrar menú" : "Abrir menú"}
-          aria-expanded={isMenuOpen}
-        >
-          {/* Icono del menú de hamburguesa */}
-          <svg
-            width="24"
-            height="24"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-            xmlns="http://www.w3.org/2000/svg"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth="2"
-              d="M4 6h16M4 12h16m-7 6h7"
-            ></path>
-          </svg>
-        </button>
 
-        <nav
-          className={`${
-            isMenuOpen ? "flex bg-blue-500" : "hidden"
-          } sm:flex flex-col sm:flex-row gap-4 sm:gap-6 items-center justify-center transition-opacity duration-500 ease-in-out p-4 sm:p-0 rounded-lg sm:rounded-none absolute sm:relative top-16 sm:top-auto left-0 sm:left-auto right-0 sm:right-auto w-full sm:w-auto`}
-        >
-           <Link
-              href="/companies"
-              className="text-xs sm:text-sm font-medium hover:underline underline-offset-4"
-              prefetch={false}
-            >
-              SERVICIOS
-            </Link>
-            {/* <Link
-              href="/people"
-              className="text-xs sm:text-sm font-medium hover:underline underline-offset-4"
-              prefetch={false}
-            >
-              FORMACION
-            </Link> */}
-
+      {/* Nav desktop */}
+      <nav className="hidden sm:flex items-center gap-6">
+        {NAV_LINKS.map(({ label, href }) => (
           <Link
-            href="/about"
-            className="text-xs sm:text-sm font-medium hover:underline underline-offset-4"
-            prefetch={false}
+            key={href}
+            href={href}
+            className="text-sm text-slate-300 hover:text-phd-cyan transition-colors"
           >
-            NOSOTROS
+            {label}
           </Link>
+        ))}
+      </nav>
 
-          <button
-            onClick={scrollToContact}
-            type="button"
-            className="inline-flex h-9 items-center justify-center rounded-[4px] bg-pink-400 px-4 py-2 text-sm font-medium text-primary-foreground shadow transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50"
+      {/* CTA desktop */}
+      <Link
+        href="/#bookings"
+        className="hidden sm:flex items-center gap-2 bg-phd-pink hover:bg-phd-pink/90 text-white text-sm font-semibold px-5 py-2.5 rounded-full transition-all hover:scale-[1.02] active:scale-95 shadow-lg shadow-phd-pink/20"
+      >
+        AGENDAR QUALITY PULSE
+        <span className="bg-white/20 text-xs font-bold px-2 py-0.5 rounded-full">72 HRS</span>
+      </Link>
+
+      {/* Toggle mobile */}
+      <button
+        className="sm:hidden text-white"
+        onClick={() => setIsMenuOpen(!isMenuOpen)}
+        aria-label={isMenuOpen ? "Cerrar menú" : "Abrir menú"}
+        aria-expanded={isMenuOpen}
+      >
+        <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth="2"
+            d={isMenuOpen ? "M6 18L18 6M6 6l12 12" : "M4 6h16M4 12h16m-7 6h7"}
+          />
+        </svg>
+      </button>
+
+      {/* Nav mobile */}
+      {isMenuOpen && (
+        <div className="sm:hidden absolute top-20 left-0 right-0 bg-phd-dark/95 backdrop-blur-md border-b border-white/5 flex flex-col gap-4 p-6">
+          {NAV_LINKS.map(({ label, href }) => (
+            <Link
+              key={href}
+              href={href}
+              className="text-sm text-slate-300 hover:text-phd-cyan transition-colors"
+              onClick={() => setIsMenuOpen(false)}
+            >
+              {label}
+            </Link>
+          ))}
+          <Link
+            href="/#bookings"
+            className="mt-2 flex items-center justify-center gap-2 bg-phd-pink text-white text-sm font-semibold px-5 py-3 rounded-full"
+            onClick={() => setIsMenuOpen(false)}
           >
-            CONTACTO
-          </button>
-        </nav>
-      </div>
+            AGENDAR QUALITY PULSE
+            <span className="bg-white/20 text-xs font-bold px-2 py-0.5 rounded-full">72 HRS</span>
+          </Link>
+        </div>
+      )}
     </header>
   );
 }

@@ -10,6 +10,7 @@ export default function Contact() {
   const [formData, setFormData] = useState({
     user_name: "",
     user_email: "",
+    user_phone: "",
     message: "",
   });
   const [submitted, setSubmitted] = useState(false);
@@ -35,11 +36,19 @@ export default function Contact() {
       setIsLoading(true);
       try {
         const recaptchaToken = await executeRecaptcha("contact_form");
+        const messageWithPhone = formData.user_phone
+          ? `Tel: ${formData.user_phone} — ${formData.message}`
+          : formData.message;
 
         const res = await fetch("/api/saveMessage", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ ...formData, recaptchaToken }),
+          body: JSON.stringify({
+            user_name: formData.user_name,
+            user_email: formData.user_email,
+            message: messageWithPhone,
+            recaptchaToken,
+          }),
         });
 
         if (res.ok) {
@@ -77,10 +86,21 @@ export default function Contact() {
           el formulario y nos pondremos en contacto contigo.
         </p>
         {submitted ? (
-          <p className="text-green-500 mt-6">
-            ¡Tu mensaje ha sido guardado exitosamente! Pronto nos pondremos en
-            contacto contigo.
-          </p>
+          <div className="mt-6 flex flex-col items-start gap-4">
+            <p className="text-green-500">
+              ¡Tu mensaje ha sido guardado exitosamente! Pronto nos pondremos en
+              contacto contigo.
+            </p>
+            <button
+              onClick={() => {
+                setSubmitted(false);
+                setFormData({ user_name: "", user_email: "", user_phone: "", message: "" });
+              }}
+              className="h-9 w-32 bg-blue-1 text-white py-2 px-8 rounded-[4px]"
+            >
+              Volver
+            </button>
+          </div>
         ) : (
           <>
             <form
@@ -117,6 +137,20 @@ export default function Contact() {
                 disabled={isLoading}
               />
 
+              <label htmlFor="user_phone" className="sr-only">
+                Teléfono
+              </label>
+              <input
+                name="user_phone"
+                id="user_phone"
+                value={formData.user_phone}
+                onChange={handleChange}
+                type="tel"
+                placeholder="Ingresa tu teléfono"
+                className="w-full mb-4 p-4 rounded-[12px] border border-black-2 border-4"
+                disabled={isLoading}
+              />
+
               <label htmlFor="message" className="sr-only">
                 Mensaje
               </label>
@@ -142,7 +176,7 @@ export default function Contact() {
                 type="submit"
                 disabled={isLoading}
               >
-                {isLoading ? "Enviando..." : "Enviar"}
+                {isLoading ? "Enviando..." : "Conversemos"}
               </button>
             </form>
 

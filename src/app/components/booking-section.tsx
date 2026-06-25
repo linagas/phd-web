@@ -147,7 +147,7 @@ export default function BookingSection() {
                     ¡Sesión agendada!
                   </p>
                   <p className="text-slate-400 text-sm">
-                    Recibirás el link de MS Teams en tu correo en los próximos minutos.
+                    Recibirás nuestra respuesta próximamente.
                   </p>
                   <button
                     onClick={() => {

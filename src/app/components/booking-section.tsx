@@ -2,49 +2,55 @@
 import React, { useState, useCallback } from "react";
 import { useGoogleReCaptcha } from "react-google-recaptcha-v3";
 
-const DAYS = [
-  { label: "Lun", day: "01" },
-  { label: "Mar", day: "02" },
-  { label: "Mié", day: "03" },
-  { label: "Jue", day: "04" },
-  { label: "Vie", day: "05" },
-];
-
-const TIME_SLOTS = ["09:00 AM", "11:30 AM"];
-
-const PAIN_OPTIONS = [
-  "Retrabajo y pérdida de tiempo",
-  "Bugs en producción recurrentes",
-  "Baja cobertura de pruebas",
-  "Adopción de IA sin métricas",
-  "Falta de cultura de calidad",
-];
-
-
 export default function BookingSection() {
   const { executeRecaptcha } = useGoogleReCaptcha();
 
   const [formData, setFormData] = useState({
     user_name: "",
     user_email: "",
+    user_phone: "",
     message: "",
   });
   const [submitted, setSubmitted] = useState(false);
   const [errorMsg, setErrorMsg] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const [selectedDay, setSelectedDay] = useState("02");
-  const [selectedTime, setSelectedTime] = useState("11:30 AM");
+  const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
+
+  const validate = (data: typeof formData) => {
+    const errors: Record<string, string> = {};
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    const phoneRegex = /^[+]?[\d\s\-().]{7,20}$/;
+
+    if (!emailRegex.test(data.user_email)) {
+      errors.user_email = "Ingresa un correo electrónico válido.";
+    }
+    if (data.user_phone && !phoneRegex.test(data.user_phone)) {
+      errors.user_phone = "Ingresa un número de teléfono válido.";
+    }
+    if (data.message.length > 300) {
+      errors.message = "El mensaje no puede superar los 300 caracteres.";
+    }
+    return errors;
+  };
 
   const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
+    setFieldErrors((prev) => ({ ...prev, [name]: "" }));
   };
 
   const handleSubmit = useCallback(
     async (e: React.FormEvent<HTMLFormElement>) => {
       e.preventDefault();
       setErrorMsg("");
+
+      const errors = validate(formData);
+      if (Object.keys(errors).length > 0) {
+        setFieldErrors(errors);
+        return;
+      }
 
       if (!executeRecaptcha) {
         setErrorMsg("reCAPTCHA no está listo. Inténtalo de nuevo.");
@@ -54,10 +60,19 @@ export default function BookingSection() {
       setIsLoading(true);
       try {
         const recaptchaToken = await executeRecaptcha("contact_form");
+        const messageWithPhone = formData.user_phone
+          ? `Tel: ${formData.user_phone} — ${formData.message}`
+          : formData.message;
+
         const res = await fetch("/api/saveMessage", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ ...formData, recaptchaToken }),
+          body: JSON.stringify({
+            user_name: formData.user_name,
+            user_email: formData.user_email,
+            message: messageWithPhone,
+            recaptchaToken,
+          }),
         });
 
         if (res.ok) {
@@ -107,7 +122,7 @@ export default function BookingSection() {
                 <span className="text-phd-cyan mt-0.5 shrink-0">✉️</span>
                 <span>
                   <strong className="text-white">Notificación Automatizada:</strong>{" "}
-                  Reciba al instante el link seguro de MS Teams en su correo.
+                 Recibiras pronto nuestra respuesta!
                 </span>
               </li>
             </ul>
@@ -118,11 +133,9 @@ export default function BookingSection() {
             <div className="phd-glass p-8 flex flex-col gap-6">
               {/* Header del formulario */}
               <div className="flex items-center justify-between pb-4 border-b border-white/5">
-                <div className="flex items-center gap-2">
-                  <span className="text-xs font-mono text-slate-400">
-                    ⊞ MS Bookings & Forms Integrated
-                  </span>
-                </div>
+                <span className="text-xs font-mono text-slate-400">
+                  ⊞ MS Bookings & Forms Integrated
+                </span>
                 <span className="text-xs text-green-400 border border-green-400/20 bg-green-400/10 px-3 py-1 rounded-full">
                   Secure Cloud Connection
                 </span>
@@ -130,118 +143,105 @@ export default function BookingSection() {
 
               {submitted ? (
                 <div className="flex flex-col items-center gap-4 py-8 text-center">
-                  <span className="text-4xl">✅</span>
                   <p className="text-white font-semibold text-lg">
                     ¡Sesión agendada!
                   </p>
                   <p className="text-slate-400 text-sm">
                     Recibirás el link de MS Teams en tu correo en los próximos minutos.
                   </p>
+                  <button
+                    onClick={() => {
+                      setSubmitted(false);
+                      setFormData({ user_name: "", user_email: "", user_phone: "", message: "" });
+                    }}
+                    className="mt-2 px-6 py-2 border border-white/20 text-white text-sm rounded-full hover:bg-white/10 transition-colors"
+                  >
+                    Volver
+                  </button>
                 </div>
               ) : (
-                <form onSubmit={handleSubmit} className="flex flex-col gap-6">
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                <form onSubmit={handleSubmit} className="flex flex-col gap-4">
 
-                    {/* Inputs de contacto */}
-                    <div className="flex flex-col gap-4">
-                      <div className="flex flex-col gap-2">
-                        <label htmlFor="book_name" className="text-xs font-bold uppercase tracking-wider text-slate-400">
-                          Nombre Completo
-                        </label>
-                        <input
-                          id="book_name"
-                          name="user_name"
-                          type="text"
-                          placeholder="Ej: Francisco Javier"
-                          value={formData.user_name}
-                          onChange={handleChange}
-                          required
-                          disabled={isLoading}
-                          className="bg-phd-dark border border-white/10 rounded-xl px-4 py-3 text-sm text-white placeholder:text-slate-600 focus:outline-none focus:border-phd-cyan/50 transition-colors disabled:opacity-50"
-                        />
-                      </div>
-                      <div className="flex flex-col gap-2">
-                        <label htmlFor="book_email" className="text-xs font-bold uppercase tracking-wider text-slate-400">
-                          Email Corporativo
-                        </label>
-                        <input
-                          id="book_email"
-                          name="user_email"
-                          type="email"
-                          placeholder="Ej: francisco@empresa.com"
-                          value={formData.user_email}
-                          onChange={handleChange}
-                          required
-                          disabled={isLoading}
-                          className="bg-phd-dark border border-white/10 rounded-xl px-4 py-3 text-sm text-white placeholder:text-slate-600 focus:outline-none focus:border-phd-cyan/50 transition-colors disabled:opacity-50"
-                        />
-                      </div>
-                      <div className="flex flex-col gap-2">
-                        <label htmlFor="book_pain" className="text-xs font-bold uppercase tracking-wider text-slate-400">
-                          Dolor Crítico Principal
-                        </label>
-                        <select
-                          id="book_pain"
-                          name="message"
-                          value={formData.message}
-                          onChange={handleChange}
-                          required
-                          disabled={isLoading}
-                          className="bg-phd-dark border border-white/10 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-phd-cyan/50 transition-colors disabled:opacity-50"
-                        >
-                          <option value="" disabled>Selecciona tu dolor principal</option>
-                          {PAIN_OPTIONS.map((opt) => (
-                            <option key={opt} value={opt}>{opt}</option>
-                          ))}
-                        </select>
-                      </div>
-                    </div>
+                  <div className="flex flex-col gap-2">
+                    <label htmlFor="book_name" className="text-xs font-bold uppercase tracking-wider text-slate-400">
+                      Nombre
+                    </label>
+                    <input
+                      id="book_name"
+                      name="user_name"
+                      type="text"
+                      placeholder="Ej: Francisco Javier"
+                      value={formData.user_name}
+                      onChange={handleChange}
+                      required
+                      disabled={isLoading}
+                      className="bg-phd-dark border border-white/10 rounded-xl px-4 py-3 text-sm text-white placeholder:text-slate-600 focus:outline-none focus:border-phd-cyan/50 transition-colors disabled:opacity-50"
+                    />
+                  </div>
 
-                    {/* Selector de fecha y hora */}
-                    <div className="flex flex-col gap-4">
-                      <div className="flex flex-col gap-2">
-                        <p className="text-xs font-bold uppercase tracking-wider text-slate-400">
-                          Seleccionar Fecha Exploratoria
-                        </p>
-                        <div className="grid grid-cols-5 gap-1">
-                          {DAYS.map(({ label, day }) => (
-                            <button
-                              key={day}
-                              type="button"
-                              onClick={() => setSelectedDay(day)}
-                              className={`flex flex-col items-center py-2 px-1 rounded-lg text-xs transition-all ${
-                                day === selectedDay
-                                  ? "bg-phd-pink text-white font-bold"
-                                  : "bg-white/5 text-slate-400 hover:bg-white/10"
-                              }`}
-                            >
-                              <span className="text-[10px]">{label}</span>
-                              <span className="font-bold">{day}</span>
-                            </button>
-                          ))}
-                        </div>
-                      </div>
-                      <div className="flex flex-col gap-2">
-                        <p className="text-xs font-bold uppercase tracking-wider text-slate-400">
-                          Horarios Disponibles (Santiago CL)
-                        </p>
-                        <div className="grid grid-cols-2 gap-2">
-                          {TIME_SLOTS.map((slot) => (
-                            <button
-                              key={slot}
-                              type="button"
-                              onClick={() => setSelectedTime(slot)}
-                              className={`py-3 rounded-xl text-sm font-semibold transition-all ${
-                                slot === selectedTime
-                                  ? "bg-phd-pink/20 border border-phd-pink text-phd-pink"
-                                  : "bg-white/5 border border-white/10 text-slate-400 hover:bg-white/10"
-                              }`}
-                            >
-                              {slot === "11:30 AM" ? `${slot} (Sugerida)` : slot}
-                            </button>
-                          ))}
-                        </div>
-                      </div>
+                  <div className="flex flex-col gap-2">
+                    <label htmlFor="book_email" className="text-xs font-bold uppercase tracking-wider text-slate-400">
+                      Email
+                    </label>
+                    <input
+                      id="book_email"
+                      name="user_email"
+                      type="email"
+                      placeholder="Ej: francisco@empresa.com"
+                      value={formData.user_email}
+                      onChange={handleChange}
+                      required
+                      disabled={isLoading}
+                      className={`bg-phd-dark border rounded-xl px-4 py-3 text-sm text-white placeholder:text-slate-600 focus:outline-none focus:border-phd-cyan/50 transition-colors disabled:opacity-50 ${fieldErrors.user_email ? "border-red-400/60" : "border-white/10"}`}
+                    />
+                    {fieldErrors.user_email && (
+                      <p role="alert" className="text-red-400 text-xs">{fieldErrors.user_email}</p>
+                    )}
+                  </div>
+
+                  <div className="flex flex-col gap-2">
+                    <label htmlFor="book_phone" className="text-xs font-bold uppercase tracking-wider text-slate-400">
+                      Teléfono
+                    </label>
+                    <input
+                      id="book_phone"
+                      name="user_phone"
+                      type="tel"
+                      placeholder="Ej: +56 9 1234 5678"
+                      value={formData.user_phone}
+                      onChange={handleChange}
+                      disabled={isLoading}
+                      className={`bg-phd-dark border rounded-xl px-4 py-3 text-sm text-white placeholder:text-slate-600 focus:outline-none focus:border-phd-cyan/50 transition-colors disabled:opacity-50 ${fieldErrors.user_phone ? "border-red-400/60" : "border-white/10"}`}
+                    />
+                    {fieldErrors.user_phone && (
+                      <p role="alert" className="text-red-400 text-xs">{fieldErrors.user_phone}</p>
+                    )}
+                  </div>
+
+                  <div className="flex flex-col gap-2">
+                    <label htmlFor="book_message" className="text-xs font-bold uppercase tracking-wider text-slate-400">
+                      Mensaje
+                    </label>
+                    <textarea
+                      id="book_message"
+                      name="message"
+                      placeholder="¿En qué podemos ayudarte?"
+                      value={formData.message}
+                      onChange={handleChange}
+                      required
+                      disabled={isLoading}
+                      rows={4}
+                      maxLength={300}
+                      className={`bg-phd-dark border rounded-xl px-4 py-3 text-sm text-white placeholder:text-slate-600 focus:outline-none focus:border-phd-cyan/50 transition-colors disabled:opacity-50 resize-none ${fieldErrors.message ? "border-red-400/60" : "border-white/10"}`}
+                    />
+                    <div className="flex justify-between items-center">
+                      {fieldErrors.message
+                        ? <p role="alert" className="text-red-400 text-xs">{fieldErrors.message}</p>
+                        : <span />
+                      }
+                      <span className={`text-xs ${formData.message.length >= 300 ? "text-red-400" : "text-slate-500"}`}>
+                        {formData.message.length}/300
+                      </span>
                     </div>
                   </div>
 
@@ -256,7 +256,7 @@ export default function BookingSection() {
                     disabled={isLoading}
                     className="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-phd-cyan via-phd-pink to-phd-purple text-white font-bold py-4 rounded-full transition-all hover:scale-[1.01] active:scale-[0.99] disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
                   >
-                    {isLoading ? "Enviando..." : "📅 Agendar Sesión y Solicitar Diagnóstico en 72h"}
+                    {isLoading ? "Enviando..." : "Conversemos"}
                   </button>
                 </form>
               )}

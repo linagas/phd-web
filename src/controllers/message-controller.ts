@@ -33,10 +33,17 @@ export class MessageController {
         return;
       }
 
-      await Promise.all([
+      const [saveResult, emailResult] = await Promise.allSettled([
         this.service.saveMessage(user_name, user_email, message),
         this.service.sendEmail(user_name, user_email, message),
       ]);
+
+      if (saveResult.status === "rejected") {
+        console.error("[MessageController] saveMessage failed (non-fatal):", saveResult.reason);
+      }
+      if (emailResult.status === "rejected") {
+        throw emailResult.reason;
+      }
 
       res.status(200).json({ success: true });
     } catch (error) {
@@ -44,6 +51,7 @@ export class MessageController {
         res.status(400).json({ error: error.errors });
         return;
       }
+      console.error('[MessageController] handleContactForm error:', error);
       res.status(500).json({ error: "Error al procesar la solicitud." });
     }
   }

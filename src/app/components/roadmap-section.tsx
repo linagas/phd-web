@@ -115,16 +115,6 @@ export default function RoadmapSection() {
           ))}
         </div>
 
-        {/* CTA */}
-        <div className="text-center mt-16">
-          <Link
-            href="/#bookings"
-            className="inline-flex items-center gap-2 border border-white/10 hover:border-phd-purple/50 text-slate-300 hover:text-white font-semibold px-8 py-3.5 rounded-full transition-all hover:bg-phd-purple/10"
-          >
-            Iniciar mi Horizonte 1
-          </Link>
-        </div>
-
       </div>
     </section>
   );

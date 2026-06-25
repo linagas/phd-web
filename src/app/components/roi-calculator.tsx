@@ -32,12 +32,24 @@ const METHODOLOGY = [
   },
 ];
 
-const METRIC_CARDS = [
+interface MetricCard {
+  id: keyof Metrics;
+  label: string;
+  description: string;
+  source: string;
+  href: string;
+  accentColor: string;
+  valueColor: string;
+  suffix?: string;
+}
+
+const METRIC_CARDS: MetricCard[] = [
   {
     id: "rework" as keyof Metrics,
     label: "Re-trabajo silencioso",
     description: "Presupuesto mensual quemado rehaciendo código ineficiente.",
     source: "Stripe Study",
+    href: "https://stripe.com/es-us/newsroom/stories/developer-coefficient",
     accentColor: "border-phd-pink",
     valueColor: "text-white",
   },
@@ -46,6 +58,7 @@ const METRIC_CARDS = [
     label: "Riesgo en producción",
     description: "Costo real proyectado de solucionar y parchar bugs directamente en producción (3× más caro).",
     source: "IBM Curve",
+    href: "https://www.ibm.com/docs/en/spss-statistics/32.0.0?topic=features-curve-estimation",
     accentColor: "border-phd-purple",
     valueColor: "text-white",
   },
@@ -54,6 +67,7 @@ const METRIC_CARDS = [
     label: "Horas desperdiciadas",
     description: "Tiempo de tus ingenieros no invertido en crear features de valor.",
     source: "160h Benchmark",
+    href: "https://news.microsoft.com/source/emea/features/98377/?lang=es",
     accentColor: "border-phd-cyan",
     valueColor: "text-white",
     suffix: "hrs",
@@ -63,6 +77,7 @@ const METRIC_CARDS = [
     label: "Retorno con PHD",
     description: "Retorno financiero estimado reduciendo tu desperdicio inicial un 30% en los primeros 90 días.",
     source: "H1 ROI",
+    href: "/#viaje",
     accentColor: "border-green-400",
     valueColor: "text-green-400",
   },
@@ -171,7 +186,7 @@ export default function RoiCalculator() {
 
           {/* Panel de métricas */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 content-start">
-            {METRIC_CARDS.map(({ id, label, description, source, accentColor, valueColor, suffix }) => (
+            {METRIC_CARDS.map(({ id, label, description, source, href, accentColor, valueColor, suffix }) => (
               <div
                 key={id}
                 className={`phd-glass p-6 flex flex-col gap-2 border-l-4 ${accentColor}`}
@@ -180,9 +195,14 @@ export default function RoiCalculator() {
                   <p className="text-xs font-bold uppercase tracking-wider text-slate-400">
                     {label}
                   </p>
-                  <span className="text-xs text-phd-cyan underline underline-offset-2 cursor-default">
+                  <a
+                    href={href}
+                    target={href.startsWith("/") ? undefined : "_blank"}
+                    rel={href.startsWith("/") ? undefined : "noopener noreferrer"}
+                    className="text-xs text-phd-cyan underline underline-offset-2 hover:text-phd-cyan/70 transition-colors"
+                  >
                     {source}
-                  </span>
+                  </a>
                 </div>
                 <p className={`font-heading font-bold text-3xl ${valueColor}`}>
                   {suffix

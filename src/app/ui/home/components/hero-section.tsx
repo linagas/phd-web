@@ -1,8 +1,23 @@
+"use client";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 
 const CREDIBILITY_ITEMS = ["Stripe Research", "IBM Curve", "NIST", "CISQ"];
 
 export default function HeroSection() {
+  const [timestamp, setTimestamp] = useState<string | null>(null);
+  const [wasteRate, setWasteRate] = useState(40);
+
+  useEffect(() => {
+    const now = new Date();
+    const dd = String(now.getDate()).padStart(2, "0");
+    const mm = String(now.getMonth() + 1).padStart(2, "0");
+    const yyyy = now.getFullYear();
+    setTimestamp(`${dd}/${mm}/${yyyy}`);
+    // Simulates live monitoring: fluctuates ±3pp around the Stripe Research 40% baseline
+    setWasteRate(Math.floor(370 + Math.random() * 60) / 10);
+  }, []);
+
   return (
     <section className="relative min-h-screen bg-phd-dark phd-gradient-blur flex items-center pt-20">
       <div className="max-w-screen-2xl mx-auto w-full px-4 sm:px-8 lg:px-16 py-16">
@@ -106,9 +121,9 @@ export default function HeroSection() {
                   <span>
                     <span className="inline-block w-2 h-2 rounded-full bg-phd-cyan mr-1.5" />
                     Tasa de Desperdicio:{" "}
-                    <span className="text-phd-cyan">40%</span>
+                    <span className="text-phd-cyan">{wasteRate}%</span>
                   </span>
-                  <span>2026-05-29T15:27Z</span>
+                  {timestamp && <span>{timestamp}</span>}
                 </div>
               </div>
             </div>

@@ -44,10 +44,17 @@ async function verifyToken(
   try {
     const { payload } = await jwtVerify<AdminTokenPayload>(token, getSecretKey());
     if (payload.purpose !== purpose || typeof payload.email !== "string") {
+      console.error(
+        `[admin-session] purpose mismatch: esperado="${purpose}" recibido="${payload.purpose}"`
+      );
       return null;
     }
     return { email: payload.email };
-  } catch {
+  } catch (error) {
+    console.error(
+      `[admin-session] verifyToken(${purpose}) falló:`,
+      error instanceof Error ? error.message : error
+    );
     return null;
   }
 }

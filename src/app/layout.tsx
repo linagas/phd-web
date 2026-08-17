@@ -1,10 +1,8 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import { fontBody, fontHeading } from "./ui/fonts";
-import Header from "./ui/header/header";
-import Footer from "./ui/footer/footer";
 import AosInit from "./ui/aos-init";
-import RecaptchaProvider from "./ui/recaptcha-provider";
+import SiteChrome from "./ui/site-chrome";
 
 export const metadata: Metadata = {
   title: "PHD - Conexiones que construyen",
@@ -38,11 +36,7 @@ export default function RootLayout({
         className={`${fontHeading.variable} ${fontBody.variable} antialiased bg-white min-h-screen flex flex-col overflow-x-hidden`}
       >
         <AosInit />
-        <Header />
-        <RecaptchaProvider>
-          <main style={{ flex: 1 }}>{children}</main>
-        </RecaptchaProvider>
-        <Footer />
+        <SiteChrome>{children}</SiteChrome>
       </body>
     </html>
   );

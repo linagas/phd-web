@@ -21,6 +21,7 @@ interface EmailJSPayload {
     from_name: string;
     to_name: string;
     from_email: string;
+    to_email: string;
     message: string;
   };
 }
@@ -38,9 +39,11 @@ function getSiteUrl(): string {
 /**
  * Reutiliza el mismo template de EmailJS que el formulario de contacto
  * (src/services/messageService.ts), poniendo el link de acceso en el campo
- * "message". El destinatario real del correo lo define el `to_email`
- * configurado en el template dentro del dashboard de EmailJS, no este
- * código — debe apuntar a un correo que el equipo de administración revise.
+ * "message". El destinatario se envía explícitamente como `to_email` — para
+ * que EmailJS lo use, el campo "To Email" del template en el dashboard debe
+ * estar configurado como `{{to_email}}` (si quedó hardcodeado a otra
+ * dirección, como en el template original de contacto, el magic link seguirá
+ * llegando ahí sin importar este payload).
  */
 async function sendMagicLinkEmail(email: string, verifyUrl: string): Promise<void> {
   const serviceId = process.env.EMAILJS_SERVICE_ID;
@@ -60,6 +63,7 @@ async function sendMagicLinkEmail(email: string, verifyUrl: string): Promise<voi
       from_name: "Quality Pulse",
       to_name: "Administración PHD",
       from_email: email,
+      to_email: email,
       message: `Solicitaste acceso al panel de administración de Quality Pulse. Ingresa con este enlace (expira en 15 minutos): ${verifyUrl}`,
     },
   };
@@ -97,7 +101,7 @@ export class AdminAuthService {
 
   /**
    * Verifica el token del magic link y, si es válido, genera el token de
-   * sesión (7 días) que el controller debe setear como cookie.
+   * sesión (12 horas) que el controller debe setear como cookie.
    */
   async verifyMagicLink(token: string): Promise<{ email: string; sessionToken: string }> {
     const payload = await verifyMagicLinkToken(token);

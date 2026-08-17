@@ -10,6 +10,7 @@ interface EmailJSPayload {
     from_name: string;
     to_name: string;
     from_email: string;
+    to_email: string;
     message: string;
   };
 }
@@ -30,8 +31,9 @@ export class MessageService {
     const serviceId = process.env.EMAILJS_SERVICE_ID;
     const templateId = process.env.EMAILJS_TEMPLATE_ID;
     const publicKey = process.env.EMAILJS_PUBLIC_KEY;
+    const contactToEmail = process.env.EMAILJS_CONTACT_TO_EMAIL;
 
-    if (!serviceId || !templateId || !publicKey) {
+    if (!serviceId || !templateId || !publicKey || !contactToEmail) {
       throw new Error("Variables de entorno EmailJS no configuradas.");
     }
 
@@ -44,6 +46,7 @@ export class MessageService {
         from_name: name,
         to_name: "PHD team",
         from_email: email,
+        to_email: contactToEmail,
         message,
       },
     };

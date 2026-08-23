@@ -1,6 +1,5 @@
 "use client";
 import { useCallback, useEffect, useMemo, useState } from "react";
-import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import {
   CatalogQuestion,
@@ -15,7 +14,7 @@ import ProgressBar from "./progress-bar";
 import ClientNotFound from "./client-not-found";
 import ResultsStatusPanel from "./results-status-panel";
 
-type View = "intro" | "assessment" | "success";
+type View = "intro" | "assessment";
 
 const CLIENT_QUERY_PARAM = "cliente";
 
@@ -153,7 +152,11 @@ export default function QualityPulseView() {
       });
 
       if (res.status === 201) {
-        setView("success");
+        await loadClientData(clientName);
+        setSelectedProfile(null);
+        setAnswers({});
+        setCurrentIndex(0);
+        setView("intro");
         return;
       }
 
@@ -168,7 +171,7 @@ export default function QualityPulseView() {
     } finally {
       setSubmitting(false);
     }
-  }, [selectedProfile, clientName, answers]);
+  }, [selectedProfile, clientName, answers, loadClientData]);
 
   const handleNext = () => {
     if (isLastQuestion) {
@@ -180,45 +183,6 @@ export default function QualityPulseView() {
 
   const hasAnsweredCurrent =
     currentQuestion !== undefined && answers[currentQuestion.id] !== undefined;
-
-  if (view === "success") {
-    return (
-      <section className="min-h-screen bg-phd-dark phd-gradient-blur flex items-center justify-center px-4 py-24">
-        <div className="phd-glass rounded-2xl p-10 max-w-lg w-full flex flex-col items-center gap-6 text-center">
-          <span className="flex items-center justify-center w-16 h-16 rounded-full bg-phd-cyan/10 border border-phd-cyan/30">
-            <svg width="28" height="28" fill="none" stroke="currentColor" viewBox="0 0 24 24" className="text-phd-cyan">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-            </svg>
-          </span>
-          <h2 className="font-heading font-bold text-white text-2xl">
-            Respuestas registradas
-          </h2>
-          <p className="text-slate-400 text-sm leading-relaxed">
-            Gracias por completar el cuestionario del perfil{" "}
-            <span className="text-white font-semibold">{selectedProfile}</span>. Sus
-            respuestas ya forman parte del diagnóstico de{" "}
-            <span className="text-white font-semibold">{clientName}</span>.
-          </p>
-          <Link
-            href={`/quality-pulse/resultados?${CLIENT_QUERY_PARAM}=${encodeURIComponent(clientName)}`}
-            className="w-full flex items-center justify-center bg-phd-pink hover:bg-phd-pink/90 text-white font-semibold px-7 py-3 rounded-full transition-all hover:scale-[1.02] active:scale-95 shadow-lg shadow-phd-pink/25"
-          >
-            Ver resultados de {clientName}
-          </Link>
-          <button
-            type="button"
-            onClick={() => {
-              setSelectedProfile(null);
-              setView("intro");
-            }}
-            className="text-sm text-slate-400 hover:text-phd-cyan transition-colors"
-          >
-            Volver a los perfiles
-          </button>
-        </div>
-      </section>
-    );
-  }
 
   if (view === "assessment" && selectedProfile) {
     return (
@@ -234,6 +198,7 @@ export default function QualityPulseView() {
           {currentQuestion ? (
             <QuestionCard
               question={currentQuestion}
+              questionNumber={clampedIndex + 1}
               selectedOptionIndex={answers[currentQuestion.id]}
               onSelectOption={handleSelectOption}
             />

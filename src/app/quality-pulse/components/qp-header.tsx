@@ -1,6 +1,6 @@
 import Link from "next/link";
 
-const NAV_ITEMS_PENDING = ["Dashboard", "Benchmarks"] as const;
+const NAV_ITEMS_PENDING = [] as const;
 
 export default function QpHeader() {
   return (

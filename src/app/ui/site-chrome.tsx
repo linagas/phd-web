@@ -10,7 +10,11 @@ interface SiteChromeProps {
 
 export default function SiteChrome({ children }: SiteChromeProps) {
   const pathname = usePathname();
-  const hideGlobalChrome = pathname === "/quality-pulse";
+  const hideGlobalChrome =
+    pathname === "/quality-pulse" ||
+    pathname?.startsWith("/quality-pulse/") ||
+    pathname === "/administracion" ||
+    pathname?.startsWith("/administracion/");
 
   return (
     <>

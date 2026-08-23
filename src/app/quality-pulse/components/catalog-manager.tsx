@@ -34,6 +34,13 @@ function parseProfiles(value: unknown): QualityPulseProfile[] {
   );
 }
 
+function parseOrigins(value: unknown, excludeId?: string): string[] {
+  return String(value ?? "")
+    .split(/[/;,]/)
+    .map((item) => item.trim().toUpperCase())
+    .filter((item) => /^Q\d+$/i.test(item) && item !== excludeId);
+}
+
 function parseOutcomes(value: unknown): Record<string, number> {
   const outcomes: Record<string, number> = {};
   parseList(value).forEach((pair) => {
@@ -131,6 +138,11 @@ export default function CatalogManager() {
   const [editStatus, setEditStatus] = useState("Activa");
   const [editOrder, setEditOrder] = useState(0);
   const [editObjective, setEditObjective] = useState("");
+  const [editRequired, setEditRequired] = useState(false);
+  const [editType, setEditType] = useState("Base");
+  const [editOriginsText, setEditOriginsText] = useState("");
+  const [editProfiles, setEditProfiles] = useState<QualityPulseProfile[]>([]);
+  const [editOptions, setEditOptions] = useState<QuestionOption[]>([]);
   const [savingEdit, setSavingEdit] = useState(false);
   const [editError, setEditError] = useState("");
   const [editSuccess, setEditSuccess] = useState(false);
@@ -162,9 +174,26 @@ export default function CatalogManager() {
     setEditStatus(selectedQuestion.status);
     setEditOrder(selectedQuestion.order);
     setEditObjective(selectedQuestion.objective);
+    setEditRequired(selectedQuestion.required);
+    setEditType(selectedQuestion.type);
+    setEditOriginsText(selectedQuestion.origins.join(", "));
+    setEditProfiles(selectedQuestion.profiles);
+    setEditOptions(selectedQuestion.options);
     setEditSuccess(false);
     setEditError("");
   }, [selectedQuestion]);
+
+  const toggleEditProfile = (profile: QualityPulseProfile, checked: boolean) => {
+    setEditProfiles((current) =>
+      checked ? [...current, profile] : current.filter((item) => item !== profile)
+    );
+  };
+
+  const updateEditOption = (index: number, patch: Partial<QuestionOption>) => {
+    setEditOptions((current) =>
+      current.map((option, i) => (i === index ? { ...option, ...patch } : option))
+    );
+  };
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -216,6 +245,11 @@ export default function CatalogManager() {
       status: editStatus,
       order: editOrder,
       objective: editObjective,
+      required: editRequired,
+      type: editType,
+      origins: parseOrigins(editOriginsText, selectedQuestion.id),
+      profiles: editProfiles,
+      options: editOptions,
     };
 
     try {
@@ -311,6 +345,26 @@ export default function CatalogManager() {
 
             {selectedQuestion && (
               <div className="flex flex-col gap-3">
+                <div className="flex flex-wrap gap-2">
+                  <span className="text-[10px] font-bold uppercase tracking-wider rounded-full px-3 py-1 border border-white/10 bg-white/5 text-slate-300">
+                    {selectedQuestion.dimensionId}
+                  </span>
+                  <span className="text-[10px] font-bold uppercase tracking-wider rounded-full px-3 py-1 border border-white/10 bg-white/5 text-slate-300">
+                    {selectedQuestion.capabilityId}
+                  </span>
+                  <span className="text-[10px] font-bold uppercase tracking-wider rounded-full px-3 py-1 border border-white/10 bg-white/5 text-slate-300">
+                    {selectedQuestion.perspective}
+                  </span>
+                </div>
+
+                <label className="flex flex-col gap-1 text-sm text-slate-300">
+                  ID
+                  <input
+                    value={selectedQuestion.id}
+                    disabled
+                    className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-slate-500 disabled:cursor-not-allowed"
+                  />
+                </label>
                 <label className="flex flex-col gap-1 text-sm text-slate-300">
                   Texto
                   <textarea
@@ -330,6 +384,9 @@ export default function CatalogManager() {
                     >
                       <option value="Activa" className="bg-phd-dark">
                         Activa
+                      </option>
+                      <option value="Borrador" className="bg-phd-dark">
+                        Borrador
                       </option>
                       <option value="Inactiva" className="bg-phd-dark">
                         Inactiva
@@ -355,6 +412,133 @@ export default function CatalogManager() {
                     rows={2}
                   />
                 </label>
+
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                  <label className="flex items-center gap-2 text-sm text-slate-300">
+                    <input
+                      type="checkbox"
+                      checked={editRequired}
+                      onChange={(e) => setEditRequired(e.target.checked)}
+                      className="w-4 h-4 accent-phd-pink"
+                    />
+                    Obligatoria
+                  </label>
+                  <label className="flex flex-col gap-1 text-sm text-slate-300">
+                    Tipo de pregunta
+                    <select
+                      value={editType}
+                      onChange={(e) => setEditType(e.target.value)}
+                      className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white focus:outline-none focus:border-phd-cyan/50"
+                    >
+                      <option value="Base" className="bg-phd-dark">
+                        Base
+                      </option>
+                      <option value="Profundización" className="bg-phd-dark">
+                        Profundización
+                      </option>
+                    </select>
+                  </label>
+                  <label className="flex flex-col gap-1 text-sm text-slate-300">
+                    Preguntas origen
+                    <input
+                      value={editOriginsText}
+                      onChange={(e) => setEditOriginsText(e.target.value)}
+                      placeholder="Ej.: Q1, Q4"
+                      className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white focus:outline-none focus:border-phd-cyan/50"
+                    />
+                    <span className="text-[11px] text-slate-500">
+                      IDs separados por coma. Habilitan preguntas de profundización.
+                    </span>
+                  </label>
+                </div>
+
+                <fieldset className="flex flex-col gap-2">
+                  <legend className="text-sm text-slate-300 mb-1">Perfiles que responden</legend>
+                  <div className="flex flex-wrap gap-4">
+                    {QUALITY_PULSE_PROFILES.map((profile) => (
+                      <label
+                        key={profile}
+                        className="flex items-center gap-2 text-sm text-slate-300"
+                      >
+                        <input
+                          type="checkbox"
+                          checked={editProfiles.includes(profile)}
+                          onChange={(e) => toggleEditProfile(profile, e.target.checked)}
+                          className="w-4 h-4 accent-phd-cyan"
+                        />
+                        {profile}
+                      </label>
+                    ))}
+                  </div>
+                </fieldset>
+
+                <div className="flex flex-col gap-3 pt-4 border-t border-white/5">
+                  <h4 className="text-sm font-semibold text-slate-300">
+                    Alternativas de respuesta
+                  </h4>
+                  {editOptions.map((option, index) => (
+                    <div
+                      key={index}
+                      className="rounded-xl border border-white/10 bg-white/5 p-4 flex flex-col gap-3"
+                    >
+                      <span className="text-xs font-bold text-slate-500">#{index + 1}</span>
+                      <label className="flex flex-col gap-1 text-sm text-slate-300">
+                        Respuesta
+                        <textarea
+                          value={option.label}
+                          onChange={(e) => updateEditOption(index, { label: e.target.value })}
+                          className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white focus:outline-none focus:border-phd-cyan/50"
+                          rows={2}
+                        />
+                      </label>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <label className="flex flex-col gap-1 text-sm text-slate-300">
+                          Score
+                          <input
+                            type="number"
+                            min={0}
+                            max={4}
+                            step={1}
+                            value={option.score}
+                            onChange={(e) =>
+                              updateEditOption(index, { score: Number(e.target.value) })
+                            }
+                            className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white focus:outline-none focus:border-phd-cyan/50"
+                          />
+                        </label>
+                        <label className="flex flex-col gap-1 text-sm text-slate-300">
+                          Tipo de señal
+                          <select
+                            value={option.signalType}
+                            onChange={(e) =>
+                              updateEditOption(index, { signalType: e.target.value })
+                            }
+                            className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white focus:outline-none focus:border-phd-cyan/50"
+                          >
+                            <option value="Pain" className="bg-phd-dark">
+                              Pain
+                            </option>
+                            <option value="Brecha" className="bg-phd-dark">
+                              Brecha
+                            </option>
+                            <option value="Fortaleza" className="bg-phd-dark">
+                              Fortaleza
+                            </option>
+                          </select>
+                        </label>
+                      </div>
+                      <label className="flex flex-col gap-1 text-sm text-slate-300">
+                        Señal
+                        <textarea
+                          value={option.signal}
+                          onChange={(e) => updateEditOption(index, { signal: e.target.value })}
+                          className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white focus:outline-none focus:border-phd-cyan/50"
+                          rows={2}
+                        />
+                      </label>
+                    </div>
+                  ))}
+                </div>
 
                 {editError && (
                   <p role="alert" className="text-sm text-phd-pink">

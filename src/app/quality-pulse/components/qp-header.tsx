@@ -20,17 +20,6 @@ export default function QpHeader() {
           </span>
         </Link>
 
-        <Link href="/quality-pulse" className="flex items-center gap-2 shrink-0">
-          <span className="flex items-end gap-0.5 h-4" aria-hidden="true">
-            <span className="w-1 h-2 rounded-sm bg-phd-cyan" />
-            <span className="w-1 h-4 rounded-sm bg-phd-purple" />
-            <span className="w-1 h-3 rounded-sm bg-phd-pink" />
-          </span>
-          <span className="font-heading font-extrabold text-sm tracking-wide text-white">
-            QUALITY <span className="text-phd-pink">PULSE</span>
-          </span>
-        </Link>
-
         <nav className="hidden sm:flex items-center gap-6" aria-label="Navegación Quality Pulse">
           {NAV_ITEMS_PENDING.map((item) => (
             <span
@@ -43,11 +32,15 @@ export default function QpHeader() {
           ))}
         </nav>
 
-        <Link
-          href="/quality-pulse"
-          className="border border-white/10 bg-white/5 hover:bg-white/10 text-white text-xs font-bold tracking-wider uppercase rounded-full px-4 py-2 transition-colors whitespace-nowrap"
-        >
-          Assessment colaborativo
+        <Link href="/quality-pulse" className="flex items-center gap-2 shrink-0">
+          <span className="flex items-end gap-0.5 h-4" aria-hidden="true">
+            <span className="w-1 h-2 rounded-sm bg-phd-cyan" />
+            <span className="w-1 h-4 rounded-sm bg-phd-purple" />
+            <span className="w-1 h-3 rounded-sm bg-phd-pink" />
+          </span>
+          <span className="font-heading font-extrabold text-sm tracking-wide text-white">
+            QUALITY <span className="text-phd-pink">PULSE</span>
+          </span>
         </Link>
       </div>
     </header>

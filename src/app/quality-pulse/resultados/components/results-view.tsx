@@ -307,13 +307,30 @@ export default function ResultsView() {
   return (
     <section className="min-h-screen bg-phd-dark phd-gradient-blur px-4 sm:px-8 lg:px-16 py-24">
       <div className="max-w-screen-2xl mx-auto flex flex-col gap-10">
-        <div className="flex flex-col gap-2">
-          <p className="text-xs font-bold tracking-[0.2em] uppercase text-phd-cyan">
-            Resultados Quality Pulse
-          </p>
-          <h1 className="font-heading font-bold text-3xl sm:text-4xl text-white tracking-tight">
-            {clientName}
-          </h1>
+        <div className="flex flex-col gap-4">
+          <Link
+            href={`/quality-pulse?${CLIENT_QUERY_PARAM}=${encodeURIComponent(clientName)}`}
+            className="inline-flex items-center gap-2 text-sm font-medium text-slate-400 hover:text-phd-cyan transition-colors w-fit"
+          >
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+              <path
+                d="M10 12.5 5.5 8 10 3.5"
+                stroke="currentColor"
+                strokeWidth="1.5"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+            </svg>
+            Volver a Quality Pulse
+          </Link>
+          <div className="flex flex-col gap-2">
+            <p className="text-xs font-bold tracking-[0.2em] uppercase text-phd-cyan">
+              Resultados Quality Pulse
+            </p>
+            <h1 className="font-heading font-bold text-3xl sm:text-4xl text-white tracking-tight">
+              {clientName}
+            </h1>
+          </div>
         </div>
 
         {loading && <p className="text-slate-400 text-sm">Calculando resultados…</p>}

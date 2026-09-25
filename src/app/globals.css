@@ -63,3 +63,25 @@ body {
   border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: 1rem;
 }
+
+.phd-scrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(56, 189, 248, 0.4) transparent;
+}
+
+.phd-scrollbar::-webkit-scrollbar {
+  width: 6px;
+}
+
+.phd-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.phd-scrollbar::-webkit-scrollbar-thumb {
+  background-color: rgba(56, 189, 248, 0.4);
+  border-radius: 999px;
+}
+
+.phd-scrollbar::-webkit-scrollbar-thumb:hover {
+  background-color: rgba(56, 189, 248, 0.65);
+}

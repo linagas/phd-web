@@ -125,26 +125,33 @@ function GapsList({
       {gaps.length === 0 ? (
         <p className="text-sm text-slate-500">No se detectaron brechas relevantes.</p>
       ) : (
-        <ul className="flex flex-col gap-3">
-          {gaps.map((gap) => (
-            <li key={gap.questionId} className="rounded-xl border border-white/10 bg-white/5 p-4">
-              <p className="text-sm text-slate-200">
-                {questionsById.get(gap.questionId)?.text ?? gap.questionId}
-              </p>
-              <div className="flex flex-wrap gap-2 mt-3">
-                <span className="text-[10px] font-bold uppercase tracking-wider rounded-full px-3 py-1 border border-phd-pink/30 bg-phd-pink/10 text-phd-pink">
-                  {gap.rule.signal}
-                </span>
-                <span className="text-[10px] font-bold uppercase tracking-wider rounded-full px-3 py-1 border border-white/10 bg-white/5 text-slate-300">
-                  Impacto: {gap.rule.impact}
-                </span>
-                <span className="text-[10px] font-bold uppercase tracking-wider rounded-full px-3 py-1 border border-white/10 bg-white/5 text-slate-300">
-                  Prioridad: {gap.rule.priority}
-                </span>
-              </div>
-            </li>
-          ))}
-        </ul>
+        <div
+          role="region"
+          aria-label="Lista de hallazgos"
+          tabIndex={0}
+          className="phd-scrollbar max-h-[28rem] overflow-y-auto pr-2 focus:outline-none focus-visible:ring-2 focus-visible:ring-phd-cyan/50 rounded-xl"
+        >
+          <ul className="flex flex-col gap-3">
+            {gaps.map((gap) => (
+              <li key={gap.questionId} className="rounded-xl border border-white/10 bg-white/5 p-4">
+                <p className="text-sm text-slate-200">
+                  {questionsById.get(gap.questionId)?.text ?? gap.questionId}
+                </p>
+                <div className="flex flex-wrap gap-2 mt-3">
+                  <span className="text-[10px] font-bold uppercase tracking-wider rounded-full px-3 py-1 border border-phd-pink/30 bg-phd-pink/10 text-phd-pink">
+                    {gap.rule.signal}
+                  </span>
+                  <span className="text-[10px] font-bold uppercase tracking-wider rounded-full px-3 py-1 border border-white/10 bg-white/5 text-slate-300">
+                    Impacto: {gap.rule.impact}
+                  </span>
+                  <span className="text-[10px] font-bold uppercase tracking-wider rounded-full px-3 py-1 border border-white/10 bg-white/5 text-slate-300">
+                    Prioridad: {gap.rule.priority}
+                  </span>
+                </div>
+              </li>
+            ))}
+          </ul>
+        </div>
       )}
     </div>
   );
@@ -353,11 +360,8 @@ export default function ResultsView() {
 
             <BenchmarkTable perspectiveScores={results.perspectiveScores} />
             <DimensionsGrid dimensionScores={results.dimensionScores} />
-
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              <GapsList gaps={results.gaps} questionsById={questionsById} />
-              <ImpactRanking impacts={results.impacts} />
-            </div>
+            <ImpactRanking impacts={results.impacts} />
+            <GapsList gaps={results.gaps} questionsById={questionsById} />
           </div>
         )}
       </div>

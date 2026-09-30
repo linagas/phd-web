@@ -239,6 +239,7 @@ export default function AdminPanel({ adminEmail }: AdminPanelProps) {
       setClients((prev) => prev.filter((client) => client.clientKey !== clientKey));
       setSubmissions((prev) => prev.filter((submission) => submission.clientKey !== clientKey));
       setSelectedClientKey((prev) => (prev === clientKey ? "" : prev));
+      if (deletedOpen) await loadDeleted();
     } catch (err) {
       setActionError(err instanceof Error ? err.message : "No se pudo eliminar el cliente.");
     } finally {
@@ -504,9 +505,21 @@ export default function AdminPanel({ adminEmail }: AdminPanelProps) {
                 type="button"
                 onClick={handleToggleDeleted}
                 aria-expanded={deletedOpen}
-                className="self-start text-sm text-slate-300 hover:text-white font-semibold"
+                className="flex w-full items-center justify-between text-sm text-slate-300 hover:text-white font-semibold"
               >
                 Eliminados
+                <svg
+                  aria-hidden="true"
+                  viewBox="0 0 20 20"
+                  fill="currentColor"
+                  className={`h-5 w-5 transition-transform ${deletedOpen ? "rotate-180" : ""}`}
+                >
+                  <path
+                    fillRule="evenodd"
+                    d="M5.23 7.21a.75.75 0 0 1 1.06.02L10 11.17l3.71-3.94a.75.75 0 1 1 1.08 1.04l-4.25 4.5a.75.75 0 0 1-1.08 0l-4.25-4.5a.75.75 0 0 1 .02-1.06Z"
+                    clipRule="evenodd"
+                  />
+                </svg>
               </button>
               {deletedOpen && (
                 <>

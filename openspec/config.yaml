@@ -1,0 +1,54 @@
+schema: spec-driven
+
+context: |
+  Next.js 14 App Router + TypeScript strict, MongoDB (cached client).
+  Layered architecture: Controller -> Service -> Repository -> Model.
+  API routes in src/pages/api/ (Pages Router style). Tailwind CSS custom theme.
+  Naming: kebab-case files, PascalCase components/classes, camelCase vars.
+  No `any`, no console.log in production. Zod validation + reCAPTCHA v3 (score > 0.5).
+  Path alias `@/*` -> `src/*`.
+
+strict_tdd: true
+
+execution_mode: interactive
+delivery_strategy: auto-forecast
+review_budget_lines: 800
+
+testing:
+  unit_command: "npm test"
+  coverage_command: "npm run test:coverage"
+  e2e_command: "npm run test:e2e"
+  lint_command: "npm run lint"
+  build_command: "npm run build"
+  framework: jest + @testing-library/react
+  e2e_framework: playwright
+  coverage_threshold: 80
+
+rules:
+  proposal:
+    - Include rollback plan for risky changes
+    - Respect the Controller -> Service -> Repository -> Model layering
+  specs:
+    - Use Given/When/Then for scenarios
+    - Use RFC 2119 keywords (MUST, SHALL, SHOULD, MAY)
+  design:
+    - Include sequence diagrams for complex flows
+    - Document architecture decisions with rationale
+    - Preserve MongoDB cached-client pattern (src/utils/database.ts)
+  tasks:
+    - Group by phase, use hierarchical numbering
+    - Keep tasks completable in one session
+    - Place unit/integration tests under tests/, e2e specs under e2e/
+  apply:
+    guidelines:
+      - Follow existing code patterns (Controller/Service/Repository/Model)
+      - kebab-case files, PascalCase components/classes, camelCase vars
+      - No `any`, no console.log in production
+    tdd: true
+    test_command: "npm test"
+  verify:
+    test_command: "npm run test:coverage"
+    build_command: "npm run build"
+    coverage_threshold: 80
+  archive:
+    - Warn before merging destructive deltas

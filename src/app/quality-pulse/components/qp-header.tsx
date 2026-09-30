@@ -1,0 +1,48 @@
+import Link from "next/link";
+
+const NAV_ITEMS_PENDING = [] as const;
+
+export default function QpHeader() {
+  return (
+    <header className="sticky top-0 z-20 border-b border-white/5 bg-phd-dark/80 backdrop-blur-md">
+      <div className="max-w-screen-2xl mx-auto px-4 sm:px-8 lg:px-16 h-16 flex items-center justify-between gap-4">
+        <Link href="/" className="flex items-center gap-3 shrink-0">
+          <span className="flex items-center gap-1" aria-hidden="true">
+            <span className="w-2.5 h-2.5 rounded-full bg-phd-cyan" />
+            <span className="w-2.5 h-2.5 rounded-full bg-phd-pink" />
+            <span className="w-2.5 h-2.5 rounded-full bg-phd-purple" />
+          </span>
+          <span className="flex flex-col leading-none">
+            <span className="font-heading font-bold text-white text-sm tracking-tight">PHD</span>
+            <span className="font-body text-slate-400 text-[8px] tracking-widest uppercase mt-0.5">
+              Quality Engineering
+            </span>
+          </span>
+        </Link>
+
+        <nav className="hidden sm:flex items-center gap-6" aria-label="Navegación Quality Pulse">
+          {NAV_ITEMS_PENDING.map((item) => (
+            <span
+              key={item}
+              title="Próximamente"
+              className="text-sm text-slate-500 cursor-not-allowed select-none"
+            >
+              {item}
+            </span>
+          ))}
+        </nav>
+
+        <Link href="/quality-pulse" className="flex items-center gap-2 shrink-0">
+          <span className="flex items-end gap-0.5 h-4" aria-hidden="true">
+            <span className="w-1 h-2 rounded-sm bg-phd-cyan" />
+            <span className="w-1 h-4 rounded-sm bg-phd-purple" />
+            <span className="w-1 h-3 rounded-sm bg-phd-pink" />
+          </span>
+          <span className="font-heading font-extrabold text-sm tracking-wide text-white">
+            QUALITY <span className="text-phd-pink">PULSE</span>
+          </span>
+        </Link>
+      </div>
+    </header>
+  );
+}

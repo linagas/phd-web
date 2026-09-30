@@ -8,6 +8,7 @@ const NAV_LINKS = [
   { label: "Portafolio", href: "/#servicios" },
   { label: "Autoevaluar AQI", href: "/#aqi-tool" },
   { label: "Roadmap", href: "/#viaje" },
+  { label: "Quality Pulse", href: "/quality-pulse" },
 ];
 
 function PhdLogo() {

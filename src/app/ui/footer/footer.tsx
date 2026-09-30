@@ -7,9 +7,8 @@ const NAV_LINKS = [
   { label: "Portafolio", href: "/#servicios" },
   { label: "Autoevaluar AQI", href: "/#aqi-tool" },
   { label: "Roadmap", href: "/#viaje" },
+  { label: "Quality Pulse", href: "/quality-pulse" },
 ];
-
-const TECH_STACK = ["Next.js", "TypeScript", "MongoDB", "Vercel"];
 
 export default function Footer() {
   return (
@@ -82,19 +81,6 @@ export default function Footer() {
 
           {/* Columna stack — 4 cols */}
           <div className="md:col-span-4 flex flex-col gap-4">
-            <p className="text-xs font-bold tracking-widest uppercase text-slate-500">
-              Tecnología de la Web
-            </p>
-            <div className="flex flex-wrap gap-2">
-              {TECH_STACK.map((tech) => (
-                <span
-                  key={tech}
-                  className="text-xs bg-white/5 border border-white/10 text-slate-400 px-3 py-1 rounded-full"
-                >
-                  {tech}
-                </span>
-              ))}
-            </div>
             <p className="text-sm text-slate-400 mt-2">
               ¿Preguntas?{" "}
               <a

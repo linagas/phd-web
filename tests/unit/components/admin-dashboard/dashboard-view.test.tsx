@@ -38,6 +38,15 @@ function buildSummary(overrides: Partial<DashboardSummary> = {}): DashboardSumma
       },
     ],
     pendingReview: [{ clientKey: "a", clientName: "Cliente A" }],
+    recentActivity: [
+      {
+        type: "REGISTRO",
+        clientKey: "a",
+        clientName: "Cliente A",
+        actor: "admin@phd.cl",
+        occurredAt: new Date().toISOString(),
+      },
+    ],
     ...overrides,
   };
 }
@@ -120,5 +129,32 @@ describe("DashboardView", () => {
     await waitFor(() => expect(screen.getAllByText("Cliente A").length).toBeGreaterThan(0));
 
     expect(screen.getByTestId("dashboard-layout").className).toContain("grid");
+  });
+
+  it("renders 'Actividad Reciente' next to the pending review list on large screens", async () => {
+    mockFetch.mockResolvedValue({ ok: true, json: async () => buildSummary() });
+
+    render(<DashboardView />);
+
+    await waitFor(() => expect(screen.getAllByText("Cliente A").length).toBeGreaterThan(0));
+
+    expect(screen.getByRole("heading", { name: "Actividad Reciente" })).toBeInTheDocument();
+    const row = screen.getByTestId("dashboard-review-activity-row");
+    expect(row.className).toContain("lg:grid-cols-3");
+    expect(within(row).getByText("Pendientes de Revisión")).toBeInTheDocument();
+    expect(within(row).getByText("Actividad Reciente")).toBeInTheDocument();
+  });
+
+  it("shows the activity empty state when the summary has no events", async () => {
+    mockFetch.mockResolvedValue({
+      ok: true,
+      json: async () => buildSummary({ recentActivity: [] }),
+    });
+
+    render(<DashboardView />);
+
+    await waitFor(() =>
+      expect(screen.getByText("Todavía no hay actividad reciente.")).toBeInTheDocument()
+    );
   });
 });

@@ -5,13 +5,14 @@ import { enrichPendingReview } from "@/utils/quality-pulse/admin-view-models";
 import KpiCards from "./kpi-cards";
 import ClientScoreTable from "./client-score-table";
 import PendingReviewList from "./pending-review-list";
+import RecentActivity from "./recent-activity";
 
 const DASHBOARD_ENDPOINT = "/api/quality-pulse/admin/dashboard";
 const LOAD_ERROR_MESSAGE = "No se pudo cargar el resumen del dashboard.";
 
 /**
  * Compone el Dashboard admin (`GET /api/quality-pulse/admin/dashboard`, D9):
- * KPIs, "Pendientes de Revisión" y el Quality Health Score global/por
+ * KPIs, "Pendientes de Revisión" junto a "Actividad Reciente" y el Quality Health Score global/por
  * cliente. El guard de sesión vive en `(console)/layout.tsx`, esta vista solo
  * consume el endpoint ya protegido. "Revisar y publicar" es un `<Link>`
  * (`PendingReviewList`) hacia `/revisar`; esta vista ya no publica nada.
@@ -62,9 +63,17 @@ export default function DashboardView() {
         {!loading && !error && summary && (
           <div data-testid="dashboard-layout" className="grid grid-cols-1 gap-10">
             <KpiCards kpis={summary.kpis} globalHealthScore={summary.globalHealthScore} />
-            <PendingReviewList
-              items={enrichPendingReview(summary.pendingReview, summary.clients)}
-            />
+            <div
+              data-testid="dashboard-review-activity-row"
+              className="grid grid-cols-1 gap-10 lg:grid-cols-3"
+            >
+              <div className="lg:col-span-2">
+                <PendingReviewList
+                  items={enrichPendingReview(summary.pendingReview, summary.clients)}
+                />
+              </div>
+              <RecentActivity events={summary.recentActivity} />
+            </div>
             <ClientScoreTable
               clients={summary.clients}
               globalHealthScore={summary.globalHealthScore}

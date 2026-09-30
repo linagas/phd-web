@@ -7,6 +7,7 @@ import {
   calculateProfileScores,
   calculateResults,
 } from "@/utils/quality-pulse/scoring";
+import { RecentActivityEvent, buildRecentActivity } from "@/utils/quality-pulse/recent-activity";
 
 const EXPECTED_PROFILES_PER_CLIENT = QUALITY_PULSE_PROFILES.length;
 
@@ -32,6 +33,8 @@ export interface DashboardSummary {
   globalHealthScore: number | null;
   clients: ClientDashboardSummary[];
   pendingReview: { clientKey: string; clientName: string }[];
+  /** Newest-first feed derived from existing timestamps (dates as ISO strings). */
+  recentActivity: RecentActivityEvent[];
 }
 
 function groupSubmissionsByClient(
@@ -70,12 +73,14 @@ function buildClientSummary(
  * Composición pura del resumen del Dashboard (D9). Toma los datos ya
  * cargados (clientes registrados, todas las submissions, catálogo) y deriva
  * KPIs, el Quality Health Score global (D1) y la lista de pendientes de
- * revisión (4/4 && !isPublished). No hace I/O.
+ * revisión (4/4 && !isPublished). También deriva el feed `recentActivity`;
+ * `deletedClients` solo alimenta los eventos ELIMINADO. No hace I/O.
  */
 export function buildDashboardSummary(
   clients: QualityPulseClient[],
   submissions: QualityPulseAssessment[],
-  catalog: CatalogQuestion[]
+  catalog: CatalogQuestion[],
+  deletedClients: QualityPulseClient[] = []
 ): DashboardSummary {
   const submissionsByClient = groupSubmissionsByClient(submissions);
   const clientSummaries = clients.map((client) =>
@@ -117,5 +122,6 @@ export function buildDashboardSummary(
     globalHealthScore,
     clients: clientSummaries,
     pendingReview,
+    recentActivity: buildRecentActivity(clients, deletedClients, submissions),
   };
 }

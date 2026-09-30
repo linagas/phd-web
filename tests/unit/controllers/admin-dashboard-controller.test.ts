@@ -65,6 +65,7 @@ describe("AdminDashboardController", () => {
       globalHealthScore: 50,
       clients: [],
       pendingReview: [],
+      recentActivity: [],
     };
     mockGetSummary.mockResolvedValue(summary);
     const { req, res } = createMockReqRes();

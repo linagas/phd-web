@@ -65,11 +65,11 @@ function buildSubmission(overrides: Partial<QualityPulseAssessment> = {}): Quali
 
 function buildFakeClientRepository(
   clients: QualityPulseClient[],
-  deletedKeys: string[] = []
+  deletedClients: QualityPulseClient[] = []
 ): ClientRepository {
   return {
     findAll: jest.fn().mockResolvedValue(clients),
-    findDeletedKeys: jest.fn().mockResolvedValue(deletedKeys),
+    findDeleted: jest.fn().mockResolvedValue(deletedClients),
   } as unknown as ClientRepository;
 }
 
@@ -117,7 +117,10 @@ describe("DashboardService", () => {
 
   it("excluye de las métricas las submissions de clientes eliminados (soft delete)", async () => {
     const service = new DashboardService(
-      buildFakeClientRepository([buildClient({ clientKey: "a" })], ["gone"]),
+      buildFakeClientRepository(
+        [buildClient({ clientKey: "a" })],
+        [buildClient({ clientKey: "gone", clientName: "Gone", deletedAt: new Date(), deletedBy: "x" })]
+      ),
       buildFakeAssessmentRepository([
         buildSubmission({ clientKey: "a", profile: "Calidad" }),
         buildSubmission({ clientKey: "gone", clientName: "Gone", profile: "Calidad" }),
@@ -128,5 +131,25 @@ describe("DashboardService", () => {
     const summary = await service.getSummary();
 
     expect(summary.kpis.submissions).toBe(1);
+  });
+
+  it("adds ELIMINADO events for deleted clients but no RESPONDIDO for their submissions", async () => {
+    const deletedAt = new Date("2026-02-01T00:00:00.000Z");
+    const service = new DashboardService(
+      buildFakeClientRepository(
+        [buildClient({ clientKey: "a" })],
+        [buildClient({ clientKey: "gone", clientName: "Gone", deletedAt, deletedBy: "admin@phd.cl" })]
+      ),
+      buildFakeAssessmentRepository([
+        buildSubmission({ clientKey: "gone", clientName: "Gone", profile: "Calidad" }),
+      ]),
+      buildFakeCatalogRepository([buildQuestion()])
+    );
+
+    const summary = await service.getSummary();
+
+    const types = summary.recentActivity.map((event) => event.type);
+    expect(types).toContain("ELIMINADO");
+    expect(types).not.toContain("RESPONDIDO");
   });
 });

@@ -16,17 +16,17 @@ export class DashboardService {
   ) {}
 
   async getSummary(): Promise<DashboardSummary> {
-    const [clients, allSubmissions, catalog, deletedKeys] = await Promise.all([
+    const [clients, allSubmissions, catalog, deletedClients] = await Promise.all([
       this.clientRepository.findAll(),
       this.assessmentRepository.findAll(),
       this.catalogRepository.getAll(),
-      this.clientRepository.findDeletedKeys(),
+      this.clientRepository.findDeleted(),
     ]);
 
     // Soft-deleted clients keep their submissions; hide them from metrics.
-    const hidden = new Set(deletedKeys);
+    const hidden = new Set(deletedClients.map((client) => client.clientKey));
     const submissions = allSubmissions.filter((submission) => !hidden.has(submission.clientKey));
 
-    return buildDashboardSummary(clients, submissions, catalog);
+    return buildDashboardSummary(clients, submissions, catalog, deletedClients);
   }
 }

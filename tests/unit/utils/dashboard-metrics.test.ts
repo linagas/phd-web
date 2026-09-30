@@ -127,4 +127,36 @@ describe("buildDashboardSummary", () => {
     expect(summary.kpis.submissions).toBe(1);
     expect(summary.kpis.completionPct).toBe(25); // 1/4, no 2/4
   });
+
+  it("includes recentActivity derived from clients, deleted clients and submissions, newest first", () => {
+    const clients = [
+      buildClient({ clientKey: "a", createdAt: new Date("2026-01-01T00:00:00.000Z") }),
+    ];
+    const deleted = [
+      buildClient({
+        clientKey: "gone",
+        clientName: "Gone",
+        deletedAt: new Date("2026-01-03T00:00:00.000Z"),
+        deletedBy: "admin@phd.cl",
+      }),
+    ];
+    const submissions = [
+      buildSubmission({ clientKey: "a", submittedAt: new Date("2026-01-02T00:00:00.000Z") }),
+    ];
+
+    const summary = buildDashboardSummary(clients, submissions, [buildQuestion()], deleted);
+
+    expect(summary.recentActivity.map((event) => event.type)).toEqual([
+      "ELIMINADO",
+      "RESPONDIDO",
+      "REGISTRO",
+    ]);
+    expect(summary.recentActivity[0].occurredAt).toBe("2026-01-03T00:00:00.000Z");
+  });
+
+  it("defaults recentActivity deletions to none when deleted clients are omitted", () => {
+    const summary = buildDashboardSummary([buildClient()], [], [buildQuestion()]);
+
+    expect(summary.recentActivity.map((event) => event.type)).toEqual(["REGISTRO"]);
+  });
 });

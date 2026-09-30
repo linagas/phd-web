@@ -121,113 +121,20 @@ describe("AdminPanel — badge de publicación y despublicar", () => {
 
   it("muestra badge 'En progreso' para un cliente sin publicar (migrado de 'No publicado')", async () => {
     mockLoadData([buildClient({ isPublished: false })]);
-    const user = userEvent.setup();
 
     render(<AdminPanel adminEmail="admin@phd.cl" />);
 
     await waitFor(() => expect(screen.getByText("Acme")).toBeInTheDocument());
     expect(within(rowFor("Acme")).getByText("En progreso")).toBeInTheDocument();
-
-    await user.click(rowFor("Acme"));
-    expect(screen.queryByRole("button", { name: "Despublicar" })).not.toBeInTheDocument();
   });
 
-  it("muestra badge 'Publicado' y acción de despublicar para un cliente publicado", async () => {
+  it("muestra badge 'Publicado' para un cliente publicado", async () => {
     mockLoadData([buildClient({ isPublished: true })]);
-    const user = userEvent.setup();
 
     render(<AdminPanel adminEmail="admin@phd.cl" />);
 
     await waitFor(() => expect(screen.getByText("Acme")).toBeInTheDocument());
     expect(within(rowFor("Acme")).getByText("Publicado")).toBeInTheDocument();
-
-    await user.click(rowFor("Acme"));
-    expect(screen.getByRole("button", { name: "Despublicar" })).toBeInTheDocument();
-  });
-
-  it("al confirmar despublicar llama a DELETE /api/quality-pulse/admin/publication y recarga", async () => {
-    const user = userEvent.setup();
-    mockLoadData([buildClient({ isPublished: true })]);
-
-    render(<AdminPanel adminEmail="admin@phd.cl" />);
-
-    await waitFor(() => expect(screen.getByText("Acme")).toBeInTheDocument());
-    await user.click(rowFor("Acme"));
-    await waitFor(() => expect(screen.getByRole("button", { name: "Despublicar" })).toBeInTheDocument());
-
-    mockFetch.mockImplementationOnce((url: string, init?: RequestInit) => {
-      expect(url).toBe("/api/quality-pulse/admin/publication");
-      expect(init?.method).toBe("DELETE");
-      expect(JSON.parse(init?.body as string)).toEqual({ clientKey: "acme" });
-      return Promise.resolve({ ok: true, json: async () => ({ isPublished: false }) });
-    });
-    mockLoadData([buildClient({ isPublished: false })]);
-
-    await user.click(screen.getByRole("button", { name: "Despublicar" }));
-
-    await waitFor(() => expect(within(rowFor("Acme")).getByText("En progreso")).toBeInTheDocument());
-  });
-});
-
-describe("AdminPanel — reiniciar todo dentro de la fila expandida", () => {
-  const mockFetch = jest.fn();
-
-  beforeEach(() => {
-    global.fetch = mockFetch as unknown as typeof fetch;
-  });
-
-  afterEach(() => {
-    mockFetch.mockReset();
-  });
-
-  function mockLoadData(
-    clients: QualityPulseClient[],
-    submissions: QualityPulseAssessment[] = []
-  ) {
-    mockFetch.mockImplementation((url: string) => {
-      if (url === "/api/quality-pulse/assessments") {
-        return Promise.resolve({ ok: true, json: async () => submissions });
-      }
-      if (url === "/api/quality-pulse/catalog") {
-        return Promise.resolve({ ok: true, json: async () => catalog });
-      }
-      if (url === "/api/quality-pulse/clients") {
-        return Promise.resolve({ ok: true, json: async () => clients });
-      }
-      return Promise.reject(new Error(`unexpected fetch: ${url}`));
-    });
-  }
-
-  it("reinicia todo el cliente tras escribir REINICIAR y confirmar", async () => {
-    const user = userEvent.setup();
-    mockLoadData([buildClient()], [buildSubmission({ profile: "Calidad" })]);
-
-    render(<AdminPanel adminEmail="admin@phd.cl" />);
-
-    await waitFor(() => expect(screen.getByText("Acme")).toBeInTheDocument());
-    await user.click(rowFor("Acme"));
-
-    await user.click(screen.getByRole("button", { name: "Reiniciar todo el cliente" }));
-    const confirmButton = screen.getByRole("button", { name: "Confirmar reinicio total" });
-    expect(confirmButton).toBeDisabled();
-
-    const input = screen.getByRole("textbox", { name: "" });
-    await user.type(input, "REINICIAR");
-    expect(confirmButton).toBeEnabled();
-
-    mockFetch.mockImplementationOnce((url: string, init?: RequestInit) => {
-      expect(url).toBe("/api/quality-pulse/admin/assessments");
-      expect(init?.method).toBe("DELETE");
-      expect(JSON.parse(init?.body as string)).toEqual({ clientKey: "acme", resetAll: true });
-      return Promise.resolve({ ok: true, json: async () => ({}) });
-    });
-    mockLoadData([buildClient()], []);
-
-    await user.click(confirmButton);
-
-    await waitFor(() =>
-      expect(screen.queryByRole("button", { name: "Confirmar reinicio total" })).not.toBeInTheDocument()
-    );
   });
 });
 
@@ -271,7 +178,10 @@ describe("AdminPanel — Publicar desde la fila (ahora un link a /revisar)", () 
     render(<AdminPanel adminEmail="admin@phd.cl" />);
 
     await waitFor(() => expect(screen.getByText("Acme")).toBeInTheDocument());
-    const publishLink = within(rowFor("Acme")).getByRole("link", { name: "Publicar" });
+    await userEvent.setup().click(
+      within(rowFor("Acme")).getByRole("button", { name: "Más acciones para Acme" })
+    );
+    const publishLink = screen.getByRole("menuitem", { name: "Publicar" });
 
     expect(publishLink).toHaveAttribute("href", buildReviewHref("acme"));
     expect(mockFetch).toHaveBeenCalledTimes(3); // solo la carga inicial (assessments+catalog+clients)
@@ -325,7 +235,10 @@ describe("AdminPanel — Eliminar cliente (soft delete)", () => {
       Promise.resolve({ ok: true, status: 200, json: async () => ({ deleted: true }) })
     );
 
-    await user.click(within(rowFor("Acme")).getByRole("button", { name: "Eliminar" }));
+    await user.click(
+      within(rowFor("Acme")).getByRole("button", { name: "Más acciones para Acme" })
+    );
+    await user.click(screen.getByRole("menuitem", { name: "Eliminar" }));
     await user.click(
       within(rowFor("Acme")).getByRole("button", { name: "Confirmar eliminación" })
     );
@@ -352,7 +265,10 @@ describe("AdminPanel — Eliminar cliente (soft delete)", () => {
       })
     );
 
-    await user.click(within(rowFor("Acme")).getByRole("button", { name: "Eliminar" }));
+    await user.click(
+      within(rowFor("Acme")).getByRole("button", { name: "Más acciones para Acme" })
+    );
+    await user.click(screen.getByRole("menuitem", { name: "Eliminar" }));
     await user.click(
       within(rowFor("Acme")).getByRole("button", { name: "Confirmar eliminación" })
     );

@@ -120,7 +120,7 @@ function GapsList({
           role="region"
           aria-label="Lista de hallazgos"
           tabIndex={0}
-          className="phd-scrollbar max-h-[28rem] overflow-y-auto pr-2 focus:outline-none focus-visible:ring-2 focus-visible:ring-phd-cyan/50 rounded-xl"
+          className="phd-scrollbar max-h-[28rem] overflow-y-auto print:max-h-none print:overflow-visible pr-2 focus:outline-none focus-visible:ring-2 focus-visible:ring-phd-cyan/50 rounded-xl"
         >
           <ul className="flex flex-col gap-3">
             {gaps.map((gap) => (

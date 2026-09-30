@@ -1,10 +1,21 @@
-import { CatalogQuestion } from "@/models/quality-pulse/catalog-question-model";
+import {
+  CatalogQuestion,
+  QUALITY_PULSE_PROFILES,
+} from "@/models/quality-pulse/catalog-question-model";
 import { QualityPulseAssessment } from "@/models/quality-pulse/assessment-model";
 import { QualityPulseClient } from "@/models/quality-pulse/client-model";
-import { ProfileScore, calculateProfileScores, calculateResults } from "@/utils/quality-pulse/scoring";
-import { ClientDashboardSummary, DashboardSummary } from "@/utils/quality-pulse/dashboard-metrics";
+import {
+  ProfileScore,
+  calculateProfileScores,
+  calculateResults,
+} from "@/utils/quality-pulse/scoring";
+import {
+  ClientDashboardSummary,
+  DashboardSummary,
+} from "@/utils/quality-pulse/dashboard-metrics";
 
-export type PublicationState = "Publicado" | "Pendiente de revisión" | "En progreso";
+export type PublicationState =
+  "Publicado" | "Pendiente de revisión" | "En progreso";
 
 export interface ClientRow {
   clientKey: string;
@@ -14,10 +25,18 @@ export interface ClientRow {
   answeredCount: number;
   healthScore: number | null;
   profileScores: ProfileScore[];
+  /** Who registered the client; absent for legacy (unregistered) clients. */
+  registeredBy?: string;
+  /** Latest submission date, else client creation date; null when unknown. */
+  lastUpdatedAt?: Date | null;
+  /** Registration date; absent for legacy clients. */
+  createdAt?: Date;
+  publishedBy?: string;
+  publishedAt?: Date;
 }
 
 function groupSubmissionsByClient(
-  submissions: QualityPulseAssessment[]
+  submissions: QualityPulseAssessment[],
 ): Map<string, QualityPulseAssessment[]> {
   const byClient = new Map<string, QualityPulseAssessment[]>();
   for (const submission of submissions) {
@@ -28,18 +47,43 @@ function groupSubmissionsByClient(
   return byClient;
 }
 
+function toValidDate(value: Date | string | undefined): Date | null {
+  if (value === undefined) return null;
+  const date = new Date(value);
+  return Number.isNaN(date.getTime()) ? null : date;
+}
+
+function resolveLastUpdate(
+  clientSubmissions: QualityPulseAssessment[],
+  createdAt?: Date,
+): Date | null {
+  const times = clientSubmissions
+    .map((submission) => toValidDate(submission.submittedAt))
+    .filter((date): date is Date => date !== null)
+    .map((date) => date.getTime());
+  if (times.length > 0) return new Date(Math.max(...times));
+  return toValidDate(createdAt);
+}
+
 function buildRow(
   clientKey: string,
   clientName: string,
   isRegistered: boolean,
   isPublished: boolean,
   clientSubmissions: QualityPulseAssessment[],
-  catalog: CatalogQuestion[]
+  catalog: CatalogQuestion[],
+  registeredBy?: string,
+  createdAt?: Date,
+  publication?: { publishedBy?: string; publishedAt?: Date },
 ): ClientRow {
   const profileScores = calculateProfileScores(clientSubmissions, catalog);
-  const answeredCount = profileScores.filter((score) => score.status === "answered").length;
+  const answeredCount = profileScores.filter(
+    (score) => score.status === "answered",
+  ).length;
   const healthScore =
-    answeredCount === 0 ? null : calculateResults(clientSubmissions, catalog).healthScore;
+    answeredCount === 0
+      ? null
+      : calculateResults(clientSubmissions, catalog).healthScore;
 
   return {
     clientKey,
@@ -49,6 +93,11 @@ function buildRow(
     answeredCount,
     healthScore,
     profileScores,
+    registeredBy,
+    lastUpdatedAt: resolveLastUpdate(clientSubmissions, createdAt),
+    createdAt,
+    publishedBy: publication?.publishedBy,
+    publishedAt: publication?.publishedAt,
   };
 }
 
@@ -61,7 +110,7 @@ function buildRow(
 export function buildClientRows(
   clients: QualityPulseClient[],
   submissions: QualityPulseAssessment[],
-  catalog: CatalogQuestion[]
+  catalog: CatalogQuestion[],
 ): ClientRow[] {
   const submissionsByClient = groupSubmissionsByClient(submissions);
   const registeredKeys = new Set(clients.map((client) => client.clientKey));
@@ -73,22 +122,32 @@ export function buildClientRows(
       true,
       client.isPublished,
       submissionsByClient.get(client.clientKey) ?? [],
-      catalog
-    )
+      catalog,
+      client.registeredBy,
+      client.createdAt,
+      { publishedBy: client.publishedBy, publishedAt: client.publishedAt },
+    ),
   );
 
   const legacySubmissions = submissions.filter(
-    (submission) => !registeredKeys.has(submission.clientKey)
+    (submission) => !registeredKeys.has(submission.clientKey),
   );
   const legacySubmissionsByClient = groupSubmissionsByClient(legacySubmissions);
 
   const legacyClientRows = Array.from(legacySubmissionsByClient.entries()).map(
     ([clientKey, clientSubmissions]) =>
-      buildRow(clientKey, clientSubmissions[0].clientName, false, false, clientSubmissions, catalog)
+      buildRow(
+        clientKey,
+        clientSubmissions[0].clientName,
+        false,
+        false,
+        clientSubmissions,
+        catalog,
+      ),
   );
 
   return [...registeredRows, ...legacyClientRows].sort((a, b) =>
-    a.clientName.localeCompare(b.clientName)
+    a.clientName.localeCompare(b.clientName),
   );
 }
 
@@ -100,10 +159,11 @@ const EXPECTED_PROFILES_PER_CLIENT = 4;
  * solo aplica a clientes registrados.
  */
 export function derivePublicationState(
-  row: Pick<ClientRow, "isPublished" | "answeredCount">
+  row: Pick<ClientRow, "isPublished" | "answeredCount">,
 ): PublicationState {
   if (row.isPublished) return "Publicado";
-  if (row.answeredCount === EXPECTED_PROFILES_PER_CLIENT) return "Pendiente de revisión";
+  if (row.answeredCount === EXPECTED_PROFILES_PER_CLIENT)
+    return "Pendiente de revisión";
   return "En progreso";
 }
 
@@ -113,7 +173,11 @@ export function derivePublicationState(
  * publicado aún.
  */
 export function canPublish(row: ClientRow): boolean {
-  return row.isRegistered && row.answeredCount === EXPECTED_PROFILES_PER_CLIENT && !row.isPublished;
+  return (
+    row.isRegistered &&
+    row.answeredCount === EXPECTED_PROFILES_PER_CLIENT &&
+    !row.isPublished
+  );
 }
 
 export type ReviewEligibility =
@@ -130,11 +194,15 @@ export type ReviewEligibility =
  * de verdad de elegibilidad. Orden de razones bloqueantes cuando aplican
  * varias: `unknown` (sin fila) → `published` → `unregistered` → `incomplete`.
  */
-export function resolveReviewEligibility(rows: ClientRow[], clientKey: string): ReviewEligibility {
+export function resolveReviewEligibility(
+  rows: ClientRow[],
+  clientKey: string,
+): ReviewEligibility {
   const row = rows.find((candidate) => candidate.clientKey === clientKey);
   if (!row) return { kind: "blocked", reason: "unknown" };
   if (row.isPublished) return { kind: "blocked", reason: "published", row };
-  if (!row.isRegistered) return { kind: "blocked", reason: "unregistered", row };
+  if (!row.isRegistered)
+    return { kind: "blocked", reason: "unregistered", row };
   if (row.answeredCount !== EXPECTED_PROFILES_PER_CLIENT) {
     return { kind: "blocked", reason: "incomplete", row };
   }
@@ -177,7 +245,11 @@ export function formatRowScore(score: number | null): string {
 const DIACRITIC_MARKS_PATTERN = /[̀-ͯ]/g;
 
 function normalizeForSearch(value: string): string {
-  return value.trim().toLowerCase().normalize("NFD").replace(DIACRITIC_MARKS_PATTERN, "");
+  return value
+    .trim()
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(DIACRITIC_MARKS_PATTERN, "");
 }
 
 /**
@@ -185,11 +257,16 @@ function normalizeForSearch(value: string): string {
  * a tildes/diacríticos (normalización NFD). Query vacía (tras trim) devuelve
  * todas las filas sin filtrar.
  */
-export function filterRowsByName(rows: ClientRow[], query: string): ClientRow[] {
+export function filterRowsByName(
+  rows: ClientRow[],
+  query: string,
+): ClientRow[] {
   const normalizedQuery = normalizeForSearch(query);
   if (normalizedQuery === "") return rows;
 
-  return rows.filter((row) => normalizeForSearch(row.clientName).includes(normalizedQuery));
+  return rows.filter((row) =>
+    normalizeForSearch(row.clientName).includes(normalizedQuery),
+  );
 }
 
 export interface PendingReviewEntry {
@@ -208,9 +285,11 @@ export interface PendingReviewEntry {
  */
 export function enrichPendingReview(
   pending: DashboardSummary["pendingReview"],
-  clients: ClientDashboardSummary[]
+  clients: ClientDashboardSummary[],
 ): PendingReviewEntry[] {
-  const clientsByKey = new Map(clients.map((client) => [client.clientKey, client]));
+  const clientsByKey = new Map(
+    clients.map((client) => [client.clientKey, client]),
+  );
 
   return pending.map((entry) => {
     const match = clientsByKey.get(entry.clientKey);
@@ -223,4 +302,199 @@ export function enrichPendingReview(
       profileScores: match.profileScores,
     };
   });
+}
+
+export type ScoreTone = "none" | "low" | "mid" | "high";
+
+const SCORE_MID_THRESHOLD = 50;
+const SCORE_HIGH_THRESHOLD = 75;
+
+/** Classifies a 0-100 health score: <50 low, 50-74 mid, >=75 high; "none" when null. */
+export function scoreTone(score: number | null): ScoreTone {
+  if (score === null) return "none";
+  if (score >= SCORE_HIGH_THRESHOLD) return "high";
+  if (score >= SCORE_MID_THRESHOLD) return "mid";
+  return "low";
+}
+
+export type StateFilter = "all" | PublicationState;
+
+/** Filters rows by publication state; "all" returns every row. */
+export function filterRowsByState(
+  rows: ClientRow[],
+  filter: StateFilter,
+): ClientRow[] {
+  if (filter === "all") return rows;
+  return rows.filter((row) => derivePublicationState(row) === filter);
+}
+
+/** Counts rows per quick filter chip (including "all"). */
+export function countRowsByState(
+  rows: ClientRow[],
+): Record<StateFilter, number> {
+  const counts: Record<StateFilter, number> = {
+    all: rows.length,
+    "En progreso": 0,
+    "Pendiente de revisión": 0,
+    Publicado: 0,
+  };
+  for (const row of rows) counts[derivePublicationState(row)] += 1;
+  return counts;
+}
+
+export interface PageSlice<T> {
+  items: T[];
+  page: number;
+  totalPages: number;
+  total: number;
+  /** 1-based index of the first item shown (0 when empty). */
+  from: number;
+  /** 1-based index of the last item shown (0 when empty). */
+  to: number;
+}
+
+/** Returns one page of `items`, clamping `page` into the valid range. */
+export function paginateRows<T>(
+  items: T[],
+  page: number,
+  pageSize: number,
+): PageSlice<T> {
+  const total = items.length;
+  const totalPages = Math.max(1, Math.ceil(total / pageSize));
+  const current = Math.min(Math.max(1, page), totalPages);
+  const start = (current - 1) * pageSize;
+  const slice = items.slice(start, start + pageSize);
+  return {
+    items: slice,
+    page: current,
+    totalPages,
+    total,
+    from: total === 0 ? 0 : start + 1,
+    to: total === 0 ? 0 : start + slice.length,
+  };
+}
+
+export type PageRangeItem = number | "ellipsis";
+
+/** Page numbers to render: first, last, and current +/- 1, with ellipses for gaps. */
+export function buildPageRange(
+  page: number,
+  totalPages: number,
+): PageRangeItem[] {
+  const wanted = new Set<number>([1, totalPages, page - 1, page, page + 1]);
+  const pages = Array.from(wanted)
+    .filter((value) => value >= 1 && value <= totalPages)
+    .sort((a, b) => a - b);
+  const result: PageRangeItem[] = [];
+  pages.forEach((value, index) => {
+    if (index > 0 && value - pages[index - 1] > 1) result.push("ellipsis");
+    result.push(value);
+  });
+  return result;
+}
+
+/** Formats a last-update date as dd-mm-yyyy (es-CL); "—" when missing or invalid. */
+export function formatLastUpdate(
+  value: Date | string | null | undefined,
+): string {
+  if (value === null || value === undefined) return "—";
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return "—";
+  const day = String(date.getDate()).padStart(2, "0");
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  return `${day}-${month}-${date.getFullYear()}`;
+}
+
+export interface CoverageSummary {
+  answered: number;
+  total: number;
+}
+
+function isQuestionForProfile(
+  question: CatalogQuestion,
+  profile: string,
+): boolean {
+  return (
+    question.status === "Activa" &&
+    question.profiles.some((item) => item === profile)
+  );
+}
+
+/**
+ * Item coverage: `total` is the number of active (question, profile) pairs in
+ * the catalog (the items a client must answer across the 4 profiles);
+ * `answered` counts submitted answers that belong to that set.
+ */
+export function calculateCoverage(
+  submissions: QualityPulseAssessment[],
+  catalog: CatalogQuestion[],
+): CoverageSummary {
+  const total = QUALITY_PULSE_PROFILES.reduce(
+    (sum, profile) =>
+      sum +
+      catalog.filter((question) => isQuestionForProfile(question, profile))
+        .length,
+    0,
+  );
+  const answered = submissions.reduce((sum, submission) => {
+    const expectedIds = new Set(
+      catalog
+        .filter((question) =>
+          isQuestionForProfile(question, submission.profile),
+        )
+        .map((question) => question.id),
+    );
+    return (
+      sum +
+      Object.keys(submission.answers).filter((id) => expectedIds.has(id)).length
+    );
+  }, 0);
+  return { answered, total };
+}
+
+export type StepStatus = "done" | "current" | "upcoming";
+
+export interface PublicationStepper {
+  stage: number;
+  total: number;
+  steps: { label: PublicationState; status: StepStatus }[];
+}
+
+const PUBLICATION_ORDER: PublicationState[] = [
+  "En progreso",
+  "Pendiente de revisión",
+  "Publicado",
+];
+
+/** Publication lifecycle stepper; only states that exist in the data. */
+export function buildPublicationSteps(
+  state: PublicationState,
+): PublicationStepper {
+  const currentIndex = PUBLICATION_ORDER.indexOf(state);
+  return {
+    stage: currentIndex + 1,
+    total: PUBLICATION_ORDER.length,
+    steps: PUBLICATION_ORDER.map((label, index) => ({
+      label,
+      status:
+        index < currentIndex
+          ? "done"
+          : index === currentIndex
+            ? "current"
+            : "upcoming",
+    })),
+  };
+}
+
+const STATE_DESCRIPTIONS: Record<PublicationState, string> = {
+  "En progreso":
+    "Faltan perfiles por responder antes de poder revisar y publicar.",
+  "Pendiente de revisión":
+    "Los 4 perfiles están completos, a la espera de publicación.",
+  Publicado: "Entregado al cliente.",
+};
+
+/** Short Spanish description of a publication state. */
+export function describePublicationState(state: PublicationState): string {
+  return STATE_DESCRIPTIONS[state];
 }

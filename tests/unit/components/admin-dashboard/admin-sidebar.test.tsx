@@ -22,4 +22,10 @@ describe("AdminSidebar", () => {
     const qpLink = screen.getByRole("link", { name: /quality.*pulse/i });
     expect(qpLink).toHaveAttribute("href", "/quality-pulse");
   });
+
+  it("is hidden when printing", () => {
+    const { container } = render(<AdminSidebar adminEmail="admin@phdchile.cl" />);
+
+    expect(container.querySelector("aside")).toHaveClass("print:hidden");
+  });
 });

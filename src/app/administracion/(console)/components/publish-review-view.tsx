@@ -1,16 +1,23 @@
 "use client";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
-import { CatalogQuestion } from "@/models/quality-pulse/catalog-question-model";
+import {
+  CatalogQuestion,
+  QualityPulseProfile,
+} from "@/models/quality-pulse/catalog-question-model";
 import { QualityPulseAssessment } from "@/models/quality-pulse/assessment-model";
 import { QualityPulseClient } from "@/models/quality-pulse/client-model";
 import {
   buildClientRows,
-  resolveReviewEligibility,
-  ReviewEligibility,
+  calculateCoverage,
+  canPublish,
+  ClientRow,
 } from "@/utils/quality-pulse/admin-view-models";
 import { calculateResults } from "@/utils/quality-pulse/scoring";
 import ResultsPanel from "@/app/quality-pulse/resultados/components/results-panel";
+import ClientHero from "./client-hero";
+import ClientProfileCards from "./client-profile-cards";
+import ClientAdvancedActions from "./client-advanced-actions";
 
 interface PublishReviewViewProps {
   clientKey: string;
@@ -22,80 +29,80 @@ const CLIENTS_ENDPOINT = "/api/quality-pulse/clients";
 const PUBLICATION_ENDPOINT = "/api/quality-pulse/admin/publication";
 const CLIENTES_HREF = "/administracion/clientes";
 
+const ASSESSMENTS_ADMIN_ENDPOINT = "/api/quality-pulse/admin/assessments";
+
 const LOAD_ERROR_MESSAGE = "No se pudo cargar la información del cliente.";
+const NOT_FOUND_MESSAGE = "No se encontró información para este cliente.";
 const PUBLISH_ERROR_MESSAGE = "No se pudo publicar el cliente.";
 
-type BlockedReason = Extract<ReviewEligibility, { kind: "blocked" }>["reason"];
-
-const BLOCKED_MESSAGES: Record<BlockedReason, string> = {
-  unknown: "No se encontró información para este cliente.",
-  published: "Este cliente ya fue publicado.",
-  unregistered: "Este cliente no está registrado.",
-  incomplete: "Este cliente todavía no tiene los 4 perfiles respondidos.",
-};
-
-type Phase = "loading" | "load-error" | "blocked" | "ready" | "published";
+type Phase = "loading" | "load-error" | "not-found" | "ready";
 
 /**
- * Contenedor de `/administracion/clientes/{clientKey}/revisar` (spec
- * `qp-admin-publish-review`). Es el ÚNICO lugar que llama a
- * `POST /api/quality-pulse/admin/publication`; el Dashboard y la tabla de
- * Clientes solo navegan hacia acá (`buildReviewHref`). El guard de sesión
- * vive en `(console)/layout.tsx`, este componente solo consume endpoints ya
- * protegidos.
+ * Ficha de cliente en `/administracion/clientes/{clientKey}/revisar` (spec
+ * `qp-admin-publish-review`). Funciona para cualquier estado de publicación:
+ * la acción "Confirmar publicación" solo aparece si `canPublish(row)`; en los
+ * demás casos es un detalle de solo lectura con tarjetas por perfil y
+ * "Acciones avanzadas" (reiniciar perfil / cliente, despublicar). Es el ÚNICO
+ * lugar que llama a `POST /api/quality-pulse/admin/publication`. El guard de
+ * sesión vive en `(console)/layout.tsx`.
  */
-export default function PublishReviewView({ clientKey }: PublishReviewViewProps) {
+export default function PublishReviewView({
+  clientKey,
+}: PublishReviewViewProps) {
   const [phase, setPhase] = useState<Phase>("loading");
-  const [blockedReason, setBlockedReason] = useState<BlockedReason | null>(null);
+  const [row, setRow] = useState<ClientRow | null>(null);
   const [submissions, setSubmissions] = useState<QualityPulseAssessment[]>([]);
   const [catalog, setCatalog] = useState<CatalogQuestion[]>([]);
   const [submitting, setSubmitting] = useState(false);
+  const [publishedNow, setPublishedNow] = useState(false);
   const [confirmError, setConfirmError] = useState("");
+  const [actionLoading, setActionLoading] = useState(false);
+  const [actionError, setActionError] = useState("");
 
-  const loadData = useCallback(async () => {
-    setPhase("loading");
-    setBlockedReason(null);
-    try {
-      const [submissionsRes, catalogRes, clientsRes] = await Promise.all([
-        fetch(ASSESSMENTS_ENDPOINT),
-        fetch(CATALOG_ENDPOINT),
-        fetch(CLIENTS_ENDPOINT),
-      ]);
+  const loadData = useCallback(
+    async (silent = false) => {
+      if (!silent) setPhase("loading");
+      try {
+        const [submissionsRes, catalogRes, clientsRes] = await Promise.all([
+          fetch(ASSESSMENTS_ENDPOINT),
+          fetch(CATALOG_ENDPOINT),
+          fetch(CLIENTS_ENDPOINT),
+        ]);
 
-      if (!submissionsRes.ok || !catalogRes.ok || !clientsRes.ok) {
-        throw new Error(LOAD_ERROR_MESSAGE);
+        if (!submissionsRes.ok || !catalogRes.ok || !clientsRes.ok) {
+          throw new Error(LOAD_ERROR_MESSAGE);
+        }
+
+        const submissionsData: QualityPulseAssessment[] =
+          await submissionsRes.json();
+        const catalogData: CatalogQuestion[] = await catalogRes.json();
+        const clientsData: QualityPulseClient[] = await clientsRes.json();
+
+        setSubmissions(submissionsData);
+        setCatalog(catalogData);
+
+        const found = buildClientRows(
+          clientsData,
+          submissionsData,
+          catalogData,
+        ).find((candidate) => candidate.clientKey === clientKey);
+        setRow(found ?? null);
+        setPhase(found ? "ready" : "not-found");
+      } catch {
+        setPhase("load-error");
       }
-
-      const submissionsData: QualityPulseAssessment[] = await submissionsRes.json();
-      const catalogData: CatalogQuestion[] = await catalogRes.json();
-      const clientsData: QualityPulseClient[] = await clientsRes.json();
-
-      setSubmissions(submissionsData);
-      setCatalog(catalogData);
-
-      const rows = buildClientRows(clientsData, submissionsData, catalogData);
-      const eligibility = resolveReviewEligibility(rows, clientKey);
-
-      if (eligibility.kind === "blocked") {
-        setBlockedReason(eligibility.reason);
-        setPhase("blocked");
-        return;
-      }
-
-      setPhase("ready");
-    } catch {
-      setPhase("load-error");
-    }
-  }, [clientKey]);
+    },
+    [clientKey],
+  );
 
   useEffect(() => {
     loadData();
   }, [loadData]);
 
   const results = useMemo(() => {
-    if (phase !== "ready" && phase !== "published") return null;
+    if (phase !== "ready") return null;
     const clientSubmissions = submissions.filter(
-      (submission) => submission.clientKey === clientKey
+      (submission) => submission.clientKey === clientKey,
     );
     if (clientSubmissions.length === 0) return null;
     return calculateResults(clientSubmissions, catalog);
@@ -116,25 +123,90 @@ export default function PublishReviewView({ clientKey }: PublishReviewViewProps)
       });
       if (!res.ok) {
         const body = await res.json().catch(() => ({}));
-        throw new Error(typeof body.error === "string" ? body.error : PUBLISH_ERROR_MESSAGE);
+        throw new Error(
+          typeof body.error === "string" ? body.error : PUBLISH_ERROR_MESSAGE,
+        );
       }
-      setPhase("published");
+      setPublishedNow(true);
     } catch (err) {
-      setConfirmError(err instanceof Error ? err.message : PUBLISH_ERROR_MESSAGE);
+      setConfirmError(
+        err instanceof Error ? err.message : PUBLISH_ERROR_MESSAGE,
+      );
     } finally {
       setSubmitting(false);
     }
   };
 
+  const runAdminAction = async (
+    url: string,
+    body: Record<string, unknown>,
+    fallbackMessage: string,
+  ) => {
+    setActionLoading(true);
+    setActionError("");
+    try {
+      const res = await fetch(url, {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body),
+      });
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        throw new Error(
+          typeof data.error === "string" ? data.error : fallbackMessage,
+        );
+      }
+      setPublishedNow(false);
+      await loadData(true);
+    } catch (err) {
+      setActionError(err instanceof Error ? err.message : fallbackMessage);
+    } finally {
+      setActionLoading(false);
+    }
+  };
+
+  const handleResetProfile = (profile: QualityPulseProfile) =>
+    runAdminAction(
+      ASSESSMENTS_ADMIN_ENDPOINT,
+      { clientKey, profile },
+      "No se pudo reiniciar el perfil.",
+    );
+  const handleResetAll = () =>
+    runAdminAction(
+      ASSESSMENTS_ADMIN_ENDPOINT,
+      { clientKey, resetAll: true },
+      "No se pudo reiniciar el cliente.",
+    );
+  const handleUnpublish = () =>
+    runAdminAction(
+      PUBLICATION_ENDPOINT,
+      { clientKey },
+      "No se pudo despublicar el cliente.",
+    );
+
+  const effectiveRow: ClientRow | null = row
+    ? { ...row, isPublished: row.isPublished || publishedNow }
+    : null;
+  const clientSubmissions = submissions.filter(
+    (submission) => submission.clientKey === clientKey,
+  );
+  const coverage = calculateCoverage(clientSubmissions, catalog);
+
   return (
-    <section className="min-h-screen bg-phd-dark phd-gradient-blur px-4 sm:px-8 lg:px-16 py-24">
+    <section className="print-report min-h-screen bg-phd-dark phd-gradient-blur px-4 sm:px-8 lg:px-16 py-24">
       <div className="max-w-screen-2xl mx-auto flex flex-col gap-10">
-        <div className="flex flex-col gap-4">
+        <div className="print:hidden flex flex-col gap-4">
           <Link
             href={CLIENTES_HREF}
             className="inline-flex items-center gap-2 text-sm font-medium text-slate-400 hover:text-phd-cyan transition-colors w-fit"
           >
-            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+            <svg
+              width="16"
+              height="16"
+              viewBox="0 0 16 16"
+              fill="none"
+              aria-hidden="true"
+            >
               <path
                 d="M10 12.5 5.5 8 10 3.5"
                 stroke="currentColor"
@@ -143,19 +215,13 @@ export default function PublishReviewView({ clientKey }: PublishReviewViewProps)
                 strokeLinejoin="round"
               />
             </svg>
-            Volver
+            Volver a Clientes
           </Link>
-          <div className="flex flex-col gap-2">
-            <p className="text-xs font-bold tracking-[0.2em] uppercase text-phd-cyan">
-              Revisión de publicación
-            </p>
-            <h1 className="font-heading font-bold text-3xl sm:text-4xl text-white tracking-tight">
-              {clientKey}
-            </h1>
-          </div>
         </div>
 
-        {phase === "loading" && <p className="text-slate-400 text-sm">Cargando información…</p>}
+        {phase === "loading" && (
+          <p className="text-slate-400 text-sm">Cargando información…</p>
+        )}
 
         {phase === "load-error" && (
           <p role="alert" className="text-sm text-phd-pink">
@@ -163,38 +229,52 @@ export default function PublishReviewView({ clientKey }: PublishReviewViewProps)
           </p>
         )}
 
-        {phase === "blocked" && blockedReason && (
+        {phase === "not-found" && (
           <p role="alert" className="text-sm text-phd-pink">
-            {BLOCKED_MESSAGES[blockedReason]}
+            {NOT_FOUND_MESSAGE}
           </p>
         )}
 
-        {(phase === "ready" || phase === "published") && results && (
+        {phase === "ready" && effectiveRow && (
           <div className="flex flex-col gap-6">
-            <ResultsPanel results={results} catalog={catalog} />
+            <ClientHero
+              row={effectiveRow}
+              coverage={coverage}
+              canPublish={canPublish(effectiveRow)}
+              submitting={submitting}
+              confirmError={confirmError}
+              onPublish={handleConfirm}
+            />
 
-            {phase === "ready" && (
-              <div className="flex flex-col gap-3 items-start">
-                <button
-                  type="button"
-                  onClick={handleConfirm}
-                  disabled={submitting}
-                  className="bg-phd-pink hover:bg-phd-pink/90 text-white font-semibold px-7 py-3 rounded-full transition-all disabled:opacity-50"
-                >
-                  {submitting ? "Publicando…" : "Confirmar publicación"}
-                </button>
-                {confirmError && (
-                  <p role="alert" className="text-sm text-phd-pink">
-                    {confirmError}
-                  </p>
-                )}
-              </div>
+            {actionError && (
+              <p role="alert" className="text-sm text-phd-pink">
+                {actionError}
+              </p>
             )}
 
-            {phase === "published" && (
-              <span className="w-fit border border-green-500/30 bg-green-500/15 text-green-400 rounded-full px-5 py-1.5 text-sm font-bold tracking-wider">
-                Publicado
-              </span>
+            <ClientProfileCards
+              profileScores={effectiveRow.profileScores}
+              clientSubmissions={clientSubmissions}
+              disabled={actionLoading}
+              onResetProfile={handleResetProfile}
+            />
+
+            {results ? (
+              <ResultsPanel results={results} catalog={catalog} />
+            ) : (
+              <p className="text-sm text-slate-500">
+                Este cliente todavía no tiene respuestas.
+              </p>
+            )}
+
+            {effectiveRow.isRegistered && (
+              <ClientAdvancedActions
+                clientName={effectiveRow.clientName}
+                isPublished={effectiveRow.isPublished}
+                disabled={actionLoading}
+                onUnpublish={handleUnpublish}
+                onResetAll={handleResetAll}
+              />
             )}
           </div>
         )}

@@ -18,7 +18,7 @@ export default function AdminSidebar({ adminEmail }: AdminSidebarProps) {
   const pathname = usePathname();
 
   return (
-    <aside className="w-64 shrink-0 border-r border-white/5 bg-phd-dark/80 backdrop-blur-md flex flex-col gap-8 px-6 py-8">
+    <aside className="print:hidden w-64 shrink-0 border-r border-white/5 bg-phd-dark/80 backdrop-blur-md flex flex-col gap-8 px-6 py-8">
       <div className="flex flex-col gap-3">
         <Link href="/" className="flex items-center gap-3">
           <span className="flex items-center gap-1" aria-hidden="true">

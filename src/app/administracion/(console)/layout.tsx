@@ -28,7 +28,7 @@ export default async function AdminConsoleLayout({ children }: AdminConsoleLayou
   }
 
   return (
-    <div className="min-h-screen bg-phd-dark phd-gradient-blur flex">
+    <div className="min-h-screen bg-phd-dark phd-gradient-blur flex print:block print:min-h-0">
       <AdminSidebar adminEmail={session.email} />
       <main className="flex-1 min-w-0">{children}</main>
     </div>

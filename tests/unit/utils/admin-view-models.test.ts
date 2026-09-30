@@ -2,13 +2,22 @@ import {
   buildClientRows,
   buildReviewHref,
   canPublish,
+  buildPageRange,
+  buildPublicationSteps,
+  calculateCoverage,
+  describePublicationState,
   ClientRow,
+  countRowsByState,
   derivePublicationState,
   enrichPendingReview,
   filterRowsByName,
+  filterRowsByState,
   formatCompletion,
+  formatLastUpdate,
   formatRowScore,
+  paginateRows,
   resolveReviewEligibility,
+  scoreTone,
   safeDecodeParam,
 } from "@/utils/quality-pulse/admin-view-models";
 import { ClientDashboardSummary } from "@/utils/quality-pulse/dashboard-metrics";
@@ -347,5 +356,202 @@ describe("enrichPendingReview", () => {
     const enriched = enrichPendingReview(pending, []);
 
     expect(enriched).toEqual([{ clientKey: "sin-match", clientName: "Sin Match" }]);
+  });
+});
+
+describe("buildClientRows extra fields", () => {
+  it("exposes registeredBy and the most recent activity date", () => {
+    const catalog = [buildQuestion()];
+    const clients = [
+      buildClient({
+        clientKey: "reg-a",
+        registeredBy: "ana@phd.cl",
+        createdAt: new Date("2026-01-01T00:00:00Z"),
+      }),
+    ];
+    const submissions = [
+      buildSubmission({ clientKey: "reg-a", submittedAt: new Date("2026-03-01T00:00:00Z") }),
+      buildSubmission({
+        clientKey: "reg-a",
+        profile: "Gestión",
+        submittedAt: new Date("2026-05-01T00:00:00Z"),
+      }),
+    ];
+
+    const [row] = buildClientRows(clients, submissions, catalog);
+
+    expect(row.registeredBy).toBe("ana@phd.cl");
+    expect(row.lastUpdatedAt).toEqual(new Date("2026-05-01T00:00:00Z"));
+  });
+
+  it("falls back to createdAt when there are no submissions and is null for legacy without dates", () => {
+    const catalog = [buildQuestion()];
+    const created = new Date("2026-01-01T00:00:00Z");
+    const [row] = buildClientRows([buildClient({ createdAt: created })], [], catalog);
+    expect(row.lastUpdatedAt).toEqual(created);
+  });
+
+  it("uses the latest submission for legacy clients and omits registeredBy", () => {
+    const catalog = [buildQuestion()];
+    const submittedAt = new Date("2026-02-02T00:00:00Z");
+    const [row] = buildClientRows(
+      [],
+      [buildSubmission({ clientKey: "legacy", clientName: "Legacy", submittedAt })],
+      catalog
+    );
+    expect(row.registeredBy).toBeUndefined();
+    expect(row.lastUpdatedAt).toEqual(submittedAt);
+  });
+});
+
+describe("scoreTone", () => {
+  it("returns none for null", () => expect(scoreTone(null)).toBe("none"));
+  it("classifies low, mid and high with thresholds 50 and 75", () => {
+    expect(scoreTone(0)).toBe("low");
+    expect(scoreTone(49)).toBe("low");
+    expect(scoreTone(50)).toBe("mid");
+    expect(scoreTone(74)).toBe("mid");
+    expect(scoreTone(75)).toBe("high");
+    expect(scoreTone(100)).toBe("high");
+  });
+});
+
+describe("filterRowsByState / countRowsByState", () => {
+  const rows = [
+    buildRow({ clientKey: "a", answeredCount: 1 }),
+    buildRow({ clientKey: "b", answeredCount: 4 }),
+    buildRow({ clientKey: "c", answeredCount: 4, isPublished: true }),
+    buildRow({ clientKey: "d", answeredCount: 0 }),
+  ];
+
+  it("returns every row for the 'all' filter", () => {
+    expect(filterRowsByState(rows, "all")).toHaveLength(4);
+  });
+
+  it("filters by publication state", () => {
+    expect(filterRowsByState(rows, "En progreso").map((r) => r.clientKey)).toEqual(["a", "d"]);
+    expect(filterRowsByState(rows, "Pendiente de revisión").map((r) => r.clientKey)).toEqual(["b"]);
+    expect(filterRowsByState(rows, "Publicado").map((r) => r.clientKey)).toEqual(["c"]);
+  });
+
+  it("counts rows per filter", () => {
+    expect(countRowsByState(rows)).toEqual({
+      all: 4,
+      "En progreso": 2,
+      "Pendiente de revisión": 1,
+      Publicado: 1,
+    });
+  });
+});
+
+describe("paginateRows", () => {
+  const items = Array.from({ length: 25 }, (_, index) => index + 1);
+
+  it("slices the requested page and reports the range", () => {
+    const page = paginateRows(items, 2, 10);
+    expect(page.items).toEqual([11, 12, 13, 14, 15, 16, 17, 18, 19, 20]);
+    expect(page).toMatchObject({ page: 2, totalPages: 3, total: 25, from: 11, to: 20 });
+  });
+
+  it("clamps out-of-range pages", () => {
+    expect(paginateRows(items, 99, 10).page).toBe(3);
+    expect(paginateRows(items, 0, 10).page).toBe(1);
+  });
+
+  it("handles an empty list", () => {
+    expect(paginateRows([], 1, 10)).toMatchObject({
+      items: [],
+      page: 1,
+      totalPages: 1,
+      total: 0,
+      from: 0,
+      to: 0,
+    });
+  });
+});
+
+describe("buildPageRange", () => {
+  it("lists all pages when few", () => expect(buildPageRange(1, 3)).toEqual([1, 2, 3]));
+  it("collapses far pages with ellipses", () => {
+    expect(buildPageRange(1, 10)).toEqual([1, 2, "ellipsis", 10]);
+    expect(buildPageRange(5, 10)).toEqual([1, "ellipsis", 4, 5, 6, "ellipsis", 10]);
+    expect(buildPageRange(10, 10)).toEqual([1, "ellipsis", 9, 10]);
+  });
+});
+
+describe("formatLastUpdate", () => {
+  it("returns an em dash for null/undefined/invalid", () => {
+    expect(formatLastUpdate(null)).toBe("—");
+    expect(formatLastUpdate(undefined)).toBe("—");
+    expect(formatLastUpdate(new Date("nope"))).toBe("—");
+  });
+
+  it("formats dates as dd-mm-yyyy in es-CL and accepts ISO strings", () => {
+    expect(formatLastUpdate(new Date(2026, 4, 7, 12))).toBe("07-05-2026");
+    expect(formatLastUpdate(new Date(2026, 4, 7, 12).toISOString())).toBe("07-05-2026");
+  });
+});
+
+describe("calculateCoverage", () => {
+  const catalog = [
+    buildQuestion({ id: "Q1", profiles: ["Calidad", "Desarrollo"] }),
+    buildQuestion({ id: "Q2", profiles: ["Calidad"] }),
+    buildQuestion({ id: "Q3", profiles: ["Negocio"], status: "Inactiva" }),
+  ];
+
+  it("counts total as active (question, profile) pairs and answered as matching answers", () => {
+    const submissions = [
+      buildSubmission({ profile: "Calidad", answers: { Q1: 0, Q2: 1 } }),
+      buildSubmission({ profile: "Desarrollo", answers: { Q1: 2, Q2: 0 } }),
+    ];
+
+    // Q2 is not in Desarrollo's set, so that answer does not count.
+    expect(calculateCoverage(submissions, catalog)).toEqual({ answered: 3, total: 3 });
+  });
+
+  it("returns 0 answered when there are no submissions", () => {
+    expect(calculateCoverage([], catalog)).toEqual({ answered: 0, total: 3 });
+  });
+});
+
+describe("buildPublicationSteps", () => {
+  it("marks previous steps done, the current one active and the rest upcoming", () => {
+    expect(buildPublicationSteps("Pendiente de revisión")).toEqual({
+      stage: 2,
+      total: 3,
+      steps: [
+        { label: "En progreso", status: "done" },
+        { label: "Pendiente de revisión", status: "current" },
+        { label: "Publicado", status: "upcoming" },
+      ],
+    });
+  });
+
+  it("reports stage 1 for En progreso and 3 for Publicado", () => {
+    expect(buildPublicationSteps("En progreso").stage).toBe(1);
+    expect(buildPublicationSteps("Publicado").stage).toBe(3);
+  });
+});
+
+describe("describePublicationState", () => {
+  it("returns a Spanish description per state", () => {
+    expect(describePublicationState("En progreso")).toMatch(/faltan perfiles/i);
+    expect(describePublicationState("Pendiente de revisión")).toMatch(/4 perfiles/i);
+    expect(describePublicationState("Publicado")).toMatch(/entregado al cliente/i);
+  });
+});
+
+describe("buildClientRows publication metadata", () => {
+  it("exposes createdAt, publishedBy and publishedAt for registered clients", () => {
+    const createdAt = new Date("2026-01-01T00:00:00Z");
+    const publishedAt = new Date("2026-02-01T00:00:00Z");
+    const [row] = buildClientRows(
+      [buildClient({ createdAt, isPublished: true, publishedBy: "ana@phd.cl", publishedAt })],
+      [],
+      [buildQuestion()]
+    );
+    expect(row.createdAt).toEqual(createdAt);
+    expect(row.publishedBy).toBe("ana@phd.cl");
+    expect(row.publishedAt).toEqual(publishedAt);
   });
 });

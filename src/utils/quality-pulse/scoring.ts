@@ -1,6 +1,8 @@
 import {
   CatalogQuestion,
   QuestionOption,
+  QUALITY_PULSE_PROFILES,
+  QualityPulseProfile,
 } from "@/models/quality-pulse/catalog-question-model";
 import { QualityPulseAssessment } from "@/models/quality-pulse/assessment-model";
 
@@ -167,4 +169,55 @@ export function calculateResults(
     .sort((a, b) => b.count - a.count);
 
   return { healthScore, perspectiveScores, dimensionScores, signals, gaps, impacts };
+}
+
+/**
+ * Score de un perfil dentro de un cliente (D2). Union discriminada: un perfil
+ * sin submission queda "pending"/`null` en vez de leerse como 0 (crítico).
+ */
+export type ProfileScore =
+  | { profile: QualityPulseProfile; status: "answered"; score: number }
+  | { profile: QualityPulseProfile; status: "pending"; score: null };
+
+/**
+ * Deriva el score por perfil (Calidad/Desarrollo/Gestión/Negocio) de un
+ * cliente. Cada perfil respondido usa `calculateResults` sobre su única
+ * submission; los perfiles sin submission son "pending" (D2).
+ */
+export function calculateProfileScores(
+  submissions: QualityPulseAssessment[],
+  catalog: CatalogQuestion[]
+): ProfileScore[] {
+  return QUALITY_PULSE_PROFILES.map((profile) => {
+    const submission = submissions.find((item) => item.profile === profile);
+    if (!submission) {
+      return { profile, status: "pending", score: null };
+    }
+
+    const { healthScore } = calculateResults([submission], catalog);
+    return { profile, status: "answered", score: healthScore };
+  });
+}
+
+export interface WeightedHealthScore {
+  healthScore: number | null;
+  answeredCount: number;
+}
+
+/**
+ * Quality Health Score global (D1): media ponderada de los `healthScore` por
+ * cliente, donde el peso es la cantidad de perfiles respondidos (0-4). Un
+ * cliente 4/4 pesa el doble que uno 2/4. Si la suma de pesos es 0 (nadie
+ * respondió nada), retorna `null` ("Sin datos") en vez de dividir por cero.
+ */
+export function aggregateHealthScore(clients: WeightedHealthScore[]): number | null {
+  const totalWeight = clients.reduce((sum, client) => sum + client.answeredCount, 0);
+  if (totalWeight === 0) return null;
+
+  const weightedSum = clients.reduce(
+    (sum, client) => sum + (client.healthScore ?? 0) * client.answeredCount,
+    0
+  );
+
+  return Math.round(weightedSum / totalWeight);
 }

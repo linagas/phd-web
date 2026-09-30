@@ -3,6 +3,12 @@ export interface QualityPulseClient {
   clientName: string;
   registeredBy: string;
   createdAt: Date;
+  isPublished: boolean;
+  publishedBy?: string;
+  publishedAt?: Date;
+  /** Soft delete: absent means the client is active. */
+  deletedAt?: Date;
+  deletedBy?: string;
 }
 
 export class QualityPulseClientModel {
@@ -12,6 +18,7 @@ export class QualityPulseClientModel {
       clientName,
       registeredBy,
       createdAt: new Date(),
+      isPublished: false,
     };
   }
 }

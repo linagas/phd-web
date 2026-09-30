@@ -5,28 +5,7 @@ import {
   catalogQuestionSchema,
   importCatalogSchema,
 } from "@/services/quality-pulse/catalog-service";
-import { SESSION_COOKIE_NAME, verifySessionToken } from "@/utils/quality-pulse/admin-session";
-
-/**
- * Verifica la cookie de sesión de administración. Es defensa en profundidad:
- * `middleware.ts` ya protege estas rutas, pero el controller nunca debe
- * confiar únicamente en el middleware.
- */
-async function requireAdminSession(req: NextApiRequest, res: NextApiResponse): Promise<boolean> {
-  const token = req.cookies[SESSION_COOKIE_NAME];
-  if (!token) {
-    res.status(401).json({ error: "No autenticado." });
-    return false;
-  }
-
-  const session = await verifySessionToken(token);
-  if (!session) {
-    res.status(401).json({ error: "Sesión inválida o expirada." });
-    return false;
-  }
-
-  return true;
-}
+import { requireAdminSession } from "@/utils/quality-pulse/require-admin-session";
 
 export class AdminCatalogController {
   private service: CatalogService;

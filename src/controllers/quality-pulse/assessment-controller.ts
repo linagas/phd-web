@@ -53,8 +53,12 @@ export class AssessmentController {
         return;
       }
 
-      const submissions = await this.service.getStatusForClient(organization as string);
-      res.status(200).json(submissions);
+      // Único branch público (D4): pasa siempre por el gate de
+      // `getPublicStatus`, que nunca devuelve `submissions` para un cliente
+      // no publicado — no hay otro camino de código que sirva respuestas
+      // crudas, ni siquiera llamando este endpoint directamente.
+      const status = await this.service.getPublicStatus(organization as string);
+      res.status(200).json(status);
     } catch (error) {
       console.error("[AssessmentController] getStatus error:", error);
       res.status(500).json({ error: "Error al obtener el estado del assessment." });

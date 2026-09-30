@@ -1,4 +1,8 @@
-import { calculateResults } from "@/utils/quality-pulse/scoring";
+import {
+  calculateResults,
+  calculateProfileScores,
+  aggregateHealthScore,
+} from "@/utils/quality-pulse/scoring";
 import { CatalogQuestion, QuestionOption } from "@/models/quality-pulse/catalog-question-model";
 import { QualityPulseAssessment } from "@/models/quality-pulse/assessment-model";
 
@@ -100,5 +104,75 @@ describe("calculateResults", () => {
 
     expect(results.gaps).toHaveLength(0);
     expect(results.healthScore).toBe(0);
+  });
+});
+
+describe("calculateProfileScores (D2)", () => {
+  it("marca 'answered' con el healthScore de esa única submission cuando el perfil respondió", () => {
+    const question = buildQuestion({ id: "Q1" });
+    const submissions = [buildSubmission({ profile: "Calidad", answers: { Q1: 2 } })];
+
+    const profileScores = calculateProfileScores(submissions, [question]);
+    const calidad = profileScores.find((p) => p.profile === "Calidad");
+    const expectedHealthScore = calculateResults(
+      [buildSubmission({ profile: "Calidad", answers: { Q1: 2 } })],
+      [question]
+    ).healthScore;
+
+    expect(calidad).toEqual({ profile: "Calidad", status: "answered", score: expectedHealthScore });
+  });
+
+  it("marca 'pending' con score null cuando el perfil no respondió", () => {
+    const question = buildQuestion({ id: "Q1" });
+    const submissions = [buildSubmission({ profile: "Calidad", answers: { Q1: 2 } })];
+
+    const profileScores = calculateProfileScores(submissions, [question]);
+    const negocio = profileScores.find((p) => p.profile === "Negocio");
+
+    expect(negocio).toEqual({ profile: "Negocio", status: "pending", score: null });
+  });
+
+  it("devuelve los 4 perfiles siempre, sin importar cuántos hayan respondido", () => {
+    const question = buildQuestion({ id: "Q1" });
+
+    const profileScores = calculateProfileScores([], [question]);
+
+    expect(profileScores).toHaveLength(4);
+    expect(profileScores.every((p) => p.status === "pending" && p.score === null)).toBe(true);
+  });
+});
+
+describe("aggregateHealthScore (D1)", () => {
+  it("calcula la media ponderada por cantidad de perfiles respondidos", () => {
+    // (80*4 + 40*2) / (4+2) = 400/6 = 66.67 -> round 67
+    const result = aggregateHealthScore([
+      { healthScore: 80, answeredCount: 4 },
+      { healthScore: 40, answeredCount: 2 },
+    ]);
+
+    expect(result).toBe(67);
+  });
+
+  it("un cliente con 1/4 respondido pesa proporcionalmente menos que uno con 4/4", () => {
+    // (100*4 + 0*1) / (4+1) = 400/5 = 80
+    const result = aggregateHealthScore([
+      { healthScore: 100, answeredCount: 4 },
+      { healthScore: 0, answeredCount: 1 },
+    ]);
+
+    expect(result).toBe(80);
+  });
+
+  it("retorna null cuando la suma de pesos (perfiles respondidos) es 0", () => {
+    const result = aggregateHealthScore([
+      { healthScore: null, answeredCount: 0 },
+      { healthScore: null, answeredCount: 0 },
+    ]);
+
+    expect(result).toBeNull();
+  });
+
+  it("retorna null con lista vacía de clientes", () => {
+    expect(aggregateHealthScore([])).toBeNull();
   });
 });

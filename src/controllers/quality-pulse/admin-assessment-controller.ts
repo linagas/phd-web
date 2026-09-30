@@ -2,29 +2,13 @@ import { NextApiRequest, NextApiResponse } from "next";
 import { z, ZodError } from "zod";
 import { AssessmentService } from "@/services/quality-pulse/assessment-service";
 import { QUALITY_PULSE_PROFILES } from "@/models/quality-pulse/catalog-question-model";
-import { SESSION_COOKIE_NAME, verifySessionToken } from "@/utils/quality-pulse/admin-session";
+import { requireAdminSession } from "@/utils/quality-pulse/require-admin-session";
 
 const resetAssessmentSchema = z.object({
   clientKey: z.string().min(1, "clientKey es obligatorio"),
   profile: z.enum(QUALITY_PULSE_PROFILES).optional(),
   resetAll: z.boolean().optional(),
 });
-
-async function requireAdminSession(req: NextApiRequest, res: NextApiResponse): Promise<boolean> {
-  const token = req.cookies[SESSION_COOKIE_NAME];
-  if (!token) {
-    res.status(401).json({ error: "No autenticado." });
-    return false;
-  }
-
-  const session = await verifySessionToken(token);
-  if (!session) {
-    res.status(401).json({ error: "Sesión inválida o expirada." });
-    return false;
-  }
-
-  return true;
-}
 
 export class AdminAssessmentController {
   private service: AssessmentService;

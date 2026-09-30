@@ -1,5 +1,6 @@
 import { NextApiRequest, NextApiResponse } from "next";
 import { z, ZodError } from "zod";
+import { ClientNotFoundError } from "@/services/quality-pulse/publication-service";
 import {
   ClientAlreadyExistsError,
   ClientService,
@@ -29,6 +30,10 @@ async function requireAdminSession(
 
   return session.email;
 }
+
+const deleteClientSchema = z.object({
+  clientKey: z.string().min(1, "clientKey es obligatorio"),
+});
 
 export class ClientController {
   private service: ClientService;
@@ -101,6 +106,78 @@ export class ClientController {
       }
       console.error("[ClientController] register error:", error);
       res.status(500).json({ error: "Error al registrar el cliente." });
+    }
+  }
+
+  async remove(req: NextApiRequest, res: NextApiResponse): Promise<void> {
+    if (req.method !== "DELETE") {
+      res.setHeader("Allow", ["DELETE"]);
+      res.status(405).json({ error: `Método ${req.method} no permitido` });
+      return;
+    }
+
+    const adminEmail = await requireAdminSession(req, res);
+    if (!adminEmail) return;
+
+    try {
+      const { clientKey } = deleteClientSchema.parse(req.body);
+      await this.service.softDelete(clientKey, adminEmail);
+      res.status(200).json({ deleted: true });
+    } catch (error) {
+      if (error instanceof ZodError) {
+        res.status(400).json({ error: error.errors });
+        return;
+      }
+      if (error instanceof ClientNotFoundError) {
+        res.status(404).json({ error: error.message });
+        return;
+      }
+      console.error("[ClientController] remove error:", error);
+      res.status(500).json({ error: "Error al eliminar el cliente." });
+    }
+  }
+
+  async restore(req: NextApiRequest, res: NextApiResponse): Promise<void> {
+    if (req.method !== "POST") {
+      res.setHeader("Allow", ["POST"]);
+      res.status(405).json({ error: `Método ${req.method} no permitido` });
+      return;
+    }
+
+    if (!(await requireAdminSession(req, res))) return;
+
+    try {
+      const { clientKey } = deleteClientSchema.parse(req.body);
+      await this.service.restore(clientKey);
+      res.status(200).json({ restored: true });
+    } catch (error) {
+      if (error instanceof ZodError) {
+        res.status(400).json({ error: error.errors });
+        return;
+      }
+      if (error instanceof ClientNotFoundError) {
+        res.status(404).json({ error: error.message });
+        return;
+      }
+      console.error("[ClientController] restore error:", error);
+      res.status(500).json({ error: "Error al restaurar el cliente." });
+    }
+  }
+
+  async listDeleted(req: NextApiRequest, res: NextApiResponse): Promise<void> {
+    if (req.method !== "GET") {
+      res.setHeader("Allow", ["GET"]);
+      res.status(405).json({ error: `Método ${req.method} no permitido` });
+      return;
+    }
+
+    if (!(await requireAdminSession(req, res))) return;
+
+    try {
+      res.status(200).json(await this.service.listDeleted());
+    } catch (error) {
+      console.error("[ClientController] listDeleted error:", error);
+      res.status(500).json({ error: "Error al consultar clientes eliminados." });
     }
   }
 }

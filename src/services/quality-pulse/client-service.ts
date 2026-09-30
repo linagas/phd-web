@@ -1,5 +1,6 @@
 import { ClientRepository } from "@/repositories/quality-pulse/client-repository";
 import { QualityPulseClient, QualityPulseClientModel } from "@/models/quality-pulse/client-model";
+import { ClientNotFoundError } from "@/services/quality-pulse/publication-service";
 import { toClientKey } from "@/utils/quality-pulse/client-key";
 
 export class ClientAlreadyExistsError extends Error {
@@ -17,11 +18,7 @@ export class EmptyClientNameError extends Error {
 }
 
 export class ClientService {
-  private repository: ClientRepository;
-
-  constructor() {
-    this.repository = new ClientRepository();
-  }
+  constructor(private repository: ClientRepository = new ClientRepository()) {}
 
   async listClients(): Promise<QualityPulseClient[]> {
     return this.repository.findAll();
@@ -47,5 +44,30 @@ export class ClientService {
     }
 
     return client;
+  }
+
+  /** Soft-deletes an active client; throws ClientNotFoundError if missing or already deleted. */
+  async softDelete(clientKey: string, deletedBy: string): Promise<void> {
+    const client = await this.repository.findByKey(clientKey);
+    if (!client) {
+      throw new ClientNotFoundError(clientKey);
+    }
+
+    const deleted = await this.repository.softDelete(clientKey, deletedBy, new Date());
+    if (!deleted) {
+      throw new ClientNotFoundError(clientKey);
+    }
+  }
+
+  async listDeleted(): Promise<QualityPulseClient[]> {
+    return this.repository.findDeleted();
+  }
+
+  /** Restores a soft-deleted client; throws ClientNotFoundError if it is not currently deleted. */
+  async restore(clientKey: string): Promise<void> {
+    const restored = await this.repository.restore(clientKey);
+    if (!restored) {
+      throw new ClientNotFoundError(clientKey);
+    }
   }
 }

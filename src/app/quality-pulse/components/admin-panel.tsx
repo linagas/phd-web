@@ -7,51 +7,15 @@ import {
 } from "@/models/quality-pulse/catalog-question-model";
 import { QualityPulseAssessment } from "@/models/quality-pulse/assessment-model";
 import { QualityPulseClient } from "@/models/quality-pulse/client-model";
-import CatalogManager from "./catalog-manager";
+import { buildClientRows, ClientRow } from "@/utils/quality-pulse/admin-view-models";
+import ClientsTable from "./clients-table";
 
 interface AdminPanelProps {
   adminEmail: string;
 }
 
-interface ClientSummary {
-  clientKey: string;
-  clientName: string;
-  answeredProfiles: Set<QualityPulseProfile>;
-}
-
 const RESET_ALL_CONFIRMATION_WORD = "REINICIAR";
-
-function buildClientSummaries(
-  clients: QualityPulseClient[],
-  submissions: QualityPulseAssessment[]
-): ClientSummary[] {
-  const byKey = new Map<string, ClientSummary>();
-
-  clients.forEach((client) => {
-    byKey.set(client.clientKey, {
-      clientKey: client.clientKey,
-      clientName: client.clientName,
-      answeredProfiles: new Set(),
-    });
-  });
-
-  submissions.forEach((submission) => {
-    const existing = byKey.get(submission.clientKey);
-    if (existing) {
-      existing.answeredProfiles.add(submission.profile);
-      return;
-    }
-    // Respuestas anteriores a la colección de clientes registrados: se
-    // mantienen visibles/administrables aunque no tengan alta explícita.
-    byKey.set(submission.clientKey, {
-      clientKey: submission.clientKey,
-      clientName: submission.clientName,
-      answeredProfiles: new Set([submission.profile]),
-    });
-  });
-
-  return Array.from(byKey.values()).sort((a, b) => a.clientName.localeCompare(b.clientName));
-}
+const PUBLICATION_ENDPOINT = "/api/quality-pulse/admin/publication";
 
 async function exportToExcel(
   submissions: QualityPulseAssessment[],
@@ -98,6 +62,11 @@ export default function AdminPanel({ adminEmail }: AdminPanelProps) {
   const [actionLoading, setActionLoading] = useState(false);
   const [actionError, setActionError] = useState("");
   const [exporting, setExporting] = useState(false);
+
+  const [deletedOpen, setDeletedOpen] = useState(false);
+  const [deletedClients, setDeletedClients] = useState<QualityPulseClient[]>([]);
+  const [deletedError, setDeletedError] = useState("");
+  const [restoring, setRestoring] = useState(false);
 
   const [newClientName, setNewClientName] = useState("");
   const [registering, setRegistering] = useState(false);
@@ -160,18 +129,20 @@ export default function AdminPanel({ adminEmail }: AdminPanelProps) {
     }
   };
 
-  const clientSummaries = useMemo(
-    () => buildClientSummaries(clients, submissions),
-    [clients, submissions]
+  const clientRows = useMemo(
+    () => buildClientRows(clients, submissions, catalog),
+    [clients, submissions, catalog]
   );
 
-  useEffect(() => {
-    if (!selectedClientKey && clientSummaries.length > 0) {
-      setSelectedClientKey(clientSummaries[0].clientKey);
-    }
-  }, [clientSummaries, selectedClientKey]);
-
-  const selectedClient = clientSummaries.find((client) => client.clientKey === selectedClientKey);
+  // Fila expandida (D: "Default expansion" = colapsada). A diferencia del
+  // `<select>` previo, no se auto-selecciona la primera fila.
+  const handleToggleClient = (clientKey: string) => {
+    setSelectedClientKey((prev) => (prev === clientKey ? "" : clientKey));
+    setResetProfileTarget(null);
+    setResetAllOpen(false);
+    setResetAllInput("");
+    setActionError("");
+  };
 
   const handleResetProfile = async (profile: QualityPulseProfile) => {
     if (!selectedClientKey) return;
@@ -230,15 +201,223 @@ export default function AdminPanel({ adminEmail }: AdminPanelProps) {
     }
   };
 
+  const handleUnpublish = async () => {
+    if (!selectedClientKey) return;
+    setActionLoading(true);
+    setActionError("");
+    try {
+      const res = await fetch(PUBLICATION_ENDPOINT, {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ clientKey: selectedClientKey }),
+      });
+      if (!res.ok) {
+        const body = await res.json().catch(() => ({}));
+        throw new Error(body.error ?? "No se pudo despublicar el cliente.");
+      }
+      await loadData();
+    } catch (err) {
+      setActionError(err instanceof Error ? err.message : "No se pudo despublicar el cliente.");
+    } finally {
+      setActionLoading(false);
+    }
+  };
+
+  const handleDeleteClient = async (clientKey: string) => {
+    setActionLoading(true);
+    setActionError("");
+    try {
+      const res = await fetch("/api/quality-pulse/admin/clients", {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ clientKey }),
+      });
+      if (!res.ok) {
+        const body = await res.json().catch(() => ({}));
+        throw new Error(body.error ?? "No se pudo eliminar el cliente.");
+      }
+      setClients((prev) => prev.filter((client) => client.clientKey !== clientKey));
+      setSubmissions((prev) => prev.filter((submission) => submission.clientKey !== clientKey));
+      setSelectedClientKey((prev) => (prev === clientKey ? "" : prev));
+    } catch (err) {
+      setActionError(err instanceof Error ? err.message : "No se pudo eliminar el cliente.");
+    } finally {
+      setActionLoading(false);
+    }
+  };
+
+  const loadDeleted = async () => {
+    setDeletedError("");
+    try {
+      const res = await fetch("/api/quality-pulse/admin/clients/deleted");
+      if (!res.ok) {
+        throw new Error("No se pudo cargar los clientes eliminados.");
+      }
+      setDeletedClients(await res.json());
+    } catch (err) {
+      setDeletedError(
+        err instanceof Error ? err.message : "No se pudo cargar los clientes eliminados."
+      );
+    }
+  };
+
+  const handleToggleDeleted = async () => {
+    const next = !deletedOpen;
+    setDeletedOpen(next);
+    if (next) await loadDeleted();
+  };
+
+  const handleRestoreClient = async (clientKey: string) => {
+    setRestoring(true);
+    setDeletedError("");
+    try {
+      const res = await fetch("/api/quality-pulse/admin/clients/restore", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ clientKey }),
+      });
+      if (!res.ok) {
+        const body = await res.json().catch(() => ({}));
+        throw new Error(body.error ?? "No se pudo restaurar el cliente.");
+      }
+      setDeletedClients((prev) => prev.filter((client) => client.clientKey !== clientKey));
+      await loadData();
+    } catch (err) {
+      setDeletedError(err instanceof Error ? err.message : "No se pudo restaurar el cliente.");
+    } finally {
+      setRestoring(false);
+    }
+  };
+
+  function renderExpandedRow(row: ClientRow) {
+    return (
+      <div className="p-6 sm:p-8 flex flex-col gap-4">
+        {row.isPublished && (
+          <div className="flex items-center gap-3">
+            <button
+              type="button"
+              onClick={handleUnpublish}
+              disabled={actionLoading}
+              className="text-xs text-slate-400 hover:text-phd-pink transition-colors disabled:opacity-50"
+            >
+              Despublicar
+            </button>
+          </div>
+        )}
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          {QUALITY_PULSE_PROFILES.map((profile) => {
+            const answered =
+              row.profileScores.find((score) => score.profile === profile)?.status === "answered";
+            const confirming = resetProfileTarget === profile;
+            return (
+              <div
+                key={profile}
+                className="rounded-xl border border-white/10 bg-white/5 p-4 flex flex-col gap-3"
+              >
+                <div className="flex items-center justify-between">
+                  <span className="text-sm font-semibold text-slate-200">{profile}</span>
+                  <span
+                    className={`text-[10px] font-bold uppercase tracking-wider rounded-full px-2 py-1 border ${
+                      answered
+                        ? "border-phd-cyan/30 bg-phd-cyan/10 text-phd-cyan"
+                        : "border-white/10 bg-white/5 text-slate-500"
+                    }`}
+                  >
+                    {answered ? "Respondido" : "Pendiente"}
+                  </span>
+                </div>
+                {answered &&
+                  (confirming ? (
+                    <div className="flex items-center gap-2">
+                      <button
+                        type="button"
+                        onClick={() => handleResetProfile(profile)}
+                        disabled={actionLoading}
+                        className="flex-1 text-xs font-semibold bg-phd-pink hover:bg-phd-pink/90 text-white rounded-full py-1.5 disabled:opacity-50"
+                      >
+                        Confirmar
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setResetProfileTarget(null)}
+                        className="flex-1 text-xs font-semibold bg-white/5 border border-white/10 text-slate-300 rounded-full py-1.5"
+                      >
+                        Cancelar
+                      </button>
+                    </div>
+                  ) : (
+                    <button
+                      type="button"
+                      onClick={() => setResetProfileTarget(profile)}
+                      className="text-xs text-slate-400 hover:text-phd-pink transition-colors text-left"
+                    >
+                      Reiniciar perfil
+                    </button>
+                  ))}
+              </div>
+            );
+          })}
+        </div>
+
+        <div className="pt-4 border-t border-white/5">
+          {!resetAllOpen ? (
+            <button
+              type="button"
+              onClick={() => setResetAllOpen(true)}
+              className="text-sm text-phd-pink hover:underline underline-offset-4"
+            >
+              Reiniciar todo el cliente
+            </button>
+          ) : (
+            <div className="flex flex-col gap-3 max-w-sm">
+              <p className="text-sm text-slate-300">
+                Esto elimina las respuestas de los 4 perfiles de{" "}
+                <span className="text-white font-semibold">{row.clientName}</span>. Escribe{" "}
+                <span className="text-phd-pink font-bold">REINICIAR</span> para confirmar.
+              </p>
+              <input
+                type="text"
+                value={resetAllInput}
+                onChange={(e) => setResetAllInput(e.target.value)}
+                className="w-full px-4 py-2 rounded-xl bg-white/5 border border-white/10 text-white focus:outline-none focus:border-phd-pink/50"
+              />
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={handleResetAll}
+                  disabled={resetAllInput !== RESET_ALL_CONFIRMATION_WORD || actionLoading}
+                  className="flex-1 text-xs font-semibold bg-phd-pink hover:bg-phd-pink/90 text-white rounded-full py-2 disabled:opacity-40 disabled:cursor-not-allowed"
+                >
+                  Confirmar reinicio total
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setResetAllOpen(false);
+                    setResetAllInput("");
+                  }}
+                  className="flex-1 text-xs font-semibold bg-white/5 border border-white/10 text-slate-300 rounded-full py-2"
+                >
+                  Cancelar
+                </button>
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <section className="min-h-screen bg-phd-dark phd-gradient-blur px-4 sm:px-8 lg:px-16 py-24">
+    <section className="px-6 py-10 sm:px-10 lg:px-16">
       <div className="max-w-screen-2xl mx-auto flex flex-col gap-10">
         <div className="flex items-center justify-between flex-wrap gap-4">
           <div className="flex flex-col gap-1">
             <p className="text-xs font-bold tracking-[0.2em] uppercase text-phd-cyan">
               Quality Pulse · Administración
             </p>
-            <h1 className="font-heading font-bold text-white text-3xl">Panel de administración</h1>
+            <h1 className="font-heading font-bold text-white text-3xl">Clientes</h1>
           </div>
           <p className="text-sm text-slate-400">
             Sesión activa: <span className="text-white">{adminEmail}</span>
@@ -256,7 +435,9 @@ export default function AdminPanel({ adminEmail }: AdminPanelProps) {
           <>
             <div className="phd-glass rounded-2xl p-6 sm:p-8 flex flex-col gap-6">
               <div className="flex items-center justify-between flex-wrap gap-4">
-                <h2 className="font-heading font-semibold text-white text-lg">Clientes</h2>
+                <h2 className="font-heading font-semibold text-white text-lg">
+                  Registro y exportación
+                </h2>
                 <button
                   type="button"
                   onClick={handleExport}
@@ -269,7 +450,7 @@ export default function AdminPanel({ adminEmail }: AdminPanelProps) {
 
               <form
                 onSubmit={handleRegisterClient}
-                className="flex flex-col sm:flex-row gap-3 pb-6 border-b border-white/5"
+                className="flex flex-col sm:flex-row gap-3"
               >
                 <label htmlFor="new-client-name" className="sr-only">
                   Registrar nuevo cliente
@@ -296,150 +477,69 @@ export default function AdminPanel({ adminEmail }: AdminPanelProps) {
                   {registerError}
                 </p>
               )}
+            </div>
 
-              {clientSummaries.length === 0 ? (
-                <p className="text-sm text-slate-500">Aún no hay clientes registrados.</p>
-              ) : (
+            {actionError && (
+              <p role="alert" className="text-sm text-phd-pink">
+                {actionError}
+              </p>
+            )}
+
+            {clientRows.length === 0 ? (
+              <p className="text-sm text-slate-500">Aún no hay clientes registrados.</p>
+            ) : (
+              <ClientsTable
+                clients={clients}
+                submissions={submissions}
+                catalog={catalog}
+                selectedClientKey={selectedClientKey}
+                onToggleClient={handleToggleClient}
+                onDelete={handleDeleteClient}
+                renderExpandedRow={renderExpandedRow}
+              />
+            )}
+
+            <div className="phd-glass rounded-2xl p-6 sm:p-8 flex flex-col gap-4">
+              <button
+                type="button"
+                onClick={handleToggleDeleted}
+                aria-expanded={deletedOpen}
+                className="self-start text-sm text-slate-300 hover:text-white font-semibold"
+              >
+                Eliminados
+              </button>
+              {deletedOpen && (
                 <>
-                  <label htmlFor="client-select" className="sr-only">
-                    Seleccionar cliente
-                  </label>
-                  <select
-                    id="client-select"
-                    value={selectedClientKey}
-                    onChange={(e) => {
-                      setSelectedClientKey(e.target.value);
-                      setResetProfileTarget(null);
-                      setResetAllOpen(false);
-                      setResetAllInput("");
-                      setActionError("");
-                    }}
-                    className="w-full sm:w-72 px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white focus:outline-none focus:border-phd-cyan/50"
-                  >
-                    {clientSummaries.map((client) => (
-                      <option key={client.clientKey} value={client.clientKey} className="bg-phd-dark">
-                        {client.clientName}
-                      </option>
-                    ))}
-                  </select>
-
-                  {selectedClient && (
-                    <div className="flex flex-col gap-4">
-                      {actionError && (
-                        <p role="alert" className="text-sm text-phd-pink">
-                          {actionError}
-                        </p>
-                      )}
-
-                      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                        {QUALITY_PULSE_PROFILES.map((profile) => {
-                          const answered = selectedClient.answeredProfiles.has(profile);
-                          const confirming = resetProfileTarget === profile;
-                          return (
-                            <div
-                              key={profile}
-                              className="rounded-xl border border-white/10 bg-white/5 p-4 flex flex-col gap-3"
-                            >
-                              <div className="flex items-center justify-between">
-                                <span className="text-sm font-semibold text-slate-200">{profile}</span>
-                                <span
-                                  className={`text-[10px] font-bold uppercase tracking-wider rounded-full px-2 py-1 border ${
-                                    answered
-                                      ? "border-phd-cyan/30 bg-phd-cyan/10 text-phd-cyan"
-                                      : "border-white/10 bg-white/5 text-slate-500"
-                                  }`}
-                                >
-                                  {answered ? "Respondido" : "Pendiente"}
-                                </span>
-                              </div>
-                              {answered &&
-                                (confirming ? (
-                                  <div className="flex items-center gap-2">
-                                    <button
-                                      type="button"
-                                      onClick={() => handleResetProfile(profile)}
-                                      disabled={actionLoading}
-                                      className="flex-1 text-xs font-semibold bg-phd-pink hover:bg-phd-pink/90 text-white rounded-full py-1.5 disabled:opacity-50"
-                                    >
-                                      Confirmar
-                                    </button>
-                                    <button
-                                      type="button"
-                                      onClick={() => setResetProfileTarget(null)}
-                                      className="flex-1 text-xs font-semibold bg-white/5 border border-white/10 text-slate-300 rounded-full py-1.5"
-                                    >
-                                      Cancelar
-                                    </button>
-                                  </div>
-                                ) : (
-                                  <button
-                                    type="button"
-                                    onClick={() => setResetProfileTarget(profile)}
-                                    className="text-xs text-slate-400 hover:text-phd-pink transition-colors text-left"
-                                  >
-                                    Reiniciar perfil
-                                  </button>
-                                ))}
-                            </div>
-                          );
-                        })}
-                      </div>
-
-                      <div className="pt-4 border-t border-white/5">
-                        {!resetAllOpen ? (
+                  {deletedError && (
+                    <p role="alert" className="text-sm text-phd-pink">
+                      {deletedError}
+                    </p>
+                  )}
+                  {deletedClients.length === 0 ? (
+                    <p className="text-sm text-slate-500">No hay clientes eliminados.</p>
+                  ) : (
+                    <ul className="flex flex-col gap-2">
+                      {deletedClients.map((client) => (
+                        <li
+                          key={client.clientKey}
+                          className="flex items-center justify-between gap-4 text-sm text-slate-200"
+                        >
+                          <span>{client.clientName}</span>
                           <button
                             type="button"
-                            onClick={() => setResetAllOpen(true)}
-                            className="text-sm text-phd-pink hover:underline underline-offset-4"
+                            disabled={restoring}
+                            onClick={() => handleRestoreClient(client.clientKey)}
+                            className="text-xs font-semibold bg-phd-cyan/10 hover:bg-phd-cyan/20 border border-phd-cyan/30 text-phd-cyan rounded-full px-4 py-1.5 transition-all disabled:opacity-40"
                           >
-                            Reiniciar todo el cliente
+                            Restaurar
                           </button>
-                        ) : (
-                          <div className="flex flex-col gap-3 max-w-sm">
-                            <p className="text-sm text-slate-300">
-                              Esto elimina las respuestas de los 4 perfiles de{" "}
-                              <span className="text-white font-semibold">
-                                {selectedClient.clientName}
-                              </span>
-                              . Escribe <span className="text-phd-pink font-bold">REINICIAR</span> para
-                              confirmar.
-                            </p>
-                            <input
-                              type="text"
-                              value={resetAllInput}
-                              onChange={(e) => setResetAllInput(e.target.value)}
-                              className="w-full px-4 py-2 rounded-xl bg-white/5 border border-white/10 text-white focus:outline-none focus:border-phd-pink/50"
-                            />
-                            <div className="flex items-center gap-2">
-                              <button
-                                type="button"
-                                onClick={handleResetAll}
-                                disabled={resetAllInput !== RESET_ALL_CONFIRMATION_WORD || actionLoading}
-                                className="flex-1 text-xs font-semibold bg-phd-pink hover:bg-phd-pink/90 text-white rounded-full py-2 disabled:opacity-40 disabled:cursor-not-allowed"
-                              >
-                                Confirmar reinicio total
-                              </button>
-                              <button
-                                type="button"
-                                onClick={() => {
-                                  setResetAllOpen(false);
-                                  setResetAllInput("");
-                                }}
-                                className="flex-1 text-xs font-semibold bg-white/5 border border-white/10 text-slate-300 rounded-full py-2"
-                              >
-                                Cancelar
-                              </button>
-                            </div>
-                          </div>
-                        )}
-                      </div>
-                    </div>
+                        </li>
+                      ))}
+                    </ul>
                   )}
                 </>
               )}
             </div>
-
-            <CatalogManager />
           </>
         )}
       </div>

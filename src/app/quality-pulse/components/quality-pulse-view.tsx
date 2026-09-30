@@ -6,7 +6,7 @@ import {
   QUALITY_PULSE_PROFILES,
   QualityPulseProfile,
 } from "@/models/quality-pulse/catalog-question-model";
-import { QualityPulseAssessment } from "@/models/quality-pulse/assessment-model";
+import type { PublicAssessmentStatus } from "@/services/quality-pulse/assessment-service";
 import { getVisibleQuestions } from "@/utils/quality-pulse/visibility";
 import ProfileCard from "./profile-card";
 import QuestionCard from "./question-card";
@@ -31,7 +31,7 @@ export default function QualityPulseView() {
   const [nameInput, setNameInput] = useState<string>("");
 
   const [catalog, setCatalog] = useState<CatalogQuestion[]>([]);
-  const [submissions, setSubmissions] = useState<QualityPulseAssessment[]>([]);
+  const [answeredProfiles, setAnsweredProfiles] = useState<Set<QualityPulseProfile>>(new Set());
   const [loadingClientData, setLoadingClientData] = useState(false);
   const [clientError, setClientError] = useState("");
   const [clientNotFound, setClientNotFound] = useState(false);
@@ -75,10 +75,10 @@ export default function QualityPulseView() {
         throw new Error("No se pudo cargar la información del cliente.");
       }
 
-      const assessmentsData: QualityPulseAssessment[] = await assessmentsRes.json();
+      const statusData: PublicAssessmentStatus = await assessmentsRes.json();
       const catalogData: CatalogQuestion[] = await catalogRes.json();
 
-      setSubmissions(assessmentsData);
+      setAnsweredProfiles(new Set(statusData.answeredProfiles));
       setCatalog(catalogData);
     } catch {
       setClientError("No se pudo cargar la información del cliente. Inténtalo de nuevo.");
@@ -103,11 +103,6 @@ export default function QualityPulseView() {
   };
 
   const sortedCatalog = useMemo(() => sortByOrder(catalog), [catalog]);
-
-  const answeredProfiles = useMemo(
-    () => new Set(submissions.map((submission) => submission.profile)),
-    [submissions]
-  );
 
   const handleSelectProfile = (profile: QualityPulseProfile) => {
     setSelectedProfile(profile);

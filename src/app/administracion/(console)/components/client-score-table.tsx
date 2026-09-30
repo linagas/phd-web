@@ -62,9 +62,9 @@ export default function ClientScoreTable({ clients, globalHealthScore }: ClientS
       {clients.length === 0 ? (
         <p className="text-sm text-slate-500">Aún no hay clientes registrados.</p>
       ) : (
-        <div className="overflow-x-auto">
+        <div data-testid="client-score-scroll" className="overflow-x-auto max-h-72 overflow-y-auto">
           <table className="w-full text-left">
-            <thead>
+            <thead className="sticky top-0 z-10 bg-phd-card">
               <tr className="text-xs font-bold uppercase tracking-wider text-slate-500">
                 <th className="pb-3 pr-4">Cliente</th>
                 <th className="pb-3 px-4">Score</th>

@@ -72,7 +72,10 @@ export default function DashboardView() {
                   items={enrichPendingReview(summary.pendingReview, summary.clients)}
                 />
               </div>
-              <RecentActivity events={summary.recentActivity} />
+              {/* Relative wrapper: the card is absolutely sized on lg+ so its height follows the pending list. */}
+              <div className="relative lg:min-h-[24rem]">
+                <RecentActivity events={summary.recentActivity} />
+              </div>
             </div>
             <ClientScoreTable
               clients={summary.clients}

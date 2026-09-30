@@ -39,7 +39,7 @@ function HistoryIcon() {
  */
 export default function RecentActivity({ events, now = new Date() }: RecentActivityProps) {
   return (
-    <div className="phd-glass rounded-2xl p-6 sm:p-8 flex flex-col gap-6">
+    <div className="phd-glass rounded-2xl p-6 sm:p-8 flex flex-col gap-6 max-h-[32rem] lg:max-h-none lg:absolute lg:inset-0">
       <div className="flex items-center gap-2">
         <HistoryIcon />
         <h2 className="font-heading font-semibold text-white text-lg">Actividad Reciente</h2>
@@ -48,7 +48,10 @@ export default function RecentActivity({ events, now = new Date() }: RecentActiv
       {events.length === 0 ? (
         <p className="text-sm text-slate-500">Todavía no hay actividad reciente.</p>
       ) : (
-        <ul className="relative flex flex-col gap-6 border-l border-white/10 pl-6">
+        <ul
+          data-testid="recent-activity-scroll"
+          className="relative flex flex-col gap-6 border-l border-white/10 pl-6 ml-2 min-h-0 flex-1 overflow-y-auto"
+        >
           {events.map((event) => {
             const view = describeActivityEvent(event);
             return (

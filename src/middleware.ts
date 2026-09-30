@@ -4,6 +4,7 @@ import { SESSION_COOKIE_NAME, verifySessionToken } from "@/utils/quality-pulse/a
 const PUBLIC_ADMIN_PATHS = [
   "/administracion/ingresar",
   "/administracion/verificar",
+  "/api/quality-pulse/admin/auth",
 ];
 
 function isPublicAdminPath(pathname: string): boolean {
@@ -16,7 +17,7 @@ export async function middleware(req: NextRequest): Promise<NextResponse> {
   const { pathname } = req.nextUrl;
   const isApiRoute = pathname.startsWith("/api/quality-pulse/admin");
 
-  if (!isApiRoute && isPublicAdminPath(pathname)) {
+  if (isPublicAdminPath(pathname)) {
     return NextResponse.next();
   }
 

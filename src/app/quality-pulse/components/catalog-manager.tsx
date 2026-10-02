@@ -52,6 +52,97 @@ function parseOutcomes(value: unknown): Record<string, number> {
   return outcomes;
 }
 
+const HEADER_ALIASES: Record<string, string> = {
+  "id pregunta": "id",
+  "id dimension": "dimensionId",
+  dimension: "dimension",
+  capacidad: "capability",
+  "id capacidad": "capabilityId",
+  perspectiva: "perspective",
+  pregunta: "text",
+  orden: "order",
+  obligatoria: "required",
+  estado: "status",
+  "objetivo / que observa": "objective",
+  "tipo de pregunta": "type",
+  "pregunta(s) origen": "origins",
+  respuesta: "label",
+  score: "score",
+  "variable observada": "variable",
+  "senal automatica": "signal",
+  "tipo de senal": "signalType",
+  prioridad: "priority",
+  "impacto potencial": "impact",
+};
+
+const OUTCOME_COLUMNS: Record<string, string> = {
+  "time-to-market": "timeToMarket",
+  retrabajo: "rework",
+  productividad: "productivity",
+  "frecuencia entrega": "delivery",
+  "incidentes prod.": "incidents",
+  "tiempo recuperacion": "recovery",
+  predictibilidad: "predictability",
+  "confianza negocio": "trust",
+};
+
+function normalizeHeader(value: unknown): string {
+  return String(value ?? "")
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/[↑↓]/g, "")
+    .trim()
+    .toLowerCase();
+}
+
+/**
+ * Lee una hoja tolerando filas de título previas a los encabezados y
+ * encabezados en español: devuelve filas con las claves internas del catálogo.
+ */
+function readSheetRows(
+  XLSX: typeof import("xlsx"),
+  sheet: import("xlsx").WorkSheet,
+  idHeaders: string[]
+): Record<string, unknown>[] {
+  const matrix = XLSX.utils.sheet_to_json<unknown[]>(sheet, { header: 1, defval: "" });
+  const headerIndex = matrix.findIndex((row) =>
+    row.some((cell) => idHeaders.includes(normalizeHeader(cell)))
+  );
+  if (headerIndex === -1) return [];
+
+  const headers = matrix[headerIndex].map((cell) => String(cell ?? "").trim());
+  return matrix.slice(headerIndex + 1).map((cells) => {
+    const record: Record<string, unknown> = {};
+    headers.forEach((header, col) => {
+      if (!header) return;
+      const normalized = normalizeHeader(header);
+      const key = HEADER_ALIASES[normalized] ?? header;
+      if (!(key in record)) record[key] = cells[col];
+      const outcomeKey = OUTCOME_COLUMNS[normalized];
+      if (outcomeKey) record[`outcome:${outcomeKey}`] = cells[col];
+    });
+    return record;
+  });
+}
+
+function outcomesFromRow(row: Record<string, unknown>): Record<string, number> {
+  if (row.outcomes !== undefined) return parseOutcomes(row.outcomes);
+  const outcomes: Record<string, number> = {};
+  Object.entries(row).forEach(([key, value]) => {
+    if (!key.startsWith("outcome:")) return;
+    const numeric = Number(value);
+    if (!Number.isNaN(numeric) && String(value).trim() !== "") {
+      outcomes[key.slice("outcome:".length)] = numeric;
+    }
+  });
+  return outcomes;
+}
+
+function profilesFromRow(row: Record<string, unknown>): QualityPulseProfile[] {
+  if (row.profiles !== undefined) return parseProfiles(row.profiles);
+  return QUALITY_PULSE_PROFILES.filter((profile) => parseBoolean(row[profile]));
+}
+
 async function parseWorkbookToQuestions(file: File): Promise<CatalogQuestion[]> {
   const XLSX = await import("xlsx");
   const buffer = await file.arrayBuffer();
@@ -66,16 +157,12 @@ async function parseWorkbookToQuestions(file: File): Promise<CatalogQuestion[]> 
     );
   }
 
-  const questionRows = XLSX.utils.sheet_to_json<Record<string, unknown>>(questionsSheet, {
-    defval: "",
-  });
-  const optionRows = XLSX.utils.sheet_to_json<Record<string, unknown>>(optionsSheet, {
-    defval: "",
-  });
+  const questionRows = readSheetRows(XLSX, questionsSheet, ["id", "id pregunta"]);
+  const optionRows = readSheetRows(XLSX, optionsSheet, ["questionid", "id pregunta"]);
 
   const optionsByQuestionId = new Map<string, QuestionOption[]>();
   optionRows.forEach((row) => {
-    const questionId = String(row.questionId ?? "").trim();
+    const questionId = String(row.questionId ?? row.id ?? "").trim();
     if (!questionId) return;
 
     const option: QuestionOption = {
@@ -86,7 +173,7 @@ async function parseWorkbookToQuestions(file: File): Promise<CatalogQuestion[]> 
       signalType: String(row.signalType ?? ""),
       priority: String(row.priority ?? ""),
       impact: String(row.impact ?? ""),
-      outcomes: parseOutcomes(row.outcomes),
+      outcomes: outcomesFromRow(row),
     };
 
     const existing = optionsByQuestionId.get(questionId) ?? [];
@@ -116,7 +203,7 @@ async function parseWorkbookToQuestions(file: File): Promise<CatalogQuestion[]> 
         objective: String(row.objective ?? ""),
         type: String(row.type ?? "Base"),
         origins: parseList(row.origins),
-        profiles: parseProfiles(row.profiles),
+        profiles: profilesFromRow(row),
         options: optionsByQuestionId.get(id) ?? [],
       };
       return question;

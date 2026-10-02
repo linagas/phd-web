@@ -6,6 +6,11 @@ import {
   QualityPulseProfile,
   QuestionOption,
 } from "@/models/quality-pulse/catalog-question-model";
+import { InterpretationRules } from "@/models/quality-pulse/interpretation-rules-model";
+import {
+  INTERPRETATION_RULES_SHEET_NAME,
+  parseInterpretationRules,
+} from "@/utils/quality-pulse/interpretation-rules-parser";
 
 const QUESTIONS_SHEET_NAME = "05_Preguntas";
 const OPTIONS_SHEET_NAME = "06_Respuestas_Reglas";
@@ -13,6 +18,11 @@ const OPTIONS_SHEET_NAME = "06_Respuestas_Reglas";
 interface ImportResult {
   addedIds: string[];
   skippedIds: string[];
+}
+
+interface RulesImportResult {
+  scoreRules: number;
+  signalRules: number;
 }
 
 function parseBoolean(value: unknown): boolean {
@@ -210,6 +220,23 @@ async function parseWorkbookToQuestions(file: File): Promise<CatalogQuestion[]> 
     });
 }
 
+/**
+ * Reads the optional interpretation rules sheet. Returns null when the sheet
+ * is absent or yields no rules, so the catalog import is unaffected.
+ */
+async function parseWorkbookToRules(file: File): Promise<InterpretationRules | null> {
+  const XLSX = await import("xlsx");
+  const buffer = await file.arrayBuffer();
+  const workbook = XLSX.read(buffer, { type: "array" });
+
+  const rulesSheet = workbook.Sheets[INTERPRETATION_RULES_SHEET_NAME];
+  if (!rulesSheet) return null;
+
+  const rules = parseInterpretationRules(XLSX, rulesSheet);
+  if (rules.scoreRules.length === 0 && rules.signalRules.length === 0) return null;
+  return rules;
+}
+
 export default function CatalogManager() {
   const [catalog, setCatalog] = useState<CatalogQuestion[]>([]);
   const [loading, setLoading] = useState(true);
@@ -218,6 +245,7 @@ export default function CatalogManager() {
   const [importing, setImporting] = useState(false);
   const [importError, setImportError] = useState("");
   const [importResult, setImportResult] = useState<ImportResult | null>(null);
+  const [rulesResult, setRulesResult] = useState<RulesImportResult | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const [selectedQuestionId, setSelectedQuestionId] = useState("");
@@ -289,6 +317,7 @@ export default function CatalogManager() {
     setImporting(true);
     setImportError("");
     setImportResult(null);
+    setRulesResult(null);
 
     try {
       const questions = await parseWorkbookToQuestions(file);
@@ -312,6 +341,31 @@ export default function CatalogManager() {
       const result: ImportResult = await res.json();
       setImportResult(result);
       await loadCatalog();
+
+      const rules = await parseWorkbookToRules(file);
+      if (rules) {
+        try {
+          const rulesRes = await fetch("/api/quality-pulse/admin/interpretation-rules", {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(rules),
+          });
+          if (!rulesRes.ok) {
+            const body = await rulesRes.json().catch(() => ({}));
+            throw new Error(
+              typeof body.error === "string"
+                ? body.error
+                : "Las reglas de interpretación no pasaron la validación."
+            );
+          }
+          setRulesResult(await rulesRes.json());
+        } catch (rulesErr) {
+          const detail = rulesErr instanceof Error ? rulesErr.message : "Error desconocido.";
+          setImportError(
+            `Las preguntas se importaron, pero las reglas de interpretación no: ${detail}`
+          );
+        }
+      }
     } catch (err) {
       setImportError(err instanceof Error ? err.message : "No se pudo importar el catálogo.");
     } finally {
@@ -385,7 +439,8 @@ export default function CatalogManager() {
               {OPTIONS_SHEET_NAME}&rdquo;, con columnas id, dimension, dimensionId, capability,
               capabilityId, perspective, text, order, required, status, objective, type, origins,
               profiles (05) y questionId, label, score, variable, signal, signalType, priority,
-              impact, outcomes (06).
+              impact, outcomes (06). Opcionalmente, la hoja &ldquo;
+              {INTERPRETATION_RULES_SHEET_NAME}&rdquo; con las reglas de interpretación.
             </p>
             <input
               ref={fileInputRef}
@@ -405,6 +460,12 @@ export default function CatalogManager() {
               <p className="text-xs text-phd-cyan">
                 {importResult.addedIds.length} preguntas agregadas,{" "}
                 {importResult.skippedIds.length} omitidas por id duplicado.
+              </p>
+            )}
+            {rulesResult && (
+              <p className="text-xs text-phd-cyan">
+                Reglas de interpretación importadas: {rulesResult.scoreRules} de puntaje,{" "}
+                {rulesResult.signalRules} de señales.
               </p>
             )}
           </div>

@@ -73,7 +73,7 @@ export default function ResultsStatusPanel({
         {allProfilesAnswered ? (
           <Link
             href={`/quality-pulse/resultados?cliente=${encodeURIComponent(clientName)}`}
-            className="flex items-center gap-2 border border-white/10 hover:border-phd-cyan/40 hover:bg-phd-cyan/5 text-white text-sm font-semibold px-5 py-2.5 rounded-full transition-all whitespace-nowrap"
+            className="flex items-center gap-2 bg-phd-cyan hover:bg-phd-cyan/90 text-phd-dark text-sm font-semibold px-5 py-2.5 rounded-full transition-all hover:scale-[1.02] active:scale-95 shadow-lg shadow-phd-cyan/25 whitespace-nowrap"
           >
             Ver resultados
             <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">

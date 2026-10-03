@@ -58,7 +58,7 @@ const SERVICES: Service[] = [
     badge: "Formación",
     title: "QE Next",
     description:
-      "Desarrollo y capacitación para tu equipo interno. Preparamos y certificamos al profesional de calidad que tu empresa requerirá mañana para asegurar la autonomía.",
+      "Activa hoy la capacidad de calidad que tu negocio necesitará mañana. Formamos y certificamos a tu equipo interno en Quality Engineering y automatización. Cuando necesitas avanzar de inmediato, incorporamos especialistas mediante Service Capacity, con el respaldo de PHD.",
     footer: "Horizonte 3",
     ctaLabel: "Autonomía total",
     ctaHref: "/#viaje",
